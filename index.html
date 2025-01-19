@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ElxaOS</title>
+        <link rel="stylesheet" href="styles/boot.css">
+        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="styles/windows.css">
+        <link rel="stylesheet" href="styles/desktop.css">
+        <link rel="stylesheet" href="styles/file_explorer.css">
+        <link rel="stylesheet" href="styles/clock.css">
+        <link rel="stylesheet" href="styles/calendar.css">
+        <link rel="stylesheet" href="styles/notepad.css">
+        <link rel="stylesheet" href="styles/paint.css">
+        <link rel="stylesheet" href="styles/minesweeper.css"> 
+        <link rel="stylesheet" href="styles/about.css">
+        <link rel="stylesheet" href="styles/duck.css">
+    </head>
+<body>
+    <!-- Add this at the start of your body tag in index.html -->
+    <div id="boot-sequence" class="fullscreen">
+        <!-- Initial boot screen -->
+        <div id="boot-screen" class="boot-phase">
+            <div class="boot-content">
+                <div class="elxa-logo">ELXA</div>
+                <div class="boot-message">Starting ElxaOS...</div>
+                <div class="loading-bar">
+                    <div class="loading-progress"></div>
+                </div>
+                <div id="boot-status">Initializing core systems...</div>
+            </div>
+        </div>
+
+        <!-- Welcome screen -->
+        <div id="welcome-screen" class="boot-phase hidden">
+            <div class="welcome-content">
+                <div class="welcome-logo">ElxaOS</div>
+                <div class="welcome-message">Welcome to the future of computing</div>
+                <div class="welcome-version">Vapor Edition v1.0</div>
+                <button id="start-button">Start ElxaOS</button>
+            </div>
+        </div>
+        <!-- Log in -->
+        <div id="login-screen" class="boot-phase hidden">
+            <div class="login-container">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <svg viewBox="0 0 100 100" class="snake-icon">
+                            <path d="M75,50 Q60,35 50,50 T25,50" 
+                                    fill="none" 
+                                    stroke="#00ff9d" 
+                                    stroke-width="8" 
+                                    class="snake-body"/>
+                            <circle cx="80" cy="50" r="5" fill="#ff71ce" class="snake-eye"/>
+                            <path d="M85,50 L90,45 L90,55 Z" 
+                                    fill="#ff71ce" 
+                                    class="snake-tongue"/>
+                        </svg>
+                    </div>
+                    <div class="user-name">kitkat</div>
+                </div>
+                
+                <div class="password-container">
+                    <input type="password" 
+                            id="password-input" 
+                            placeholder="Enter password"
+                            autocomplete="off">
+                    <button id="login-button">Log In</button>
+                </div>
+                
+                <div id="login-message" class="login-message"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="desktop">
+        <nav id="taskbar">
+            <button id="startButton">Start</button>
+            <div id="startMenu" class="hidden">
+                <div class="start-menu-item">
+                    <div class="menu-label">Programs ▶</div>
+                        <div class="submenu">
+                            <a href="#" data-app="clock">Clock & Timer</a> 
+                            <a href="#" data-app="calendar">Calendar</a> 
+                        </div>
+                    </div>
+                    <div class="start-menu-item">
+                        <div class="menu-label">Games ▶</div>
+                        <div class="submenu">
+                            <a href="#" data-app="minesweeper">Kittysweeper</a>
+                        </div>
+                    </div>
+                    <div class="start-menu-item">
+                        <div class="menu-label">Accessories ▶</div>
+                        <div class="submenu">
+                            <a href="#" data-app="paint">Paint</a>
+                            <a href="#" data-app="notepad">Notepad</a>
+                            <a href="#" data-app="duck">DUCK Terminal</a>
+                        </div>
+                    </div>
+                
+                <div class="start-menu-item">
+                    <div class="menu-label">Settings ▶</div>
+                    <div class="submenu">
+                        <a href="#" data-app="about">About ElxaOS</a>
+                        <a href="#" data-app="settings">Options</a>
+                    </div>
+                </div>
+                
+                <div class="menu-separator"></div>
+                
+                <a href="#" class="shutdown-item">Shut Down...</a>
+            </div>
+            <div class="taskbar-programs"></div>
+            <div id="clock"></div>
+        </nav>
+
+        <div id="desktop-area">
+            <!-- Window Template -->
+            <div class="program-window hidden" id="windowTemplate">
+                <div class="title-bar">
+                    <span class="window-title"></span>
+                    <div class="window-controls">
+                        <button class="window-button minimize">-</button>
+                        <button class="window-button maximize">□</button>
+                        <button class="window-button close">×</button>
+                    </div>
+                </div>
+                <div class="window-content">
+                </div>
+            </div>
+
+            <!-- About Window -->
+            <div class="program-window hidden" id="about-window">
+                <div class="title-bar">
+                    <span class="window-title">About ElxaOS</span>
+                    <div class="window-controls">
+                        <button class="window-button minimize">-</button>
+                        <button class="window-button maximize">□</button>
+                        <button class="window-button close">×</button>
+                    </div>
+                </div>
+                <div class="window-content">
+                    <div id="about-content">
+                        <h2>Welcome to ElxaOS!</h2>
+                        <p>The latest and greatest operating system from Elxa, designed with cutting-edge technology and a focus on user experience.</p>
+                        <p>ElxaOS offers a seamless and intuitive interface, powerful features, and a unique vaporwave aesthetic that sets it apart.</p>
+                        <p>Explore the possibilities with ElxaOS and unleash your creativity!</p>
+                        <p>Version: 1.0 Vapor Edition</p>
+                        <p>Copyright © <span id="currentYear"></span> Elxa Corporation. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="module" src="js/boot.js"></script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

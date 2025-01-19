@@ -1,0 +1,74 @@
+/* Paint styles */
+.paint-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.paint-menu {
+    display: flex;
+    background-color: #d5bde6;
+    border-bottom: 2px solid #b89fc7;
+    padding: 2px;
+    gap: 4px;
+}
+
+.paint-toolbar {
+    display: flex;
+    gap: 10px;
+    padding: 5px;
+    background-color: #d5bde6;
+    border-bottom: 2px solid #b89fc7;
+    margin-bottom: 5px;
+}
+
+.paint-toolbar select,
+.paint-toolbar input,
+.paint-toolbar button {
+    padding: 2px 5px;
+    background-color: #f0d9ff;
+    border: 2px outset #d5bde6;
+    color: #441d57;
+    cursor: pointer;
+}
+
+.paint-toolbar button:active {
+    border-style: inset;
+}
+
+.paint-toolbar .color-picker {
+    width: 40px;
+    padding: 0;
+    height: 24px;
+    cursor: pointer;
+}
+
+.canvas-container {
+    flex-grow: 1;
+    overflow: hidden;
+    background-color: white;
+    border: 1px solid #b89fc7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+#paint-canvas {
+    background-color: white;
+    cursor: crosshair;
+}
+
+.paint-status {
+    background-color: #d5bde6;
+    border-top: 1px solid #b89fc7;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #441d57;
+    display: flex;
+    justify-content: flex-end;
+}
+
+#current-paint-file {
+    font-style: italic;
+}

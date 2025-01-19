@@ -1,0 +1,213 @@
+/* Base styles and layout */
+body {
+    font-family: "Verdana", sans-serif;
+    margin: 0;
+    overflow: hidden;
+    /* Vaporwave Gradient */
+    background: linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    height: 100vh;
+    cursor: url('https://i.imgur.com/hDs99SG.png'), auto;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+#desktop {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#desktop-area {
+    position: relative;
+    width: 100%;
+    height: calc(100% - 30px);
+}
+
+/* Taskbar styles */
+#taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background-color: #c79fd6;
+    border-top: 2px solid #d5bde6;
+    display: flex;
+    align-items: center;
+    padding: 0 5px;
+    z-index: 100;
+    box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.4);
+}
+
+#startButton {
+    padding: 4px 16px;  /* Increased padding for wider button */
+    font-weight: bold;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    cursor: pointer;
+    font-family: "Segoe UI", "Verdana", sans-serif;  /* Added Segoe UI for prettier font */
+    font-size: 14px;  /* Slightly larger font */
+    min-width: 85px;  /* Ensures minimum width */
+}
+
+#startButton:hover {
+    background-color: #e6d4f2;
+}
+
+#startButton:active {
+    background-color: #b89fc7;
+    border-style: inset;
+}
+
+#clock {
+    margin-left: auto;
+    font-weight: bold;
+    color: #441d57;
+    padding: 3px 8px;
+    border: 1px solid #b89fc7;
+    border-radius: 3px;
+}
+
+/* Start Menu styles */
+/* Replace all the Start Menu styles in main.css with these */
+#startMenu {
+    position: absolute;
+    bottom: 32px;
+    left: 0;
+    width: 220px;  /* Slightly wider */
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    padding: 4px;  /* Increased padding */
+    z-index: 200;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    font-family: "Segoe UI", "Verdana", sans-serif;  /* Prettier font */
+    font-size: 13px;  /* Increased font size */
+}
+
+.start-menu-item {
+    position: relative;
+}
+
+.menu-label {
+    padding: 8px 12px;  /* More vertical padding */
+    color: #441d57;
+    cursor: default;
+    font-weight: 500;  /* Slightly bolder */
+}
+
+.menu-label:hover,
+#startMenu a:hover,
+.shutdown-item:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.submenu {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    min-width: 180px;  /* Slightly wider submenu */
+    padding: 4px 0;  /* Added vertical padding */
+}
+
+.start-menu-item:hover > .submenu {
+    display: block;
+}
+
+#startMenu a {
+    display: block;
+    padding: 8px 12px;  /* More vertical padding */
+    color: #441d57;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: #b89fc7;
+    margin: 6px 4px;  /* Increased margin */
+}
+
+.shutdown-item {
+    border-top: 1px solid #b89fc7;
+    margin-top: 4px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    color: #441d57;
+    text-decoration: none;
+    gap: 6px;
+}
+
+.menu-item:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.menu-separator {
+    height: 1px;
+    background-color: #b89fc7;
+    margin: 4px 2px;
+}
+
+.shutdown-item {
+    border-top: 1px solid #b89fc7;
+    margin-top: 6px;
+    padding: 8px 12px;  /* Consistent with other items */
+    font-weight: 500;
+}
+
+/* Taskbar programs */
+.taskbar-programs {
+    display: flex;
+    gap: 4px;
+    margin-left: 10px;
+    height: 100%;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.taskbar-program {
+    height: 24px;
+    min-width: 120px;
+    max-width: 150px;
+    flex: 1;
+    margin: 2px;
+    padding: 0 8px;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    color: #441d57;
+}
+
+.taskbar-program:hover {
+    background-color: #e6d4f2;
+}
+
+.taskbar-program.active {
+    background-color: #b89fc7;
+    border-style: inset;
+    color: white;
+}
+
+.hidden {
+    display: none !important;
+}

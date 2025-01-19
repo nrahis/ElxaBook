@@ -1,0 +1,113 @@
+/* DUCK Terminal Styling */
+.duck-terminal {
+    background-color: #1a1b2e;
+    height: 100%;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    color: #00ff9d;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-output {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    padding-bottom: 10px;
+}
+
+.terminal-output div {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    text-shadow: 0 0 5px rgba(0, 255, 157, 0.5);
+}
+
+.input-line {
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+    border-top: 1px solid #00ff9d33;
+}
+
+.prompt {
+    color: #ff71ce;
+    margin-right: 8px;
+    text-shadow: 0 0 5px rgba(255, 113, 206, 0.5);
+}
+
+.command-input {
+    background: transparent;
+    border: none;
+    color: #00ff9d;
+    font-family: 'Courier New', monospace;
+    font-size: inherit;
+    flex-grow: 1;
+    outline: none;
+}
+
+/* Matrix Effect */
+.matrix-effect {
+    color: #00ff00 !important;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5) !important;
+}
+
+.matrix-line {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Rainbow Text Effect */
+@keyframes rainbow {
+    0% { color: #ff0000; }
+    17% { color: #ff9900; }
+    33% { color: #ffff00; }
+    50% { color: #00ff00; }
+    67% { color: #00ffff; }
+    83% { color: #0099ff; }
+    100% { color: #ff0099; }
+}
+
+.rainbow-text div {
+    animation: rainbow 5s infinite;
+    text-shadow: none;
+}
+
+.rainbow-text div:nth-child(3n) {
+    animation-delay: -0.5s;
+}
+
+.rainbow-text div:nth-child(3n+1) {
+    animation-delay: -1s;
+}
+
+/* Custom Scrollbar */
+.terminal-output::-webkit-scrollbar {
+    width: 8px;
+}
+
+.terminal-output::-webkit-scrollbar-track {
+    background: #1a1b2e;
+}
+
+.terminal-output::-webkit-scrollbar-thumb {
+    background: #00ff9d33;
+    border-radius: 4px;
+}
+
+.terminal-output::-webkit-scrollbar-thumb:hover {
+    background: #00ff9d66;
+}
+
+/* Screen Glitch Effect (for matrix mode) */
+@keyframes glitch {
+    0% { transform: skew(0deg); }
+    20% { transform: skew(2deg); }
+    40% { transform: skew(-2deg); }
+    60% { transform: skew(1deg); }
+    80% { transform: skew(-1deg); }
+    100% { transform: skew(0deg); }
+}
+
+.matrix-effect {
+    animation: glitch 0.5s infinite;
+}

@@ -1,0 +1,280 @@
+/* Add this to a new file called boot.css */
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: #1a1b2e;
+    color: #00ff9d;
+    font-family: 'Courier New', monospace;
+}
+
+.boot-phase {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* Boot Screen Styles */
+.boot-content {
+    width: 80%;
+    max-width: 600px;
+}
+
+.elxa-logo {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px #00ff9d;
+    animation: pulse 2s infinite;
+}
+
+.boot-message {
+    font-size: 24px;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.loading-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(0, 255, 157, 0.2);
+    border: 2px solid #00ff9d;
+    margin: 20px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.loading-progress {
+    width: 0%;
+    height: 100%;
+    background: #00ff9d;
+    transition: width 0.5s ease-out;
+    box-shadow: 0 0 10px #00ff9d;
+}
+
+#boot-status {
+    font-size: 14px;
+    opacity: 0.7;
+    height: 20px;
+}
+
+/* Welcome Screen Styles */
+.welcome-content {
+    text-align: center;
+    padding: 40px;
+    background: rgba(0, 255, 157, 0.1);
+    border: 2px solid #00ff9d;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+}
+
+.welcome-logo {
+    font-size: 64px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, #00ff9d, #ff71ce);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+}
+
+.welcome-message {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ff71ce;
+}
+
+.welcome-version {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.7;
+}
+
+#start-button {
+    background: #00ff9d;
+    color: #1a1b2e;
+    border: none;
+    padding: 15px 40px;
+    font-size: 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+}
+
+#start-button:hover {
+    background: #ff71ce;
+    box-shadow: 0 0 30px rgba(255, 113, 206, 0.6);
+    transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Matrix-style scan lines effect */
+.fullscreen::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 157, 0.1) 0px,
+        rgba(0, 255, 157, 0.1) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+}
+
+/* Login Screen Styles */
+.login-container {
+    background: rgba(26, 27, 46, 0.8);
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid #00ff9d;
+    box-shadow: 0 0 30px rgba(0, 255, 157, 0.3);
+    text-align: center;
+    backdrop-filter: blur(10px);
+}
+
+.user-profile {
+    margin-bottom: 30px;
+}
+
+.user-avatar {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    background: rgba(0, 255, 157, 0.1);
+    border-radius: 60px;
+    padding: 20px;
+    border: 2px solid #00ff9d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.snake-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.snake-body {
+    animation: slither 4s infinite ease-in-out;
+}
+
+.snake-tongue {
+    transform-origin: 85px 50px;
+    animation: flick 0.5s infinite;
+}
+
+.user-name {
+    font-size: 24px;
+    color: #00ff9d;
+    text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+    margin-bottom: 10px;
+}
+
+.password-container {
+    margin-bottom: 20px;
+}
+
+#password-input {
+    background: rgba(0, 255, 157, 0.1);
+    border: 2px solid #00ff9d;
+    padding: 12px 20px;
+    font-size: 18px;
+    color: #00ff9d;
+    border-radius: 25px;
+    width: 250px;
+    margin-bottom: 15px;
+    font-family: 'Courier New', monospace;
+}
+
+#password-input::placeholder {
+    color: rgba(0, 255, 157, 0.5);
+}
+
+#password-input:focus {
+    outline: none;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+}
+
+#login-button {
+    background: #00ff9d;
+    color: #1a1b2e;
+    border: none;
+    padding: 12px 30px;
+    font-size: 18px;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Courier New', monospace;
+}
+
+#login-button:hover {
+    background: #ff71ce;
+    box-shadow: 0 0 20px rgba(255, 113, 206, 0.4);
+    transform: scale(1.05);
+}
+
+.login-message {
+    min-height: 20px;
+    color: #ff71ce;
+    font-size: 16px;
+    margin-top: 15px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.login-message.show {
+    opacity: 1;
+}
+
+@keyframes slither {
+    0%, 100% { d: path('M75,50 Q60,35 50,50 T25,50'); }
+    50% { d: path('M75,50 Q60,65 50,50 T25,50'); }
+}
+
+@keyframes flick {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(-1); }
+}
+
+/* Add this to make the login screen use the desktop background */
+#login-screen {
+    background: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+#login-screen::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: inherit;
+    filter: blur(5px);
+}

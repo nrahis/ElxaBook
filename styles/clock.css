@@ -1,0 +1,213 @@
+/* clock.css */
+.clock-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #d5bde6;
+    font-family: "Verdana", sans-serif;
+}
+
+/* Tabs */
+.clock-tabs {
+    display: flex;
+    background-color: #d5bde6;
+    padding: 4px 4px 0;
+    border-bottom: 1px solid #441d57;
+}
+
+.tab-button {
+    padding: 4px 12px;
+    margin-right: 2px;
+    background-color: #e6d4f2;
+    border: 1px solid #441d57;
+    border-bottom: none;
+    cursor: pointer;
+    color: #441d57;
+    font-size: 12px;
+}
+
+.tab-button:hover {
+    background-color: #f0d9ff;
+}
+
+.tab-button.active {
+    background-color: #d5bde6;
+    position: relative;
+    z-index: 1;
+    margin-bottom: -1px;
+    border-bottom: 1px solid #d5bde6;
+}
+
+.tab-content {
+    flex: 1;
+    padding: 15px;
+    background-color: #d5bde6;
+    overflow: auto;
+}
+
+.tab-pane {
+    display: none;
+    background-color: #d5bde6;
+    padding: 10px;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Clock Display */
+.digital-clock {
+    font-size: 48px;
+    font-weight: bold;
+    text-align: center;
+    color: #441d57;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    font-family: "Courier New", monospace;
+}
+
+.date-display {
+    text-align: center;
+    font-size: 16px;
+    color: #441d57;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+}
+
+/* Timer Styles */
+.new-timer-form {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.new-timer-form input {
+    padding: 4px;
+    border: 2px inset #b89fc7;
+    width: 100px;
+    background-color: white;
+}
+
+.timer-container {
+    background-color: #f0d9ff;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px outset #b89fc7;
+}
+
+.timer-presets button,
+.new-timer-btn,
+.timer-container button {
+    padding: 4px 8px;
+    background-color: #d5bde6;
+    border: 2px outset #b89fc7;
+    color: #441d57;
+    cursor: pointer;
+}
+
+.timer-presets button:active,
+.new-timer-btn:active,
+.timer-container button:active {
+    border-style: inset;
+}
+
+/* Stopwatch Styles */
+.stopwatch-display {
+    font-size: 40px;
+    font-weight: bold;
+    text-align: center;
+    color: #441d57;
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    font-family: "Courier New", monospace;
+}
+
+.stopwatch-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stopwatch-controls button {
+    padding: 6px 12px;
+    background-color: #d5bde6;
+    border: 2px outset #b89fc7;
+    color: #441d57;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.stopwatch-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.stopwatch-controls button:active:not(:disabled) {
+    border-style: inset;
+}
+
+.lap-times {
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.lap-time {
+    padding: 4px;
+    border-bottom: 1px solid #b89fc7;
+    font-family: "Courier New", monospace;
+}
+
+/* Alarm Styles */
+.new-alarm-form {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.new-alarm-form input {
+    padding: 4px;
+    border: 2px inset #b89fc7;
+    background-color: white;
+}
+
+.active-alarms {
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    padding: 10px;
+}
+
+/* Hide lap times container by default */
+.lap-times {
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    padding: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none; /* Hide by default */
+}
+
+.lap-times.has-laps {
+    display: block; /* Show when has-laps class is added */
+}
+
+/* Hide alarm container by default */
+.active-alarms {
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    padding: 10px;
+    display: none; /* Hide by default */
+}
+
+.active-alarms.has-alarms {
+    display: block; /* Show when has-alarms class is added */
+}
