@@ -17,7 +17,7 @@
             <div class="welcome-content">
                 <div class="welcome-logo">ElxaOS</div>
                 <div class="welcome-message">Welcome to the future of computing</div>
-                <div class="welcome-version">Vapor Edition v1.0</div>
+                <div class="welcome-version">Chocolate Mist Edition v1.1</div>
                 <button id="start-button">Start ElxaOS</button>
             </div>
         </div>
@@ -54,14 +54,20 @@
         </div>
     </div>
 
+codes
+window._resetFileSystem()
+
     TO DO
+    - when switching users, still shows other user's User folder (and not new user)
+    - Games folder isnt creating for new users
+    Add more validation to the password change process (like minimum length, required characters)?
+Add a user preferences panel where users can change their theme/background settings?
     - change font
     - military time for clocks
     - log out - needs to be default bg and log in screen
     - EX Abbi Code - pretend coder, cat themed
     - different user names
     - math games
-    - calculator app
     - custom alarm sounds
     - messenger - hook up to Gemini, generate messages
     - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options

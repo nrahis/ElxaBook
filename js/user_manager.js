@@ -4,6 +4,10 @@ export class UserManager {
         this.fileSystem = fileSystem;
         this.USERS_KEY = 'elxaos_users';
         this.currentUser = 'kitkat';  // Set default user
+        
+        // Set the current user in the file system immediately
+        this.fileSystem.setCurrentUser('kitkat');
+        
         this.initializeUsers();
     }
 
@@ -39,7 +43,7 @@ export class UserManager {
         if (users[username]) {
             throw new Error('Username already exists');
         }
-
+    
         // Create new user object
         const newUser = {
             username,
@@ -56,20 +60,17 @@ export class UserManager {
                 background: 'linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc)'
             }
         };
-
+    
+        // Create user's folders
+        const foldersCreated = this.fileSystem.testCreateUser(username);
+        if (!foldersCreated) {
+            throw new Error('Failed to create user folders');
+        }
+    
         // Add user to storage
         users[username] = newUser;
         localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
-
-        // Create user's home directory
-        this.fileSystem.createFolder('/ElxaOS/Users', username);
-        const userPath = `/ElxaOS/Users/${username}`;
-        
-        // Create default user folders
-        ['Documents', 'Pictures', 'Music', 'Downloads'].forEach(folder => {
-            this.fileSystem.createFolder(userPath, folder);
-        });
-
+    
         return newUser;
     }
 
@@ -126,13 +127,17 @@ export class UserManager {
         if (!user || user.password !== password) {
             return false;
         }
-
+    
         // Update last login time
         this.updateUser(username, {
             lastLogin: new Date().toISOString()
         });
-
+    
         this.currentUser = username;
+        
+        // Update FileSystem's current user
+        this.fileSystem.setCurrentUser(username);
+        
         return true;
     }
 

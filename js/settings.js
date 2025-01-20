@@ -127,7 +127,7 @@ export class Settings {
     renderUsersPanel() {
         const userManager = new UserManager(this.fileSystem);
         const users = userManager.getAllUsers();
-        const currentUser = userManager.getCurrentUser();  // This might be null
+        const currentUser = userManager.getCurrentUser();
     
         return `
             <div class="settings-panel">
@@ -216,19 +216,13 @@ export class Settings {
         });
     }
 
-
-    refreshUsersPanel() {
-        const panel = this.contentArea.querySelector('#users-panel');
-        if (panel) {
-            panel.innerHTML = this.renderUsersPanel();
-            this.setupUsersPanelEvents();
-        }
-    }
-    
     setupUsersPanelEvents() {
         const addUserBtn = this.contentArea.querySelector('#addUser');
         if (addUserBtn) {
-            addUserBtn.addEventListener('click', () => this.showAddUserDialog());
+            addUserBtn.addEventListener('click', () => {
+                console.log('Add user button clicked'); // Debug log
+                this.showAddUserDialog();
+            });
         }
     
         // Setup delete and password change buttons
@@ -259,9 +253,63 @@ export class Settings {
         }
     }
     
+    refreshUsersPanel() {
+        const panel = this.contentArea.querySelector('#users-panel');
+        if (panel) {
+            panel.innerHTML = this.renderUsersPanel();
+            this.setupUsersPanelEvents();
+        }
+    }
+    
     showChangePasswordDialog(username) {
-        // Similar to showAddUserDialog but for password change
-        // We can implement this next if you want
+        const dialog = document.createElement('div');
+        dialog.className = 'settings-dialog';
+        dialog.innerHTML = `
+            <div class="dialog-content">
+                <h3>Change Password for ${username}</h3>
+                <div class="dialog-form">
+                    <label>Current Password:</label>
+                    <input type="password" id="currentPassword" class="dialog-input">
+                    
+                    <label>New Password:</label>
+                    <input type="password" id="newPassword" class="dialog-input">
+                    
+                    <label>Confirm New Password:</label>
+                    <input type="password" id="confirmPassword" class="dialog-input">
+                </div>
+                <div class="dialog-buttons">
+                    <button id="savePassword">Save</button>
+                    <button id="cancelPassword">Cancel</button>
+                </div>
+            </div>
+        `;
+    
+        document.body.appendChild(dialog);
+    
+        // Add event listeners for the dialog
+        dialog.querySelector('#savePassword').addEventListener('click', () => {
+            const currentPassword = dialog.querySelector('#currentPassword').value;
+            const newPassword = dialog.querySelector('#newPassword').value;
+            const confirmPassword = dialog.querySelector('#confirmPassword').value;
+    
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match');
+                return;
+            }
+    
+            try {
+                const userManager = new UserManager(this.fileSystem);
+                userManager.changePassword(username, currentPassword, newPassword);
+                dialog.remove();
+                alert('Password changed successfully');
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    
+        dialog.querySelector('#cancelPassword').addEventListener('click', () => {
+            dialog.remove();
+        });
     }
 
     renderSystemPanel() {
@@ -271,7 +319,7 @@ export class Settings {
                     <h3>About ElxaOS</h3>
                     <div class="info-item">
                         <label>Version:</label>
-                        <span>ElxaOS 1.0</span>
+                        <span>ElxaOS 1.1</span>
                     </div>
                     <div class="info-item">
                         <label>Computer Name:</label>
@@ -326,6 +374,9 @@ export class Settings {
         if (cancelButton) {
             cancelButton.addEventListener('click', () => this.handleCancel());
         }
+
+        // Add user panel event setup
+        this.setupUsersPanelEvents();
     }
 
     switchTab(tabName) {

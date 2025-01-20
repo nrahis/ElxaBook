@@ -9,18 +9,21 @@
         <link rel="stylesheet" href="styles/windows.css">
         <link rel="stylesheet" href="styles/desktop.css">
         <link rel="stylesheet" href="styles/file_explorer.css">
-        <link rel="stylesheet" href="styles/clock.css">
-        <link rel="stylesheet" href="styles/calendar.css">
-        <link rel="stylesheet" href="styles/notepad.css">
-        <link rel="stylesheet" href="styles/paint.css">
-        <link rel="stylesheet" href="styles/minesweeper.css"> 
-        <link rel="stylesheet" href="styles/solitaire.css"> 
+        <link rel="stylesheet" href="styles/apps/clock.css">
+        <link rel="stylesheet" href="styles/apps/calendar.css">
+        <link rel="stylesheet" href="styles/apps/notepad.css">
+        <link rel="stylesheet" href="styles/apps/paint.css">
+        <link rel="stylesheet" href="styles/apps/minesweeper.css"> 
+        <link rel="stylesheet" href="styles/apps/solitaire.css"> 
         <link rel="stylesheet" href="styles/about.css">
-        <link rel="stylesheet" href="styles/duck.css">
-        <link rel="stylesheet" href="styles/calculator.css">
-        <link rel="stylesheet" href="styles/slideshow.css">
+        <link rel="stylesheet" href="styles/apps/duck.css">
+        <link rel="stylesheet" href="styles/apps/calculator.css">
+        <link rel="stylesheet" href="styles/apps/slideshow.css">
+        <link rel="stylesheet" href="styles/apps/math_games/math_match.css">
+        <link rel="stylesheet" href="styles/apps/math_games/time_crunch.css">
+        <link rel="stylesheet" href="styles/apps/math_games/snake_equation.css">
         <link rel="stylesheet" href="styles/settings.css">
-        <link rel="stylesheet" href="css/user_management.css">
+        <link rel="stylesheet" href="styles/user_management.css">
     </head>
 <body>
 
@@ -43,7 +46,7 @@
             <div class="welcome-content">
                 <div class="welcome-logo">ElxaOS</div>
                 <div class="welcome-message">Welcome to the future of computing</div>
-                <div class="welcome-version">Vapor Edition v1.0</div>
+                <div class="welcome-version">Chocolate Mist Edition v1.1</div>
                 <button id="start-button">Start ElxaOS</button>
             </div>
         </div>
@@ -78,7 +81,7 @@
                 <div id="login-message" class="login-message"></div>
             </div>
         </div>
-    </div>    
+    </div>   
 
     <div id="desktop">
         <nav id="taskbar">
@@ -101,6 +104,9 @@
                     <div class="start-menu-item">
                         <div class="menu-label">Games ▶</div>
                         <div class="submenu">
+                            <a href="#" data-app="mathMatch">Math Match</a> 
+                            <a href="#" data-app="timeCrunch">Time Crunch</a> 
+                            <!-- <a href="#" data-app="snakeEquation">Snake Equation</a> -->
                             <a href="#" data-app="minesweeper">Kittysweeper</a>
                             <a href="#" data-app="solitaire">Solitaire</a>
                         </div>
@@ -169,7 +175,7 @@
             </div>
         </div>
     </div>
-    <script type="module" src="js/boot.js"></script> 
+    <script type="module" src="js/boot.js"></script>
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

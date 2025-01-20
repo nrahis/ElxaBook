@@ -2,13 +2,18 @@
 
 export class FileSystem {
     constructor() {
-        // Storage keys for different data types
         this.SYSTEM_KEY = 'elxaos_system';
         this.FILES_KEY = 'elxaos_files';
         this.FOLDERS_KEY = 'elxaos_folders';
+        this.currentUsername = 'kitkat'; // Set initial user
         
         // Initialize the file system if it doesn't exist
         this.initializeFileSystem();
+    }
+
+    setCurrentUser(username) {
+        console.log('FileSystem: Setting current user to:', username);
+        this.currentUsername = username;
     }
 
     // Initialize the basic file system structure
@@ -366,44 +371,86 @@ export class FileSystem {
         return newPath; // Return the new path
     }
 
+
+// In storage.js, update the getFolderContents method
+
     getFolderContents(path) {
         console.log('Getting contents for path:', path);
         const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         const normalizedPath = this.normalizePath(path);
         
+        console.log('Current username:', this.currentUsername);
+        console.log('Normalized path:', normalizedPath);
+        
         const contents = {
             folders: [],
             files: []
         };
-    
-        // Get folders that are direct children of the current path
-        Object.entries(folders).forEach(([folderPath, folder]) => {
-            const normalizedFolderPath = this.normalizePath(folder.path);
+
+        // Special handling for Users directory
+        if (normalizedPath === '/ElxaOS/Users') {
+            // If we're in the Users directory, only show current user's folder
+            Object.entries(folders).forEach(([folderPath, folder]) => {
+                if (folder.path === normalizedPath && folder.name === this.currentUsername) {
+                    console.log('Found user folder:', folder.name);
+                    contents.folders.push({
+                        ...folder,
+                        fullPath: folderPath
+                    });
+                }
+            });
+        } else if (normalizedPath.startsWith('/ElxaOS/Users/')) {
+            // For paths within the Users directory, only show contents if it's the current user's folder
+            const pathParts = normalizedPath.split('/');
+            const userFolderIndex = pathParts.indexOf('Users') + 1;
+            const userFolder = pathParts[userFolderIndex];
             
-            // Only include folders that are direct children of the current path
-            if (normalizedFolderPath === normalizedPath && 
-                folderPath !== normalizedPath) { // Don't include the current folder itself
-                console.log('Adding folder:', folder.name, 'from path:', folder.path);
-                contents.folders.push({
-                    ...folder,
-                    fullPath: folderPath
+            if (userFolder === this.currentUsername) {
+                // Show all contents for the current user's folder
+                Object.entries(folders).forEach(([folderPath, folder]) => {
+                    if (folder.path === normalizedPath) {
+                        console.log('Adding folder in user directory:', folder.name);
+                        contents.folders.push({
+                            ...folder,
+                            fullPath: folderPath
+                        });
+                    }
+                });
+
+                Object.entries(files).forEach(([filePath, file]) => {
+                    if (file.path === normalizedPath) {
+                        console.log('Adding file in user directory:', file.name);
+                        contents.files.push({
+                            ...file,
+                            fullPath: filePath
+                        });
+                    }
                 });
             }
-        });
-    
-        // Get files that are direct children of the current path
-        Object.entries(files).forEach(([filePath, file]) => {
-            const normalizedFilePath = this.normalizePath(file.path);
-            if (normalizedFilePath === normalizedPath) {
-                console.log('Adding file:', file.name, 'from path:', file.path);
-                contents.files.push({
-                    ...file,
-                    fullPath: filePath
-                });
-            }
-        });
-    
+        } else {
+            // For all other paths, show everything as before
+            Object.entries(folders).forEach(([folderPath, folder]) => {
+                if (folder.path === normalizedPath) {
+                    console.log('Adding folder:', folder.name, 'from path:', folder.path);
+                    contents.folders.push({
+                        ...folder,
+                        fullPath: folderPath
+                    });
+                }
+            });
+
+            Object.entries(files).forEach(([filePath, file]) => {
+                if (file.path === normalizedPath) {
+                    console.log('Adding file:', file.name, 'from path:', file.path);
+                    contents.files.push({
+                        ...file,
+                        fullPath: filePath
+                    });
+                }
+            });
+        }
+
         console.log('Returning contents:', contents);
         return contents;
     }
@@ -648,11 +695,48 @@ export class FileSystem {
     deletePaintFile(name) {
         return this.deleteFile(this.joinPaths('/ElxaOS/Users/kitkat/Pictures', name));
     }
+
+    // Add this inside the FileSystem class, alongside other methods like createFolder, deleteFolder, etc.
+    testCreateUser(username) {
+        console.log('Testing user folder creation for:', username);
+        
+        const userPath = `/ElxaOS/Users/${username}`;
+        const userFolders = [
+            { path: userPath, name: username },
+            { path: `${userPath}/Documents`, name: 'Documents' },
+            { path: `${userPath}/Pictures`, name: 'Pictures' },
+            { path: `${userPath}/Music`, name: 'Music' },
+            { path: `${userPath}/Downloads`, name: 'Downloads' },
+            { path: `${userPath}/Games`, name: 'Games' }
+        ];
+
+        console.log('Attempting to create folders...');
+        
+        try {
+            userFolders.forEach(folder => {
+                const parentPath = folder.path.substring(0, folder.path.lastIndexOf('/'));
+                console.log('Creating folder:', {
+                    parentPath: parentPath,
+                    name: folder.name
+                });
+                this.createFolder(parentPath, folder.name);
+            });
+            console.log('User folder creation successful!');
+            
+            // Let's verify the folders were created
+            const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+            console.log('Current folder structure:', folders);
+            return true;
+        } catch (error) {
+            console.error('Error creating user folders:', error);
+            return false;
+        }
+    }
 }
 
 export const fileSystem = new FileSystem();
 
-// Add this at the end of storage.js after creating the fileSystem instance
+// For testing purposes
 window._resetFileSystem = function() {
     console.log('Resetting file system...');
     localStorage.removeItem('elxaos_system');

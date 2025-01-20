@@ -1,0 +1,131 @@
+/* Math Match Styles */
+.math-match-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #ffccf9, #a2d2ff);
+    height: 100%;
+    padding: 20px;
+    font-family: 'Courier New', Courier, monospace;
+    color: #2b2d42;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.math-match-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: linear-gradient(135deg, #ff99cc, #67c9dc);
+    border: 2px solid #f0f0f0;
+    border-radius: 8px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.math-match-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 2px 2px 2px #000000;
+}
+
+.math-match-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.difficulty-button {
+    padding: 5px 15px;
+    background-color: #d4a5a5;
+    border: 2px outset #f5f5f5;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.difficulty-button:hover {
+    background-color: #e6b8b8;
+    transform: scale(1.1);
+}
+
+.difficulty-button.active {
+    border-style: inset;
+    background-color: #c27c7c;
+}
+
+.reset-button {
+    padding: 5px 15px;
+    background-color: #67c9dc;
+    border: 2px outset #f0f0f0;
+    border-radius: 5px;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.reset-button:hover {
+    background-color: #5ab8d8;
+    transform: scale(1.1);
+}
+
+.math-match-grid {
+    display: grid;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f0f8ff;
+    border: 2px solid #a2d2ff;
+    border-radius: 8px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 100%;
+}
+
+.math-match-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #4a4e69;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.math-match-cell.revealed {
+    background-color: #e6e6fa;
+    border: 2px inset #c2c2f0;
+    color: #22223b;
+}
+
+.math-match-cell.correct {
+    background-color: #8ac926;
+    color: #ffffff;
+    border-color: #5a8d20;
+}
+
+.math-match-cell:hover {
+    background-color: #cbbde6;
+    transform: scale(1.05);
+}
+
+.math-match-message {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #ff99cc;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1.2rem;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    display: none;
+}

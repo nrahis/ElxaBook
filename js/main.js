@@ -6,6 +6,9 @@ import { Paint } from './apps/system/paint.js';
 import { Notepad } from './apps/system/notepad.js';
 import { Duck } from './apps/system/duck.js';
 import { minesweeper } from './apps/system/minesweeper.js';
+import { MathMatch, mathMatch } from './apps/system/math_games/math_match.js';
+import { snakeEquation } from './apps/system/math_games/snake_equation.js';
+import { timeCrunch } from './apps/system/math_games/time_crunch.js';
 import { solitaire } from './apps/system/solitaire.js';
 import { About } from './apps/system/about.js';
 import { scientificCalculator } from './apps/system/scientific_calculator.js';
@@ -57,7 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const paint = new Paint(fileSystem);
     const notepad = new Notepad(fileSystem);
     const about = new About();
-    const calculator = scientificCalculator;
+    // const mathMatch = new MathMatch();
+    // const calculator = scientificCalculator;
     const clock = new Clock(fileSystem);
     const calendar = new Calendar(fileSystem);
     const slideshow = new Slideshow(fileSystem);
@@ -112,6 +116,24 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 500, height: 600 }
     });
 
+    windowManager.registerApp('mathMatch', {
+        title: 'Math Match',
+        initialize: (contentArea) => mathMatch.initialize(contentArea),
+        defaultSize: { width: 500, height: 550 }
+    });
+
+    windowManager.registerApp('timeCrunch', {
+        title: 'Time Crunch',
+        initialize: (contentArea) => timeCrunch.initialize(contentArea),
+        defaultSize: { width: 410, height: 500 }
+    });
+
+    windowManager.registerApp('snakeEquation', {
+        title: 'Snake Equation',
+        initialize: (contentArea) => snakeEquation.initialize(contentArea),
+        defaultSize: { width: 400, height: 550 }
+    });
+
     windowManager.registerApp('solitaire', {
         title: 'Solitaire',
         initialize: (contentArea) => solitaire.initialize(contentArea),
@@ -151,9 +173,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     windowManager.registerApp('settings', {
-        title: 'Display Properties',  // Updated the title to be more Windows 95-like
+        title: 'Settings',
         initialize: (contentArea) => settings.initialize(contentArea),
-        defaultSize: { width: 400, height: 480 }  // Adjusted size to match Win95 style
+        defaultSize: { width: 420, height: 480 },
+        singleton: true,
+        onClose: () => {
+            // Remove any open dialogs when settings window is closed
+            const dialogs = document.querySelectorAll('.settings-dialog');
+            dialogs.forEach(dialog => dialog.remove());
+        }
     });
 
     windowManager.registerApp('duck', {

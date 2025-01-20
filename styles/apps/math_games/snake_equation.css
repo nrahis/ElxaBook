@@ -1,0 +1,103 @@
+/* Snake Equation styles */
+.se-snake-equation-container {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border: 5px solid #441d57; /* Added border */
+}
+
+.se-snake-equation-header {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 10px;
+    background: linear-gradient(135deg, #ff99cc, #a267ac);
+    color: white;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.se-score-container,
+.se-target-container {
+    background-color: #d5bde6;
+    padding: 5px 10px;
+    border: 2px inset #f0d9ff;
+    font-family: 'Digital', monospace;
+    font-size: 20px;
+    color: #441d57;
+    text-align: center;
+}
+
+.se-status-container {
+    font-size: 34px;
+    margin: 5px;
+    /* ADD min-width to CSS */
+    min-width: 80px;
+}
+
+.se-game-grid {
+    display: grid;
+    gap: 1px;
+    flex-grow: 1;
+    background-color: #a267ac;
+    padding: 5px;
+}
+
+.se-game-cell {
+    background-color: #f0d9ff;
+    border: 1px solid #d5bde6;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.se-equation-container {
+    background-color: #d5bde6;
+    padding: 5px 10px;
+    border: 2px inset #f0d9ff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    color: #441d57;
+    text-align: center;
+    min-height: 34px;
+    margin-top: 10px;
+}
+
+.se-snake-equation-footer {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    gap: 10px;
+    background: linear-gradient(135deg, #a267ac, #67c9dc);
+}
+
+.se-difficulty-button,
+.se-start-button {
+    padding: 5px 15px;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    cursor: pointer;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.se-start-button {
+    border: 2px outset #f0d9ff;
+    text-align: center;
+    /* ADD font-size to CSS */
+    font-size: 16px;
+    /* ADD line-height to CSS */
+    line-height: 1;
+}
+
+.se-difficulty-button:hover,
+.se-start-button:hover {
+    background-color: #e6d4f2;
+}
+
+.se-difficulty-button.active {
+    border-style: inset;
+    background-color: #b89fc7;
+    color: white;
+}
