@@ -94,31 +94,36 @@
             <div id="startMenu" class="hidden">
                 <div class="start-menu-item">
                     <div class="menu-label">Programs ▶</div>
-                        <div class="submenu">
-                            <a href="#" data-app="scientificCalculator">Calculator</a>
-                            <a href="#" data-app="clock">Clock & Timer</a> 
-                            <a href="#" data-app="calendar">Calendar</a> 
-                            <a href="#" data-app="slideshow">Slideshow</a> 
-                        </div>
+                    <div class="submenu">
+                        <a href="#" data-app="scientificCalculator">Calculator</a>
+                        <a href="#" data-app="clock">Clock & Timer</a> 
+                        <a href="#" data-app="calendar">Calendar</a> 
+                        <a href="#" data-app="slideshow">Slideshow</a> 
                     </div>
-                    <div class="start-menu-item">
-                        <div class="menu-label">Games ▶</div>
-                        <div class="submenu">
-                            <a href="#" data-app="mathMatch">Math Match</a> 
-                            <a href="#" data-app="timeCrunch">Time Crunch</a> 
-                            <!-- <a href="#" data-app="snakeEquation">Snake Equation</a> -->
-                            <a href="#" data-app="minesweeper">Kittysweeper</a>
-                            <a href="#" data-app="solitaire">Solitaire</a>
+                </div>
+                <div class="start-menu-item">
+                    <div class="menu-label">Games ▶</div>
+                    <div class="submenu">
+                        <div class="start-menu-item">
+                            <div class="menu-label">Math Games ▶</div>
+                            <div class="submenu">
+                                <a href="#" data-app="mathMatch">Math Match</a> 
+                                <a href="#" data-app="timeCrunch">Time Crunch</a> 
+                                <!-- <a href="#" data-app="snakeEquation">Snake Equation</a> -->
+                            </div>
                         </div>
+                        <a href="#" data-app="minesweeper">Kittysweeper</a>
+                        <a href="#" data-app="solitaire">Solitaire</a>
                     </div>
-                    <div class="start-menu-item">
-                        <div class="menu-label">Accessories ▶</div>
-                        <div class="submenu">
-                            <a href="#" data-app="paint">Paint</a>
-                            <a href="#" data-app="notepad">Notepad</a>
-                            <a href="#" data-app="duck">DUCK Terminal</a>
-                        </div>
+                </div>
+                <div class="start-menu-item">
+                    <div class="menu-label">Accessories ▶</div>
+                    <div class="submenu">
+                        <a href="#" data-app="paint">Paint</a>
+                        <a href="#" data-app="notepad">Notepad</a>
+                        <a href="#" data-app="duck">DUCK Terminal</a>
                     </div>
+                </div>
                 
                 <div class="start-menu-item">
                     <div class="menu-label">Settings ▶</div>
@@ -130,7 +135,14 @@
                 
                 <div class="menu-separator"></div>
                 
-                <a href="#" class="shutdown-item">Shut Down...</a>
+                <div class="start-menu-item">
+                    <div class="menu-label">Power ▶</div>
+                    <div class="submenu">
+                        <a href="#" class="power-option" data-action="logout">Log Out</a>
+                        <a href="#" class="power-option" data-action="shutdown">Shut Down</a>
+                        <a href="#" class="power-option" data-action="restart">Restart</a>
+                    </div>
+                </div>
             </div>
             <div class="taskbar-programs"></div>
             <div id="clock"></div>

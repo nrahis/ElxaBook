@@ -2,6 +2,8 @@
 import { FileExplorer } from './file_explorer.js';
 import { WindowManager } from './windows.js';
 import { TaskBar } from './taskbar.js';
+import { Desktop } from './desktop.js';
+import { fileSystem } from './storage.js';
 import { Paint } from './apps/system/paint.js';
 import { Notepad } from './apps/system/notepad.js';
 import { Duck } from './apps/system/duck.js';
@@ -16,8 +18,6 @@ import { Clock } from './apps/system/clock.js';
 import { Calendar } from './apps/system/calendar.js';
 import { Slideshow } from './apps/system/slideshow.js';
 import { Settings } from './settings.js';
-import { fileSystem } from './storage.js';
-import { Desktop } from './desktop.js';
 
 // Declare these in module scope so they can be exported
 let windowManager;
@@ -33,9 +33,12 @@ function updateClock() {
 }
 
 // Wait for DOM to be ready before doing anything
+// Wait for DOM to be ready before doing anything
 document.addEventListener('DOMContentLoaded', () => {
-    // First, create all system objects
+    // Make sure we use a single fileSystem instance globally
+    window.elxaFileSystem = window.elxaFileSystem || fileSystem;
     
+    // Create all system objects
     windowManager = new WindowManager({
         templateId: 'windowTemplate',
         desktopAreaId: 'desktop-area'
@@ -48,14 +51,18 @@ document.addEventListener('DOMContentLoaded', () => {
         taskbarProgramsClass: 'taskbar-programs'
     });
 
-    // Now we can safely connect them
+    // Set file system references
+    windowManager.fileSystem = window.elxaFileSystem;
+    taskbar.fileSystem = window.elxaFileSystem;
+
+    // Connect the managers
     windowManager.setTaskbar(taskbar);
     taskbar.setWindowManager(windowManager);
 
     // Initialize core systems
     windowManager.initialize();
     taskbar.initialize();
-    
+
     // Initialize applications
     const paint = new Paint(fileSystem);
     const notepad = new Notepad(fileSystem);
@@ -66,24 +73,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const calendar = new Calendar(fileSystem);
     const slideshow = new Slideshow(fileSystem);
     const settings = new Settings(fileSystem);
-    const fileExplorer = new FileExplorer(fileSystem, windowManager);
+    
+    // Create file explorer instance with shared file system
+    const fileExplorer = new FileExplorer(window.elxaFileSystem, windowManager);
 
+    // Register core apps
     windowManager.registerApp('explorer', {
-        title: 'File Explorer',  // This specific title will help us identify the main explorer
+        title: 'File Explorer',
         initialize: (contentArea, params) => {
-            console.log('Explorer app initialize called with params:', params);
-            fileExplorer.initialize(contentArea, params?.path);
+            const currentUser = window.elxaFileSystem.currentUsername;
+            const initialPath = params?.path || `/ElxaOS/Users/${currentUser}`;
+            console.log('Explorer app initialize called with params:', { ...params, initialPath });
+            fileExplorer.initialize(contentArea, initialPath);
         },
         defaultSize: { width: 800, height: 600 },
-        singleton: true  // Add this
+        singleton: true
     });
 
     windowManager.registerApp('folder', {
-        title: 'Folder',  // This will be replaced with the actual folder name
+        title: 'Folder',
         initialize: (contentArea, params) => {
             console.log('Folder app initialize called with params:', params);
             fileExplorer.initialize(contentArea, params?.path);
-            // Set the window title to the folder name
             if (params?.path) {
                 const folderName = params.path.split('/').pop();
                 contentArea.closest('.program-window').querySelector('.window-title').textContent = folderName;
@@ -91,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         defaultSize: { width: 800, height: 600 }
     });
-    
+
     windowManager.registerApp('computer', {
         title: 'Computer',
         initialize: (contentArea) => fileExplorer.initialize(contentArea, '/ElxaOS'),
@@ -201,7 +212,8 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 600, height: 400 }
     });
 
-    const desktop = new Desktop(fileSystem, windowManager);
+    // Initialize desktop with shared file system
+    const desktop = new Desktop(window.elxaFileSystem, windowManager);
 
     // Handle start menu application launches
     document.querySelectorAll('#startMenu a[data-app]').forEach(menuItem => {
@@ -237,6 +249,128 @@ document.addEventListener('DOMContentLoaded', () => {
             windowManager.bringToFront(windowElement);
         }
     });
+
+    // Add shutdown screen to body
+    const shutdownScreen = document.createElement('div');
+    shutdownScreen.id = 'shutdown-screen';
+    const shutdownMessage = document.createElement('div');
+    shutdownMessage.id = 'shutdown-message';
+    shutdownScreen.appendChild(shutdownMessage);
+    document.body.appendChild(shutdownScreen);
+
+    // Handle power options
+    document.querySelectorAll('.power-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+            e.preventDefault();
+            const action = e.target.getAttribute('data-action');
+            taskbar.hideStartMenu();
+
+            switch(action) {
+                case 'logout':
+                    // Save any necessary state
+                    localStorage.setItem('lastUser', window.elxaFileSystem.currentUsername);
+                    
+                    // Show boot sequence again
+                    const bootSequence = document.getElementById('boot-sequence');
+                    if (!bootSequence) {
+                        // If boot sequence doesn't exist, recreate it
+                        location.reload();
+                        return;
+                    }
+                    
+                    bootSequence.style.display = 'block';
+                    bootSequence.style.animation = 'fadeIn 1s forwards';
+                    
+                    // Show login screen directly
+                    const loginScreen = document.querySelector('#login-screen');
+                    const bootScreen = document.querySelector('#boot-screen');
+                    const welcomeScreen = document.querySelector('#welcome-screen');
+                    
+                    if (loginScreen) loginScreen.classList.remove('hidden');
+                    if (bootScreen) bootScreen.classList.add('hidden');
+                    if (welcomeScreen) welcomeScreen.classList.add('hidden');
+                    
+                    // Hide desktop
+                    const desktop = document.getElementById('desktop');
+                    if (desktop) desktop.style.visibility = 'hidden';
+                    break;
+
+                case 'shutdown':
+                    shutdownScreen.style.display = 'flex';
+                    shutdownMessage.textContent = 'Shutting down ElxaOS...';
+                    
+                    // Ensure the shutdown screen is visible by bringing it to front
+                    shutdownScreen.style.zIndex = '100000';
+                    
+                    setTimeout(() => {
+                        shutdownMessage.textContent = 'It is now safe to turn off your computer.';
+                        setTimeout(() => {
+                            shutdownScreen.style.backgroundColor = '#000000';
+                            shutdownMessage.style.display = 'none';
+                        }, 2000);
+                    }, 2000);
+                    break;
+
+                case 'restart':
+                    shutdownScreen.style.display = 'flex';
+                    shutdownMessage.textContent = 'Restarting ElxaOS...';
+                    
+                    // Store current user for quick login
+                    localStorage.setItem('quickRestart', 'true');
+                    localStorage.setItem('lastUser', window.elxaFileSystem.currentUsername);
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 2000);
+                    break;
+            }
+        });
+    });
+
+    // Handle quick restart bypass
+    if (localStorage.getItem('quickRestart') === 'true') {
+        const bootSequence = document.getElementById('boot-sequence');
+        const lastUser = localStorage.getItem('lastUser');
+        
+        if (bootSequence && lastUser) {
+            // Remove boot sequence and show desktop
+            bootSequence.remove();
+            document.getElementById('desktop').style.visibility = 'visible';
+            
+            // Set current user
+            window.elxaFileSystem.setCurrentUser(lastUser);
+            
+            // Load user settings
+            const settingsPath = `/ElxaOS/Users/${lastUser}/.settings/user.config`;
+            try {
+                const settingsFile = window.elxaFileSystem.getFile(settingsPath);
+                if (settingsFile) {
+                    const settings = JSON.parse(settingsFile.content);
+                    // Apply settings
+                    if (settings.display?.background) {
+                        if (settings.display.background.startsWith('default-')) {
+                            const index = parseInt(settings.display.background.split('-')[1]);
+                            document.body.style.background = defaultBackgrounds[index].value;
+                            document.body.style.backgroundSize = '400% 400%';
+                        } else {
+                            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+                            document.body.style.background = `url(${customBgs[parseInt(settings.display.background)]})`;
+                            document.body.style.backgroundSize = 'cover';
+                        }
+                    }
+                    if (settings.personalization?.systemFont) {
+                        // Set the font immediately
+                        document.documentElement.style.setProperty('--system-font', settings.personalization.systemFont);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load user settings:', error);
+            }
+            
+            // Clear quick restart flag
+            localStorage.removeItem('quickRestart');
+        }
+    }
 });
 
 // Export for potential use by other modules

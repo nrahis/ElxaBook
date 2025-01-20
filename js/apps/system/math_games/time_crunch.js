@@ -26,14 +26,14 @@ export class TimeCrunch {
                     <input type="text" id="answer-input" class="answer-input" disabled />
                 </div>
                 <div class="time-crunch-footer">
-                    <button class="start-button" id="start-button">Start</button>
+                    <button class="tc-start-button" id="tc-start-button">Start</button>
                 </div>
             </div>
         `;
     }
 
     setupEventListeners() {
-        const startButton = this.contentArea.querySelector('#start-button');
+        const startButton = this.contentArea.querySelector('#tc-start-button');
         const answerInput = this.contentArea.querySelector('#answer-input');
 
         startButton.addEventListener('click', () => this.startGame());

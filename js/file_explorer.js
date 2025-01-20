@@ -15,9 +15,11 @@ export class FileExplorer {
     }
 
     initialize(contentArea, initialPath) {
-        // If no path is provided at all, then use the default
+        // If no path is provided at all, use the current user's home directory
         if (initialPath === undefined) {
-            initialPath = '/ElxaOS/Users/kitkat';
+            const currentUser = this.fileSystem.currentUsername;
+            console.log('Current user in file explorer:', currentUser); // Debug log
+            initialPath = `/ElxaOS/Users/${currentUser}`;
         }
         
         console.log('Initializing FileExplorer with path:', initialPath);

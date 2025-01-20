@@ -102,7 +102,7 @@
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
-    font-family: "MS Sans Serif", Arial, sans-serif;
+    font-family: var(--system-font);
 }
 
 .context-menu button:hover {

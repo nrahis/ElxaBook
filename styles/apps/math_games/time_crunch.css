@@ -81,7 +81,7 @@
     margin-top: 20px;
 }
 
-.start-button {
+.tc-start-button {
     padding: 10px 20px;
     font-size: 1.2rem;
     font-weight: bold;
@@ -94,12 +94,12 @@
     transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.start-button:hover {
+.tc-start-button:hover {
     background-color: #8e44ad;
     box-shadow: 0 0 15px #8e44ad;
 }
 
-.start-button:active {
+.tc-start-button:active {
     transform: scale(0.95);
     box-shadow: 0 0 5px #8e44ad;
 }

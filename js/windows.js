@@ -5,6 +5,7 @@ export class WindowManager {
         this.apps = new Map();
         this.activeWindows = new Map();
         this.zIndexCounter = 100;
+        this.fileSystem = window.elxaFileSystem;
     }
 
     initialize() {
@@ -34,6 +35,13 @@ export class WindowManager {
         // Enhanced window existence check
         if (appName === 'explorer' || appName === 'folder') {
             console.log('Checking for existing windows with path:', params?.path);
+            
+            // If no path provided, use current user's home directory
+            if (!params?.path) {
+                const currentUser = this.fileSystem.currentUsername;
+                params = { path: `/ElxaOS/Users/${currentUser}` };
+            }
+
             const windows = Array.from(document.querySelectorAll('.program-window'));
             console.log('Found windows:', windows.length);
             

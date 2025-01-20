@@ -1,9 +1,11 @@
 // settings.js
 import { UserManager } from './user_manager.js';
+import { AvatarManager } from './avatar_manager.js';
 
 export class Settings {
     constructor(fileSystem) {
         this.fileSystem = fileSystem;
+        this.avatarManager = new AvatarManager();
         this.currentTab = 'display'; // Default tab
         
         // Background options from your existing code
@@ -28,6 +30,15 @@ export class Settings {
                 type: 'gradient',
                 value: 'linear-gradient(135deg, #67c9dc, #7873f5, #ff99cc)'
             }
+        ];
+
+        // Add default fonts
+        this.systemFonts = [
+            { name: 'Verdana', value: '"Verdana", sans-serif' },
+            { name: 'Arial', value: '"Arial", sans-serif' },
+            { name: 'Segoe UI', value: '"Segoe UI", "Verdana", sans-serif' },
+            { name: 'MS Sans Serif', value: '"MS Sans Serif", "Arial", sans-serif' },
+            { name: 'Tahoma', value: '"Tahoma", sans-serif' }
         ];
     }
 
@@ -101,6 +112,8 @@ export class Settings {
     }
 
     renderPersonalizationPanel() {
+        // Log available fonts for debugging
+        console.log('Available fonts:', this.systemFonts);
         return `
             <div class="settings-panel">
                 <div class="settings-group">
@@ -115,10 +128,14 @@ export class Settings {
                 <div class="settings-group">
                     <h3>System Font</h3>
                     <select id="systemFont">
-                        <option value="Segoe UI">Segoe UI</option>
-                        <option value="MS Sans Serif">MS Sans Serif</option>
-                        <option value="Verdana">Verdana</option>
+                        ${this.systemFonts.map(font => {
+                            console.log('Creating option for font:', font.name, font.value); // Debug log
+                            return `<option value='${font.value}'>${font.name}</option>`;
+                        }).join('')}
                     </select>
+                    <div id="fontPreview" style="margin-top: 10px; padding: 10px; border: 1px solid #b89fc7;">
+                        The quick brown fox jumps over the lazy dog
+                    </div>
                 </div>
             </div>
         `;
@@ -126,34 +143,82 @@ export class Settings {
 
     renderUsersPanel() {
         const userManager = new UserManager(this.fileSystem);
+        const avatarManager = new AvatarManager();
         const users = userManager.getAllUsers();
         const currentUser = userManager.getCurrentUser();
     
         return `
             <div class="settings-panel">
                 <div class="users-list">
-                    ${Object.values(users).map(user => `
-                        <div class="user-item ${currentUser && user.username === currentUser.username ? 'current' : ''}">
-                            <img src="/api/placeholder/48/48" alt="${user.username}" class="user-avatar">
-                            <div class="user-info">
-                                <span class="user-name">${user.username}</span>
-                                <span class="user-type">${user.type}</span>
-                            </div>
-                            <div class="user-actions">
-                                ${user.username !== 'kitkat' ? `
-                                    <button class="user-action-btn" data-action="delete" data-username="${user.username}">
-                                        Delete
+                    ${Object.values(users).map(user => {
+                        const avatar = avatarManager.getUserAvatar(user.username);
+                        const canEditAvatar = 
+                            // User can edit their own avatar
+                            user.username === currentUser.username ||
+                            // Administrators can edit any avatar
+                            currentUser.type === 'administrator';
+    
+                        return `
+                            <div class="user-item ${user.username === currentUser.username ? 'current' : ''}">
+                                <div class="user-avatar-section">
+                                    <div class="user-avatar">
+                                        ${avatar.type === 'svg' ? avatar.content : 
+                                          `<img src="${avatar.content}" alt="${user.username}" class="avatar-image">`}
+                                    </div>
+                                    ${canEditAvatar ? `
+                                        <button class="avatar-change-btn" data-username="${user.username}">
+                                            Change Avatar
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">${user.username}</span>
+                                    <span class="user-type">${user.type}</span>
+                                </div>
+                                <div class="user-actions">
+                                    ${user.username !== 'kitkat' ? `
+                                        <button class="user-action-btn" data-action="delete" data-username="${user.username}">
+                                            Delete
+                                        </button>
+                                    ` : ''}
+                                    <button class="user-action-btn" data-action="password" data-username="${user.username}">
+                                        Change Password
                                     </button>
-                                ` : ''}
-                                <button class="user-action-btn" data-action="password" data-username="${user.username}">
-                                    Change Password
-                                </button>
+                                </div>
                             </div>
-                        </div>
-                    `).join('')}
+                        `;
+                    }).join('')}
                 </div>
                 
                 <button class="settings-button" id="addUser">Add New User...</button>
+            </div>
+    
+            <div id="avatarDialog" class="settings-dialog" style="display: none;">
+                <div class="dialog-content">
+                    <h3>Change Avatar</h3>
+                    <div class="avatar-options">
+                        ${Object.entries(avatarManager.getDefaultAvatars()).map(([key, avatar]) => `
+                            <div class="avatar-option" data-avatar="${key}">
+                                <div class="avatar-preview">
+                                    ${avatar.content}
+                                </div>
+                                <span class="avatar-name">${avatar.name}</span>
+                            </div>
+                        `).join('')}
+                        <div class="avatar-option custom">
+                            <div class="avatar-preview">
+                                <label for="customAvatar" class="custom-avatar-label">
+                                    Custom<br>Upload
+                                </label>
+                                <input type="file" id="customAvatar" accept="image/*" style="display: none;">
+                            </div>
+                            <span class="avatar-name">Custom Upload</span>
+                        </div>
+                    </div>
+                    <div class="dialog-buttons">
+                        <button id="cancelAvatar">Cancel</button>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -239,6 +304,15 @@ export class Settings {
                 }
             });
         });
+
+        // Add avatar change button handlers
+        const avatarButtons = this.contentArea.querySelectorAll('.avatar-change-btn');
+        avatarButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const username = e.target.dataset.username;
+                this.showAvatarDialog(username);
+            });
+        });
     }
     
     handleDeleteUser(username) {
@@ -252,7 +326,49 @@ export class Settings {
             }
         }
     }
+
+    showAvatarDialog(username) {
+        const dialog = document.getElementById('avatarDialog');
+        dialog.style.display = 'flex';
+
+        // Setup avatar option clicks
+        const avatarOptions = dialog.querySelectorAll('.avatar-option');
+        avatarOptions.forEach(option => {
+            if (!option.classList.contains('custom')) {
+                option.addEventListener('click', () => {
+                    const avatarKey = option.dataset.avatar;
+                    const avatar = this.avatarManager.getDefaultAvatars()[avatarKey];
+                    this.avatarManager.setUserAvatar(username, avatar);
+                    this.refreshUsersPanel();
+                    dialog.style.display = 'none';
+                });
+            }
+        });
+
+        // Setup custom avatar upload
+        const customAvatarInput = dialog.querySelector('#customAvatar');
+        customAvatarInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                try {
+                    const avatarData = await this.avatarManager.handleCustomAvatarUpload(file);
+                    this.avatarManager.setUserAvatar(username, avatarData);
+                    this.refreshUsersPanel();
+                    dialog.style.display = 'none';
+                } catch (error) {
+                    alert('Failed to upload avatar: ' + error.message);
+                }
+            }
+        });
+
+        // Setup cancel button
+        const cancelButton = dialog.querySelector('#cancelAvatar');
+        cancelButton.addEventListener('click', () => {
+            dialog.style.display = 'none';
+        });
+    }
     
+
     refreshUsersPanel() {
         const panel = this.contentArea.querySelector('#users-panel');
         if (panel) {
@@ -360,6 +476,34 @@ export class Settings {
             fileInput.addEventListener('change', (e) => this.handleCustomBackground(e));
         }
 
+        // font preview
+        const systemFont = this.contentArea.querySelector('#systemFont');
+        const fontPreview = this.contentArea.querySelector('#fontPreview');
+        
+        if (systemFont && fontPreview) {
+            console.log('Setting up font event listener');
+            systemFont.addEventListener('change', (e) => {
+                const select = e.target;
+                const selectedOption = select.options[select.selectedIndex];
+                const selectedFont = selectedOption.value;
+                
+                console.log('Font changed to:', selectedFont);
+                console.log('Selected option:', selectedOption.textContent);
+                
+                // Update preview
+                fontPreview.style.fontFamily = selectedFont;
+                
+                // Update system font immediately for preview
+                document.documentElement.style.setProperty('--system-font', selectedFont);
+                
+                // Log current computed style to verify
+                console.log('Current system font:', getComputedStyle(document.documentElement).getPropertyValue('--system-font'));
+                
+                // Test if the font is actually being applied
+                console.log('Preview font family:', getComputedStyle(fontPreview).fontFamily);
+            });
+        }
+
         // Footer buttons
         const applyButton = this.contentArea.querySelector('#settings-apply');
         const okButton = this.contentArea.querySelector('#settings-ok');
@@ -463,8 +607,105 @@ export class Settings {
             alert('Failed to load custom background. Please try another image.');
         }
     }
+   
+    // In settings.js, saveSettings method
+    saveSettings() {
+        const settings = {
+            display: {
+                background: this.contentArea.querySelector('#backgroundSelect').value,
+                customBackgrounds: JSON.parse(localStorage.getItem('customBackgrounds') || '[]')
+            },
+            personalization: {
+                primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
+                accentColor: this.contentArea.querySelector('#accentColor')?.value,
+                systemFont: this.contentArea.querySelector('#systemFont')?.value // Make sure this is included
+            }
+        };
+
+        // Create settings directory if it doesn't exist
+        const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings`;
+        if (!this.fileSystem.folderExists(settingsPath)) {
+            try {
+                this.fileSystem.createFolder(`/ElxaOS/Users/${this.fileSystem.currentUsername}`, '.settings');
+            } catch (error) {
+                console.error('Failed to create settings directory:', error);
+                return false;
+            }
+        }
+
+        // Save settings to file
+        try {
+            this.fileSystem.saveFile(
+                settingsPath,
+                'user.config',
+                JSON.stringify(settings, null, 2),
+                'settings'
+            );
+            return true;
+        } catch (error) {
+            console.error('Failed to save settings:', error);
+            return false;
+        }
+    }
+
+    loadSettings() {
+        const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
+        try {
+            const settingsFile = this.fileSystem.getFile(settingsPath);
+            if (settingsFile) {
+                const settings = JSON.parse(settingsFile.content);
+                this.applyLoadedSettings(settings);
+                return true;
+            }
+        } catch (error) {
+            console.error('Failed to load settings:', error);
+        }
+        return false;
+    }
+
+    applyLoadedSettings(settings) {
+        // Apply display settings
+        if (settings.display) {
+            if (settings.display.background) {
+                const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
+                if (backgroundSelect) {
+                    backgroundSelect.value = settings.display.background;
+                    this.updateBackgroundPreview(settings.display.background);
+                }
+            }
+            
+            if (settings.display.customBackgrounds) {
+                localStorage.setItem('customBackgrounds', JSON.stringify(settings.display.customBackgrounds));
+                this.loadCustomBackgrounds();
+            }
+        }
+
+        // Apply personalization settings
+        if (settings.personalization) {
+            const { primaryColor, accentColor, systemFont } = settings.personalization;
+            
+            if (primaryColor) {
+                const primaryColorInput = this.contentArea.querySelector('#primaryColor');
+                if (primaryColorInput) primaryColorInput.value = primaryColor;
+            }
+            
+            if (accentColor) {
+                const accentColorInput = this.contentArea.querySelector('#accentColor');
+                if (accentColorInput) accentColorInput.value = accentColor;
+            }
+            
+            if (systemFont) {
+                const systemFontSelect = this.contentArea.querySelector('#systemFont');
+                if (systemFontSelect) {
+                    systemFontSelect.value = systemFont;
+                    document.documentElement.style.setProperty('--system-font', systemFont);
+                }
+            }
+        }
+    }
 
     applySettings() {
+        // Apply current settings visually
         const selectedBackground = this.contentArea.querySelector('#backgroundSelect').value;
         const currentTheme = {
             primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
@@ -476,24 +717,61 @@ export class Settings {
         if (selectedBackground.startsWith('default-')) {
             const index = parseInt(selectedBackground.split('-')[1]);
             document.body.style.background = this.defaultBackgrounds[index].value;
-            document.body.style.backgroundSize = '400% 400%';  // For the gradient animation
+            document.body.style.backgroundSize = '400% 400%';
         } else {
             const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
             document.body.style.background = `url(${customBgs[parseInt(selectedBackground)]})`;
             document.body.style.backgroundSize = 'cover';
         }
-    
-        // Save current settings
-        localStorage.setItem('currentBackground', document.body.style.background);
-        localStorage.setItem('currentTheme', JSON.stringify(currentTheme));
+
+        // Apply font settings
+        const systemFontSelect = this.contentArea.querySelector('#systemFont');
+        if (systemFontSelect) {
+            const selectedFont = systemFontSelect.value;
+            console.log('Applying font:', selectedFont); // Debug log
+            
+            // Apply to root element
+            document.documentElement.style.setProperty('--system-font', selectedFont);
+            const testFontChange = () => {
+                const testElement = document.createElement('div');
+                testElement.style.position = 'fixed';
+                testElement.style.top = '10px';
+                testElement.style.right = '10px';
+                testElement.style.zIndex = '9999';
+                testElement.style.background = 'white';
+                testElement.style.padding = '5px';
+                testElement.textContent = 'Font Test';
+                document.body.appendChild(testElement);
+                
+                console.log('Test element font:', getComputedStyle(testElement).fontFamily);
+                
+                setTimeout(() => testElement.remove(), 2000);
+            };
+            
+            // Force refresh by temporarily removing and re-adding the property
+            const tempFont = document.documentElement.style.getPropertyValue('--system-font');
+            document.documentElement.style.removeProperty('--system-font');
+            setTimeout(() => {
+                document.documentElement.style.setProperty('--system-font', tempFont);
+                console.log('Font applied:', getComputedStyle(document.documentElement).getPropertyValue('--system-font'));
+            }, 0);
+        }
+
+        // Save settings
+        return this.saveSettings();
     }
-    
+
     handleOK() {
-        this.applySettings();
-        this.closeWindow();
+        if (this.applySettings()) {
+            this.closeWindow();
+        } else {
+            alert('Failed to save settings. Please try again.');
+        }
     }
     
     handleCancel() {
+        // Reload the last saved settings before closing
+        this.loadSettings();
         this.closeWindow();
     }
     
@@ -528,6 +806,24 @@ export class Settings {
                 preview.style.backgroundSize = 'cover';
             }
         }
+
+        // Load user-specific font settings
+        const currentUser = this.fileSystem.currentUsername;
+        const userSettings = JSON.parse(localStorage.getItem(`elxaos_user_settings_${currentUser}`) || '{}');
+        
+        if (userSettings.systemFont) {
+            const systemFont = this.contentArea.querySelector('#systemFont');
+            if (systemFont) {
+                systemFont.value = userSettings.systemFont;
+                document.documentElement.style.setProperty('--system-font', userSettings.systemFont);
+                
+                // Update preview
+                const fontPreview = this.contentArea.querySelector('#fontPreview');
+                if (fontPreview) {
+                    fontPreview.style.fontFamily = userSettings.systemFont;
+                }
+            }
+        }
     
         // Set theme controls
         if (savedTheme.primaryColor) {
@@ -537,10 +833,6 @@ export class Settings {
         if (savedTheme.accentColor) {
             const accentColor = this.contentArea.querySelector('#accentColor');
             if (accentColor) accentColor.value = savedTheme.accentColor;
-        }
-        if (savedTheme.systemFont) {
-            const systemFont = this.contentArea.querySelector('#systemFont');
-            if (systemFont) systemFont.value = savedTheme.systemFont;
         }
     }
 }

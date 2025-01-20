@@ -262,24 +262,43 @@ export class FileSystem {
         this.initializeFileSystem();
     }
 
-    deleteFolder(path) {
+
+    deleteFolder(path, isUserDelete = false) {
         const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         
-        // Check if folder exists and is not a system folder
-        if (!folders[path] || folders[path].type === 'system') {
-            throw new Error('Cannot delete folder');
+        // Check if folder exists
+        if (!folders[path]) {
+            throw new Error('Folder not found');
+        }
+
+        const folder = folders[path];
+        
+        // Special handling for user folder deletion
+        if (isUserDelete && path.startsWith('/ElxaOS/Users/')) {
+            const pathParts = path.split('/');
+            const userIndex = pathParts.indexOf('Users') + 1;
+            if (userIndex > 0 && userIndex < pathParts.length) {
+                const username = pathParts[userIndex];
+                // Allow deletion if it's a user folder being deleted as part of account removal
+                console.log('Deleting user folder:', username);
+            } else {
+                throw new Error('Invalid user folder path');
+            }
+        } else if (folder.type === 'system') {
+            // Still prevent deletion of system folders
+            throw new Error('Cannot delete system folder');
         }
 
         // Delete all subfolders and files
         Object.keys(folders).forEach(folderPath => {
-            if (folderPath.startsWith(path)) {
+            if (folderPath === path || folderPath.startsWith(path + '/')) {
                 delete folders[folderPath];
             }
         });
 
         Object.keys(files).forEach(filePath => {
-            if (filePath.startsWith(path)) {
+            if (filePath.startsWith(path + '/')) {
                 delete files[filePath];
             }
         });
@@ -287,7 +306,6 @@ export class FileSystem {
         localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
-
 
     renameFolder(path, newName) {
         console.log('Attempting to rename folder:', { path, newName });
@@ -392,22 +410,25 @@ export class FileSystem {
         if (normalizedPath === '/ElxaOS/Users') {
             // If we're in the Users directory, only show current user's folder
             Object.entries(folders).forEach(([folderPath, folder]) => {
-                if (folder.path === normalizedPath && folder.name === this.currentUsername) {
-                    console.log('Found user folder:', folder.name);
-                    contents.folders.push({
-                        ...folder,
-                        fullPath: folderPath
-                    });
+                if (folder.path === normalizedPath) {
+                    // Only add the folder if it matches the current username
+                    if (folder.name === this.currentUsername) {
+                        console.log('Found matching user folder:', folder.name);
+                        contents.folders.push({
+                            ...folder,
+                            fullPath: folderPath
+                        });
+                    }
                 }
             });
         } else if (normalizedPath.startsWith('/ElxaOS/Users/')) {
-            // For paths within the Users directory, only show contents if it's the current user's folder
+            // For paths within the Users directory
             const pathParts = normalizedPath.split('/');
             const userFolderIndex = pathParts.indexOf('Users') + 1;
             const userFolder = pathParts[userFolderIndex];
             
+            // Only show contents if we're in the current user's folder
             if (userFolder === this.currentUsername) {
-                // Show all contents for the current user's folder
                 Object.entries(folders).forEach(([folderPath, folder]) => {
                     if (folder.path === normalizedPath) {
                         console.log('Adding folder in user directory:', folder.name);
@@ -429,7 +450,7 @@ export class FileSystem {
                 });
             }
         } else {
-            // For all other paths, show everything as before
+            // For all other paths (system folders, etc.), show everything
             Object.entries(folders).forEach(([folderPath, folder]) => {
                 if (folder.path === normalizedPath) {
                     console.log('Adding folder:', folder.name, 'from path:', folder.path);
@@ -665,64 +686,71 @@ export class FileSystem {
 
     // Legacy support methods (for backward compatibility)
     getDocuments() {
-        return this.getFolderContents('/ElxaOS/Users/kitkat/Documents').files;
+        return this.getFolderContents(`/ElxaOS/Users/${this.currentUsername}/Documents`).files;
     }
-
+    
     getPaintFiles() {
-        return this.getFolderContents('/ElxaOS/Users/kitkat/Pictures').files;
+        return this.getFolderContents(`/ElxaOS/Users/${this.currentUsername}/Pictures`).files;
     }
-
+    
     getDocument(name) {
-        return this.getFile(this.joinPaths('/ElxaOS/Users/kitkat/Documents', name));
+        return this.getFile(this.joinPaths(`/ElxaOS/Users/${this.currentUsername}/Documents`, name));
     }
-
+    
     getPaintFile(name) {
-        return this.getFile(this.joinPaths('/ElxaOS/Users/kitkat/Pictures', name));
+        return this.getFile(this.joinPaths(`/ElxaOS/Users/${this.currentUsername}/Pictures`, name));
     }
-
+    
     saveDocument(name, content) {
-        return this.saveFile('/ElxaOS/Users/kitkat/Documents', name, content, 'text');
+        return this.saveFile(`/ElxaOS/Users/${this.currentUsername}/Documents`, name, content, 'text');
     }
-
+    
     savePaintFile(name, content) {
-        return this.saveFile('/ElxaOS/Users/kitkat/Pictures', name, content, 'paint');
+        return this.saveFile(`/ElxaOS/Users/${this.currentUsername}/Pictures`, name, content, 'paint');
     }
-
+    
     deleteDocument(name) {
-        return this.deleteFile(this.joinPaths('/ElxaOS/Users/kitkat/Documents', name));
+        return this.deleteFile(this.joinPaths(`/ElxaOS/Users/${this.currentUsername}/Documents`, name));
     }
-
+    
     deletePaintFile(name) {
-        return this.deleteFile(this.joinPaths('/ElxaOS/Users/kitkat/Pictures', name));
+        return this.deleteFile(this.joinPaths(`/ElxaOS/Users/${this.currentUsername}/Pictures`, name));
     }
 
     // Add this inside the FileSystem class, alongside other methods like createFolder, deleteFolder, etc.
     testCreateUser(username) {
         console.log('Testing user folder creation for:', username);
         
-        const userPath = `/ElxaOS/Users/${username}`;
+        // Create main user folder first
+        const userRootPath = `/ElxaOS/Users/${username}`;
+        try {
+            this.createFolder('/ElxaOS/Users', username);
+        } catch (error) {
+            console.error('Failed to create user root folder:', error);
+            return false;
+        }
+    
+        // Create standard user folders inside the user's directory
         const userFolders = [
-            { path: userPath, name: username },
-            { path: `${userPath}/Documents`, name: 'Documents' },
-            { path: `${userPath}/Pictures`, name: 'Pictures' },
-            { path: `${userPath}/Music`, name: 'Music' },
-            { path: `${userPath}/Downloads`, name: 'Downloads' },
-            { path: `${userPath}/Games`, name: 'Games' }
+            'Documents',
+            'Pictures',
+            'Music',
+            'Downloads',
+            'Games'
         ];
-
-        console.log('Attempting to create folders...');
+    
+        console.log('Attempting to create user folders...');
         
         try {
-            userFolders.forEach(folder => {
-                const parentPath = folder.path.substring(0, folder.path.lastIndexOf('/'));
+            userFolders.forEach(folderName => {
                 console.log('Creating folder:', {
-                    parentPath: parentPath,
-                    name: folder.name
+                    parentPath: userRootPath,
+                    name: folderName
                 });
-                this.createFolder(parentPath, folder.name);
+                this.createFolder(userRootPath, folderName);
             });
             console.log('User folder creation successful!');
-            
+                
             // Let's verify the folders were created
             const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
             console.log('Current folder structure:', folders);

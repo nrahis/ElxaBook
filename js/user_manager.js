@@ -76,19 +76,44 @@ export class UserManager {
 
     deleteUser(username) {
         const users = this.getAllUsers();
+        const currentUser = this.getCurrentUser();
+        
+        // Basic validation
+        if (!users[username]) {
+            throw new Error('User not found');
+        }
+        
+        // Prevent deleting your own account
+        if (username === currentUser.username) {
+            throw new Error('Cannot delete your own account');
+        }
         
         // Prevent deleting the last administrator
         if (users[username].type === 'administrator' && 
             this.getAdministrators().length === 1) {
             throw new Error('Cannot delete the last administrator account');
         }
-
-        // Delete user's home directory
-        this.fileSystem.deleteFolder(`/ElxaOS/Users/${username}`);
-
-        // Remove user from storage
-        delete users[username];
-        localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+    
+        try {
+            // Check if user's folder exists before attempting to delete it
+            const userFolderPath = `/ElxaOS/Users/${username}`;
+            if (this.fileSystem.folderExists(userFolderPath)) {
+                console.log(`Deleting user folder at: ${userFolderPath}`);
+                this.fileSystem.deleteFolder(userFolderPath, true);
+            } else {
+                console.log(`No folder found for user ${username}, skipping folder deletion`);
+            }
+            
+            // Remove user from storage
+            delete users[username];
+            localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+            
+            console.log(`User ${username} deleted successfully`);
+            return true;
+        } catch (error) {
+            console.error('Error during user deletion:', error);
+            throw new Error(`Failed to delete user: ${error.message}`);
+        }
     }
 
     getAllUsers() {

@@ -1,5 +1,6 @@
 import { UserManager } from './user_manager.js';
 import { FileSystem } from './storage.js';
+import { AvatarManager } from './avatar_manager.js'; // Add this import
 
 class BootSequence {
     constructor() {
@@ -14,9 +15,13 @@ class BootSequence {
         this.loginButton = document.getElementById('login-button');
         this.loginMessage = document.getElementById('login-message');
 
-        // Initialize FileSystem first
-        this.fileSystem = new FileSystem();
-        // Then initialize UserManager with FileSystem
+        // Create a single instance of FileSystem and make it globally available
+        if (!window.elxaFileSystem) {
+            window.elxaFileSystem = new FileSystem();
+        }
+        this.fileSystem = window.elxaFileSystem;
+        
+        // Initialize UserManager with the shared FileSystem instance
         this.userManager = new UserManager(this.fileSystem);
         
         this.selectedUser = 'kitkat'; // Default user
@@ -47,6 +52,7 @@ class BootSequence {
         ];
         
         this.initialize();
+        this.avatarManager = new AvatarManager();
     }
 
     switchUser(username) {
@@ -60,28 +66,21 @@ class BootSequence {
 
     renderLoginScreen() {
         const users = this.userManager.getAllUsers();
-        console.log('Available users:', users);
         
         const usersList = Object.values(users)
-            .map(user => `
-                <div class="user-option ${user.username === this.selectedUser ? 'selected' : ''}" 
-                     data-username="${user.username}">
-                    <div class="user-avatar">
-                        <svg viewBox="0 0 100 100" class="snake-icon">
-                            <path d="M75,50 Q60,35 50,50 T25,50" 
-                                fill="none" 
-                                stroke="#00ff9d" 
-                                stroke-width="8" 
-                                class="snake-body"/>
-                            <circle cx="80" cy="50" r="5" fill="#ff71ce" class="snake-eye"/>
-                            <path d="M85,50 L90,45 L90,55 Z" 
-                                fill="#ff71ce" 
-                                class="snake-tongue"/>
-                        </svg>
+            .map(user => {
+                const avatar = this.avatarManager.getUserAvatar(user.username);
+                return `
+                    <div class="user-option ${user.username === this.selectedUser ? 'selected' : ''}" 
+                         data-username="${user.username}">
+                        <div class="user-avatar">
+                            ${avatar.type === 'svg' ? avatar.content : 
+                              `<img src="${avatar.content}" alt="${user.username}" class="avatar-image">`}
+                        </div>
+                        <div class="user-name">${user.username}</div>
                     </div>
-                    <div class="user-name">${user.username}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
         const loginHTML = `
             <div class="login-container">
@@ -202,6 +201,37 @@ class BootSequence {
             this.loginMessage.textContent = `Welcome back, ${this.selectedUser}! 🐍`;
             this.loginMessage.style.color = '#00ff9d';
             this.loginMessage.classList.add('show');
+            
+            // Update FileSystem's current user
+            window.elxaFileSystem.setCurrentUser(this.selectedUser);
+            console.log('Set current user to:', this.selectedUser); // Debug log
+
+        // Load user settings
+            const settingsPath = `/ElxaOS/Users/${this.selectedUser}/.settings/user.config`;
+            try {
+                const settingsFile = window.elxaFileSystem.getFile(settingsPath);
+                if (settingsFile) {
+                    const settings = JSON.parse(settingsFile.content);
+                    // Apply settings
+                    if (settings.display?.background) {
+                        if (settings.display.background.startsWith('default-')) {
+                            const index = parseInt(settings.display.background.split('-')[1]);
+                            document.body.style.background = defaultBackgrounds[index].value;
+                            document.body.style.backgroundSize = '400% 400%';
+                        } else {
+                            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+                            document.body.style.background = `url(${customBgs[parseInt(settings.display.background)]})`;
+                            document.body.style.backgroundSize = 'cover';
+                        }
+                    }
+                    if (settings.personalization?.systemFont) {
+                        // Set the font immediately
+                        document.documentElement.style.setProperty('--system-font', settings.personalization.systemFont);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load user settings:', error);
+            }
             
             // Transition to desktop
             setTimeout(() => {

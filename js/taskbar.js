@@ -7,6 +7,8 @@ export class TaskBar {
         this.clockId = config.clockId;
         this.taskbarProgramsClass = config.taskbarProgramsClass;
         this.taskbarItems = new Map();
+        // Get fileSystem directly from import
+        this.fileSystem = window.elxaFileSystem;
     }
 
     initialize() {
@@ -15,43 +17,16 @@ export class TaskBar {
         this.startMenu = document.getElementById(this.startMenuId);
         this.taskbarPrograms = document.querySelector(`.${this.taskbarProgramsClass}`);
         this.clockDisplay = document.getElementById(this.clockId);
-
+    
         // Set up start menu toggle
         this.startButton.addEventListener('click', () => {
             this.toggleStartMenu();
         });
-
+    
         // Initialize and start clock
         this.updateClock();
         setInterval(() => this.updateClock(), 1000);
-
-        // Listen for window events
-        document.addEventListener('windowclose', (e) => {
-            this.removeTaskbarItem(e.detail.windowId);
-        });
-
-        document.addEventListener('windowfocus', (e) => {
-            const focusedWindow = this.activeWindows?.get(e.detail.windowId)?.window;
-            if (focusedWindow && focusedWindow.querySelector('.window-title').textContent === 'File Explorer') {
-                document.getElementById('taskbar-explorer').classList.add('active');
-            }
-        });
-
-        document.addEventListener('windowminimize', (e) => {
-            this.deactivateTaskbarItem(e.detail.windowId);
-        });
-
-        document.addEventListener('windowshow', (e) => {
-            this.activateTaskbarItem(e.detail.windowId);
-        });
-
-        // Close start menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('#startButton') && !e.target.closest('#startMenu')) {
-                this.hideStartMenu();
-            }
-        });
-
+    
         // Initialize File Explorer button
         console.log('About to initialize explorer button...');
         const explorerButton = document.getElementById('taskbar-explorer');
@@ -63,7 +38,9 @@ export class TaskBar {
             explorerButton.addEventListener('click', () => {
                 console.log('Explorer button clicked');
                 if (this.windowManager) {
-                    const userHome = '/ElxaOS/Users/kitkat';
+                    // Get current user's home directory
+                    const currentUser = this.fileSystem.currentUsername;
+                    const userHome = `/ElxaOS/Users/${currentUser}`;
                     console.log('Checking for existing explorer windows with path:', userHome);
                     
                     const windows = Array.from(document.querySelectorAll('.program-window'));
@@ -89,7 +66,6 @@ export class TaskBar {
                 }
             });
         }
-
     }
 
     // Add setter for WindowManager

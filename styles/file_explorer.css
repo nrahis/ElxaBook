@@ -30,7 +30,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    font-family: "MS Sans Serif", Arial, sans-serif;
+    font-family: var(--system-font);
 }
 
 .toolbar-button:hover {
@@ -182,7 +182,7 @@
     background: none;
     color: #441d57;
     font-size: 12px;
-    font-family: "Segoe UI", "Verdana", sans-serif;
+    font-family: var(--system-font);
     cursor: pointer;
 }
 

@@ -186,13 +186,17 @@ export class Desktop {
     }
 
     handleIconDoubleClick(name) {
+        // Get the current user from the file system
+        const currentUser = this.fileSystem.currentUsername;
+        
+        // Update paths to use current user
         const paths = {
             'Computer': '/ElxaOS',
-            'Documents': '/ElxaOS/Users/kitkat/Documents',
-            'Pictures': '/ElxaOS/Users/kitkat/Pictures',
-            'Music': '/ElxaOS/Users/kitkat/Music',
-            'Downloads': '/ElxaOS/Users/kitkat/Downloads',
-            'Videos': '/ElxaOS/Users/kitkat/Videos',
+            'Documents': `/ElxaOS/Users/${currentUser}/Documents`,
+            'Pictures': `/ElxaOS/Users/${currentUser}/Pictures`,
+            'Music': `/ElxaOS/Users/${currentUser}/Music`,
+            'Downloads': `/ElxaOS/Users/${currentUser}/Downloads`,
+            'Videos': `/ElxaOS/Users/${currentUser}/Videos`,
             'Recycle Bin': '/ElxaOS/Recycle Bin'
         };
     

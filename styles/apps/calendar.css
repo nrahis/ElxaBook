@@ -6,7 +6,7 @@
     width: 100%;
     background-color: #d5bde6;
     padding: 15px;
-    font-family: "Verdana", sans-serif;
+    font-family: var(--system-font);
     box-sizing: border-box;
     overflow: hidden; /* Add this to prevent overflow */
 }
