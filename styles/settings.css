@@ -1,0 +1,181 @@
+/* settings.css */
+
+.settings-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #e6d4f2;
+    font-family: "Segoe UI", "MS Sans Serif", "Arial", sans-serif;
+}
+
+/* Tabs */
+.settings-tabs {
+    display: flex;
+    background: #d5bde6;
+    border-bottom: 2px solid #b89fc7;
+    padding: 4px 4px 0 4px;
+}
+
+.tab-button {
+    padding: 6px 16px;
+    background: #f0d9ff;
+    border: 2px solid #b89fc7;
+    border-bottom: none;
+    margin-right: 2px;
+    cursor: pointer;
+    color: #441d57;
+    font-size: 12px;
+    position: relative;
+    top: 2px;
+}
+
+.tab-button:hover {
+    background: #e6d4f2;
+}
+
+.tab-button.active {
+    background: #e6d4f2;
+    border-bottom: 2px solid #e6d4f2;
+    margin-bottom: -2px;
+}
+
+/* Content Area */
+.settings-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.tab-panel {
+    display: none;
+    height: 100%;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
+/* Settings Groups */
+.settings-group {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #b89fc7;
+    background: white;
+}
+
+.settings-group h3 {
+    margin: 0 0 10px 0;
+    color: #441d57;
+    font-size: 14px;
+}
+
+/* Preview Box */
+.settings-preview {
+    margin-bottom: 20px;
+}
+
+.preview-box {
+    width: 320px;
+    height: 180px;
+    border: 2px inset #f0d9ff;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc);
+    background-size: cover;
+}
+
+.preview-label {
+    color: #441d57;
+    font-size: 12px;
+}
+
+/* Form Controls */
+select, input[type="text"] {
+    width: 200px;
+    padding: 4px;
+    border: 2px inset #f0d9ff;
+    background: white;
+    color: #441d57;
+    margin-bottom: 8px;
+}
+
+/* Users Panel */
+.users-list {
+    margin-bottom: 20px;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border: 1px solid #b89fc7;
+    background: white;
+    margin-bottom: 4px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    border-radius: 50%;
+}
+
+.user-name {
+    flex-grow: 1;
+    color: #441d57;
+}
+
+.user-type {
+    color: #8b6b9c;
+    font-size: 12px;
+}
+
+/* Footer */
+.settings-footer {
+    padding: 10px;
+    background: #d5bde6;
+    border-top: 1px solid #b89fc7;
+    text-align: right;
+    gap: 8px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.settings-button {
+    padding: 6px 16px;
+    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.settings-button:hover {
+    background: linear-gradient(to bottom, #e6d4f2, #d5bde6);
+}
+
+.settings-button:active {
+    border-style: inset;
+    background: #d5bde6;
+}
+
+/* System Info Panel */
+.system-info {
+    background: white;
+    padding: 15px;
+    border: 1px solid #b89fc7;
+}
+
+.info-item {
+    display: flex;
+    margin-bottom: 8px;
+}
+
+.info-item label {
+    width: 120px;
+    color: #441d57;
+    font-weight: bold;
+}
+
+.info-item span {
+    color: #441d57;
+}

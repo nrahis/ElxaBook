@@ -196,8 +196,13 @@ export class IconSet {
                 <circle cx="24" cy="24" r="6" fill="#4a9bb0"/>
                 <path d="M24 15V18M24 30V33M33 24H30M18 24H15" stroke="#4a9bb0" stroke-width="2"/>
             </svg>`,
+
+            solitaire: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
+                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+            </svg>`,
     
-            terminal: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+            duck: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
                 <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
                 <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
                 <path d="M16 16L22 24L16 32M24 32H32" stroke="#4a9bb0" stroke-width="2"/>
@@ -217,6 +222,11 @@ export class IconSet {
                 <circle cx="24" cy="19" r="2" fill="#4a9bb0"/>
                 <path d="M24 24V32" stroke="#4a9bb0" stroke-width="2"/>
             </svg>`,
+
+            scientificCalculator: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
+                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+            </svg>`,
     
             clock: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
                 <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
@@ -231,7 +241,11 @@ export class IconSet {
                 <rect x="14" y="16" width="20" height="16" rx="1" fill="none" stroke="#4a9bb0" stroke-width="2"/>
                 <path d="M18 14V18M30 14V18" stroke="#4a9bb0" stroke-width="2"/>
                 <path d="M20 22H28M20 26H24" stroke="#4a9bb0" stroke-width="2"/>
-            </svg>`
+            </svg>`,
+            slideshow: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
+                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+            </svg>`,
         };       
     
         // Program name to icon mapping
@@ -239,11 +253,14 @@ export class IconSet {
             'paint': 'paint',
             'notepad': 'notepad',
             'minesweeper': 'minesweeper',
-            'duck': 'terminal',    // Changed this to match the program name in the file system
+            'solitaire': 'solitaire',
+            'duck': 'duck',    // Changed this to match the program name in the file system
             'settings': 'settings',
             'about': 'about',
+            'scientificCalculator': 'scientificCalculator',
             'clock': 'clock',
-            'calendar': 'calendar'
+            'calendar': 'calendar',
+            'slideshow': 'slideshow'
         };
     
         console.log('Getting file icon:', { type, fileInfo: arguments[1] }); // Debug log

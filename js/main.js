@@ -2,14 +2,16 @@
 import { FileExplorer } from './file_explorer.js';
 import { WindowManager } from './windows.js';
 import { TaskBar } from './taskbar.js';
-import { Paint } from './apps/paint.js';
-import { Notepad } from './apps/notepad.js';
-import { Duck } from './apps/duck.js';
-import { minesweeper } from './apps/minesweeper.js';
-import { About } from './apps/about.js';
-import { scientificCalculator } from './apps/scientific_calculator.js';
-import { Clock } from './apps/clock.js';
-import { Calendar } from './apps/calendar.js';
+import { Paint } from './apps/system/paint.js';
+import { Notepad } from './apps/system/notepad.js';
+import { Duck } from './apps/system/duck.js';
+import { minesweeper } from './apps/system/minesweeper.js';
+import { solitaire } from './apps/system/solitaire.js';
+import { About } from './apps/system/about.js';
+import { scientificCalculator } from './apps/system/scientific_calculator.js';
+import { Clock } from './apps/system/clock.js';
+import { Calendar } from './apps/system/calendar.js';
+import { Slideshow } from './apps/system/slideshow.js';
 import { Settings } from './settings.js';
 import { fileSystem } from './storage.js';
 import { Desktop } from './desktop.js';
@@ -58,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const calculator = scientificCalculator;
     const clock = new Clock(fileSystem);
     const calendar = new Calendar(fileSystem);
+    const slideshow = new Slideshow(fileSystem);
     const settings = new Settings(fileSystem);
     const fileExplorer = new FileExplorer(fileSystem, windowManager);
 
@@ -109,6 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 500, height: 600 }
     });
 
+    windowManager.registerApp('solitaire', {
+        title: 'Solitaire',
+        initialize: (contentArea) => solitaire.initialize(contentArea),
+        defaultSize: { width: 710, height: 610 }
+    });
+
     windowManager.registerApp('about', {
         title: 'About ElxaOS',
         initialize: (contentArea) => about.initialize(contentArea),
@@ -132,6 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('calendar', {
         title: 'Calendar',
         initialize: (contentArea) => calendar.initialize(contentArea),
+        defaultSize: { width: 750, height: 600 }
+    });
+
+    windowManager.registerApp('slideshow', {
+        title: 'Slideshow',
+        initialize: (contentArea) => slideshow.initialize(contentArea),
         defaultSize: { width: 750, height: 600 }
     });
 

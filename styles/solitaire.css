@@ -1,0 +1,163 @@
+/* Base container styles */
+.solitaire-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: #e6d4f2;
+    padding: 4px;
+    user-select: none;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.solitaire-header {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    background: linear-gradient(135deg, #ff99cc, #a267ac);
+    margin-bottom: 4px;
+    border-radius: 5px;
+    height: 24px;
+    flex-shrink: 0;
+    gap: 4px;
+    width: calc(92px * 7 + 4px * 6);
+    margin: 0 auto 4px auto;
+}
+
+/* Score and Timer displays */
+.score-display, .timer-display {
+    background-color: #d5bde6;
+    padding: 2px 4px;
+    border: 2px inset #f0d9ff;
+    font-family: 'Digital', monospace;
+    font-size: 12px;
+    color: #441d57;
+    min-width: 50px;
+    text-align: center;
+}
+
+.timer-display {
+    margin-left: auto;
+    margin-right: 200px;
+}
+
+/* New Game button */
+.new-game-btn {
+    padding: 2px 8px;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    cursor: pointer;
+    font-size: 12px;
+    width: 92px;
+    text-align: center;
+    box-sizing: border-box;
+    margin-left: auto;
+    position: relative;
+    right: 16px;
+}
+
+.new-game-btn:hover {
+    background-color: #e6d4f2;
+}
+
+.new-game-btn:active {
+    border-style: inset;
+}
+
+/* Game area layout */
+.game-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow: hidden;
+    height: calc(100% - 32px);
+    width: calc(92px * 7 + 4px * 6);
+    margin: 0 auto;
+}
+
+.upper-row {
+    display: grid;
+    grid-template-columns: repeat(7, 92px);
+    gap: 4px;
+    height: 130px;
+    width: 100%;
+}
+
+.stock-waste {
+    display: flex;
+    gap: 4px;
+    grid-column: 1 / 3;
+}
+
+.foundations {
+    display: flex;
+    gap: 4px;
+    grid-column: 4 / 8;
+}
+
+/* Card areas */
+.stock, .waste, .foundation, .tableau {
+    width: 92px;
+    height: 128px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid #b89fc7;
+    border-radius: 8px;
+    position: relative;
+}
+
+.tableaus {
+    display: grid;
+    grid-template-columns: repeat(7, 92px);
+    gap: 4px;
+    height: calc(100% - 134px);
+    width: 100%;
+}
+
+/* Card styling */
+.playing-card {
+    position: absolute;
+    width: 92px;
+    height: 128px;
+    transition: all 0.2s ease;
+}
+
+/* Click interaction styles */
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.selected-card {
+    box-shadow: 0 0 0 2px #a267ac, 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-3px);
+}
+
+.clickable-empty {
+    cursor: pointer;
+}
+
+.clickable-empty:hover {
+    background: rgba(255, 255, 255, 0.4);
+    border: 2px solid #a267ac;
+}
+
+/* Empty pile styles */
+.stock:empty, .waste:empty, .foundation:empty, .tableau:empty {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed #b89fc7;
+}
+
+/* Prevent text selection */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

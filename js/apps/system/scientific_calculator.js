@@ -1,4 +1,4 @@
-import { fileSystem } from '../storage.js';
+import { fileSystem } from '../../storage.js';
 import { Calculator } from './calculator.js';
 
 export class ScientificCalculator extends Calculator {

@@ -1,7 +1,12 @@
 // settings.js
+import { UserManager } from './user_manager.js';
+
 export class Settings {
     constructor(fileSystem) {
         this.fileSystem = fileSystem;
+        this.currentTab = 'display'; // Default tab
+        
+        // Background options from your existing code
         this.defaultBackgrounds = [
             {
                 name: 'Vaporwave Gradient',
@@ -27,146 +32,332 @@ export class Settings {
     }
 
     initialize(contentArea) {
-        // Remove the default white background
-        contentArea.style.background = '#e6d4f2';
         this.contentArea = contentArea;
         this.render();
-        this.loadCustomBackgrounds();
+        this.loadSavedSettings();
     }
 
-    async render() {
+    render() {
         this.contentArea.innerHTML = `
-            <div style="padding: 20px;">
-                <div style="margin-bottom: 20px;">
-                    <div id="backgroundPreview" style="
-                        width: 320px;
-                        height: 180px;
-                        border: 2px inset #f0d9ff;
-                        background: ${this.getCurrentBackground()};
-                        background-size: cover;
-                        margin-bottom: 8px;
-                    "></div>
-                    <div style="color: #441d57; font-size: 12px;">Background Preview</div>
+            <div class="settings-container">
+                <div class="settings-tabs">
+                    <button class="tab-button active" data-tab="display">Display</button>
+                    <button class="tab-button" data-tab="personalization">Personalization</button>
+                    <button class="tab-button" data-tab="users">Users & Accounts</button>
+                    <button class="tab-button" data-tab="system">System Info</button>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; color: #441d57;">
-                        Select Background:
-                    </label>
-                    <select id="backgroundSelect" style="
-                        width: 200px;
-                        padding: 4px;
-                        border: 2px inset #f0d9ff;
-                        background: white;
-                        color: #441d57;
-                        margin-bottom: 12px;
-                    ">
-                        <option disabled>-- Default Backgrounds --</option>
-                        ${this.defaultBackgrounds.map((bg, index) => `
-                            <option value="default-${index}">${bg.name}</option>
-                        `).join('')}
-                        <option disabled>-- Custom Backgrounds --</option>
-                    </select>
+                
+                <div class="settings-content">
+                    <div class="tab-panel active" id="display-panel">
+                        ${this.renderDisplayPanel()}
+                    </div>
+                    <div class="tab-panel" id="personalization-panel">
+                        ${this.renderPersonalizationPanel()}
+                    </div>
+                    <div class="tab-panel" id="users-panel">
+                        ${this.renderUsersPanel()}
+                    </div>
+                    <div class="tab-panel" id="system-panel">
+                        ${this.renderSystemPanel()}
+                    </div>
                 </div>
-
-                <div style="margin-bottom: 20px;">
-                    <button id="browseButton" style="
-                        padding: 4px 16px;
-                        background: #d5bde6;
-                        border: 2px outset #f0d9ff;
-                        color: #441d57;
-                        cursor: pointer;
-                    ">Browse...</button>
-                    <input type="file" 
-                           id="customBackground" 
-                           accept=".jpg,.jpeg,.png"
-                           style="display: none;">
-                </div>
-
-                <div style="
-                    border-top: 1px solid #b89fc7;
-                    padding-top: 16px;
-                    text-align: right;
-                ">
-                    <button id="applyButton" style="
-                        padding: 4px 16px;
-                        background: #d5bde6;
-                        border: 2px outset #f0d9ff;
-                        color: #441d57;
-                        cursor: pointer;
-                    ">Apply</button>
+                
+                <div class="settings-footer">
+                    <button class="settings-button" id="settings-apply">Apply</button>
+                    <button class="settings-button" id="settings-ok">OK</button>
+                    <button class="settings-button" id="settings-cancel">Cancel</button>
                 </div>
             </div>
         `;
 
         this.setupEventListeners();
+        this.loadCustomBackgrounds();
+    }
+
+    renderDisplayPanel() {
+        return `
+            <div class="settings-panel">
+                <div class="settings-preview">
+                    <div id="backgroundPreview" class="preview-box"></div>
+                    <div class="preview-label">Background Preview</div>
+                </div>
+                
+                <div class="settings-options">
+                    <div class="settings-group">
+                        <label>Desktop Background:</label>
+                        <select id="backgroundSelect">
+                            <option disabled>-- Default Backgrounds --</option>
+                            ${this.defaultBackgrounds.map((bg, index) => `
+                                <option value="default-${index}">${bg.name}</option>
+                            `).join('')}
+                            <option disabled>-- Custom Backgrounds --</option>
+                        </select>
+                        <button id="browseButton">Browse...</button>
+                        <input type="file" id="customBackground" accept=".jpg,.jpeg,.png" style="display: none;">
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderPersonalizationPanel() {
+        return `
+            <div class="settings-panel">
+                <div class="settings-group">
+                    <h3>Theme Colors</h3>
+                    <label>Primary Color:</label>
+                    <input type="color" id="primaryColor" value="#a267ac">
+                    
+                    <label>Accent Color:</label>
+                    <input type="color" id="accentColor" value="#67c9dc">
+                </div>
+                
+                <div class="settings-group">
+                    <h3>System Font</h3>
+                    <select id="systemFont">
+                        <option value="Segoe UI">Segoe UI</option>
+                        <option value="MS Sans Serif">MS Sans Serif</option>
+                        <option value="Verdana">Verdana</option>
+                    </select>
+                </div>
+            </div>
+        `;
+    }
+
+    renderUsersPanel() {
+        const userManager = new UserManager(this.fileSystem);
+        const users = userManager.getAllUsers();
+        const currentUser = userManager.getCurrentUser();  // This might be null
+    
+        return `
+            <div class="settings-panel">
+                <div class="users-list">
+                    ${Object.values(users).map(user => `
+                        <div class="user-item ${currentUser && user.username === currentUser.username ? 'current' : ''}">
+                            <img src="/api/placeholder/48/48" alt="${user.username}" class="user-avatar">
+                            <div class="user-info">
+                                <span class="user-name">${user.username}</span>
+                                <span class="user-type">${user.type}</span>
+                            </div>
+                            <div class="user-actions">
+                                ${user.username !== 'kitkat' ? `
+                                    <button class="user-action-btn" data-action="delete" data-username="${user.username}">
+                                        Delete
+                                    </button>
+                                ` : ''}
+                                <button class="user-action-btn" data-action="password" data-username="${user.username}">
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <button class="settings-button" id="addUser">Add New User...</button>
+            </div>
+        `;
+    }
+    
+    showAddUserDialog() {
+        const dialog = document.createElement('div');
+        dialog.className = 'settings-dialog';
+        dialog.innerHTML = `
+            <div class="dialog-content">
+                <h3>Add New User</h3>
+                <div class="dialog-form">
+                    <label>Username:</label>
+                    <input type="text" id="newUsername" class="dialog-input">
+                    
+                    <label>Password:</label>
+                    <input type="password" id="newPassword" class="dialog-input">
+                    
+                    <label>Confirm Password:</label>
+                    <input type="password" id="confirmPassword" class="dialog-input">
+                    
+                    <label>Account Type:</label>
+                    <select id="accountType" class="dialog-input">
+                        <option value="standard">Standard User</option>
+                        <option value="administrator">Administrator</option>
+                    </select>
+                </div>
+                <div class="dialog-buttons">
+                    <button id="createUser">Create</button>
+                    <button id="cancelCreate">Cancel</button>
+                </div>
+            </div>
+        `;
+    
+        document.body.appendChild(dialog);
+    
+        // Add event listeners for the dialog
+        dialog.querySelector('#createUser').addEventListener('click', () => {
+            const username = dialog.querySelector('#newUsername').value;
+            const password = dialog.querySelector('#newPassword').value;
+            const confirm = dialog.querySelector('#confirmPassword').value;
+            const type = dialog.querySelector('#accountType').value;
+    
+            if (password !== confirm) {
+                alert('Passwords do not match');
+                return;
+            }
+    
+            try {
+                const userManager = new UserManager(this.fileSystem);
+                userManager.createUser(username, password, type);
+                dialog.remove();
+                this.refreshUsersPanel();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    
+        dialog.querySelector('#cancelCreate').addEventListener('click', () => {
+            dialog.remove();
+        });
+    }
+
+
+    refreshUsersPanel() {
+        const panel = this.contentArea.querySelector('#users-panel');
+        if (panel) {
+            panel.innerHTML = this.renderUsersPanel();
+            this.setupUsersPanelEvents();
+        }
+    }
+    
+    setupUsersPanelEvents() {
+        const addUserBtn = this.contentArea.querySelector('#addUser');
+        if (addUserBtn) {
+            addUserBtn.addEventListener('click', () => this.showAddUserDialog());
+        }
+    
+        // Setup delete and password change buttons
+        const userActions = this.contentArea.querySelectorAll('.user-action-btn');
+        userActions.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = e.target.dataset.action;
+                const username = e.target.dataset.username;
+                
+                if (action === 'delete') {
+                    this.handleDeleteUser(username);
+                } else if (action === 'password') {
+                    this.showChangePasswordDialog(username);
+                }
+            });
+        });
+    }
+    
+    handleDeleteUser(username) {
+        if (confirm(`Are you sure you want to delete user "${username}"?`)) {
+            try {
+                const userManager = new UserManager(this.fileSystem);
+                userManager.deleteUser(username);
+                this.refreshUsersPanel();
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    }
+    
+    showChangePasswordDialog(username) {
+        // Similar to showAddUserDialog but for password change
+        // We can implement this next if you want
+    }
+
+    renderSystemPanel() {
+        return `
+            <div class="settings-panel">
+                <div class="system-info">
+                    <h3>About ElxaOS</h3>
+                    <div class="info-item">
+                        <label>Version:</label>
+                        <span>ElxaOS 1.0</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Computer Name:</label>
+                        <span>ELXA-PC</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Current User:</label>
+                        <span>kitkat</span>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     setupEventListeners() {
-        const select = this.contentArea.querySelector('#backgroundSelect');
-        const fileInput = this.contentArea.querySelector('#customBackground');
+        // Tab switching
+        const tabs = this.contentArea.querySelectorAll('.tab-button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = e.target.dataset.tab;
+                this.switchTab(tabName);
+            });
+        });
+
+        // Background selection
+        const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
+        if (backgroundSelect) {
+            backgroundSelect.addEventListener('change', (e) => {
+                this.updateBackgroundPreview(e.target.value);
+            });
+        }
+
+        // File input for custom backgrounds
         const browseButton = this.contentArea.querySelector('#browseButton');
-        const applyButton = this.contentArea.querySelector('#applyButton');
-        const preview = this.contentArea.querySelector('#backgroundPreview');
+        const fileInput = this.contentArea.querySelector('#customBackground');
+        if (browseButton && fileInput) {
+            browseButton.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (e) => this.handleCustomBackground(e));
+        }
 
-        browseButton.addEventListener('click', () => {
-            fileInput.click();
-        });
+        // Footer buttons
+        const applyButton = this.contentArea.querySelector('#settings-apply');
+        const okButton = this.contentArea.querySelector('#settings-ok');
+        const cancelButton = this.contentArea.querySelector('#settings-cancel');
 
-        select.addEventListener('change', (e) => {
-            const value = e.target.value;
-            let background;
-
-            if (value.startsWith('default-')) {
-                const index = parseInt(value.split('-')[1]);
-                background = this.defaultBackgrounds[index].value;
-            } else {
-                const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-                background = `url(${customBgs[parseInt(value)]})`;
-            }
-
-            preview.style.background = background;
-            preview.style.backgroundSize = 'cover';
-        });
-
-        applyButton.addEventListener('click', () => {
-            const background = preview.style.background;
-            document.body.style.background = background;
-            document.body.style.backgroundSize = 'cover';
-            localStorage.setItem('currentBackground', background);
-        });
-
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            try {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    const dataUrl = e.target.result;
-                    
-                    const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-                    customBgs.push(dataUrl);
-                    localStorage.setItem('customBackgrounds', JSON.stringify(customBgs));
-
-                    const option = document.createElement('option');
-                    option.value = customBgs.length - 1;
-                    option.textContent = `Custom Background ${customBgs.length}`;
-                    select.appendChild(option);
-
-                    select.value = customBgs.length - 1;
-                    select.dispatchEvent(new Event('change'));
-                };
-                reader.readAsDataURL(file);
-            } catch (error) {
-                console.error('Error loading image:', error);
-                alert('Error loading image. Please try another file.');
-            }
-        });
+        if (applyButton) {
+            applyButton.addEventListener('click', () => this.applySettings());
+        }
+        if (okButton) {
+            okButton.addEventListener('click', () => this.handleOK());
+        }
+        if (cancelButton) {
+            cancelButton.addEventListener('click', () => this.handleCancel());
+        }
     }
 
-    getCurrentBackground() {
-        return localStorage.getItem('currentBackground') || this.defaultBackgrounds[0].value;
+    switchTab(tabName) {
+        // Remove active class from all tabs and panels
+        this.contentArea.querySelectorAll('.tab-button').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        this.contentArea.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        // Add active class to selected tab and panel
+        const selectedTab = this.contentArea.querySelector(`[data-tab="${tabName}"]`);
+        const selectedPanel = this.contentArea.querySelector(`#${tabName}-panel`);
+        if (selectedTab && selectedPanel) {
+            selectedTab.classList.add('active');
+            selectedPanel.classList.add('active');
+        }
+    }
+
+    updateBackgroundPreview(value) {
+        const preview = this.contentArea.querySelector('#backgroundPreview');
+        if (!preview) return;
+
+        if (value.startsWith('default-')) {
+            const index = parseInt(value.split('-')[1]);
+            preview.style.background = this.defaultBackgrounds[index].value;
+        } else {
+            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+            preview.style.background = `url(${customBgs[parseInt(value)]})`;
+        }
+        preview.style.backgroundSize = 'cover';
     }
 
     loadCustomBackgrounds() {
@@ -179,5 +370,126 @@ export class Settings {
             option.textContent = `Custom Background ${index + 1}`;
             select.appendChild(option);
         });
+    }
+
+    handleCustomBackground(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+    
+        try {
+            const reader = new FileReader();
+            reader.onload = (readerEvent) => {
+                const dataUrl = readerEvent.target.result;
+                
+                // Get existing custom backgrounds or initialize empty array
+                const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+                
+                // Add new background
+                customBgs.push(dataUrl);
+                
+                // Save updated list
+                localStorage.setItem('customBackgrounds', JSON.stringify(customBgs));
+    
+                // Add new option to select dropdown
+                const select = this.contentArea.querySelector('#backgroundSelect');
+                const option = document.createElement('option');
+                option.value = customBgs.length - 1;  // Index of new background
+                option.textContent = `Custom Background ${customBgs.length}`;
+                select.appendChild(option);
+    
+                // Select the new background
+                select.value = customBgs.length - 1;
+    
+                // Update preview
+                const preview = this.contentArea.querySelector('#backgroundPreview');
+                preview.style.background = `url(${dataUrl})`;
+                preview.style.backgroundSize = 'cover';
+            };
+    
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Error loading custom background:', error);
+            alert('Failed to load custom background. Please try another image.');
+        }
+    }
+
+    applySettings() {
+        const selectedBackground = this.contentArea.querySelector('#backgroundSelect').value;
+        const currentTheme = {
+            primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
+            accentColor: this.contentArea.querySelector('#accentColor')?.value,
+            systemFont: this.contentArea.querySelector('#systemFont')?.value
+        };
+    
+        // Apply background
+        if (selectedBackground.startsWith('default-')) {
+            const index = parseInt(selectedBackground.split('-')[1]);
+            document.body.style.background = this.defaultBackgrounds[index].value;
+            document.body.style.backgroundSize = '400% 400%';  // For the gradient animation
+        } else {
+            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+            document.body.style.background = `url(${customBgs[parseInt(selectedBackground)]})`;
+            document.body.style.backgroundSize = 'cover';
+        }
+    
+        // Save current settings
+        localStorage.setItem('currentBackground', document.body.style.background);
+        localStorage.setItem('currentTheme', JSON.stringify(currentTheme));
+    }
+    
+    handleOK() {
+        this.applySettings();
+        this.closeWindow();
+    }
+    
+    handleCancel() {
+        this.closeWindow();
+    }
+    
+    closeWindow() {
+        const windowElement = this.contentArea.closest('.program-window');
+        if (windowElement) {
+            const closeEvent = new Event('windowclose');
+            windowElement.dispatchEvent(closeEvent);
+        }
+    }
+    
+    loadSavedSettings() {
+        const savedBackground = localStorage.getItem('currentBackground');
+        const savedTheme = JSON.parse(localStorage.getItem('currentTheme') || '{}');
+        
+        // Set background select
+        if (savedBackground) {
+            // Find matching background in defaults
+            const defaultIndex = this.defaultBackgrounds.findIndex(bg => 
+                savedBackground.includes(bg.value)
+            );
+            
+            const select = this.contentArea.querySelector('#backgroundSelect');
+            if (defaultIndex !== -1) {
+                select.value = `default-${defaultIndex}`;
+            }
+            
+            // Update preview
+            const preview = this.contentArea.querySelector('#backgroundPreview');
+            if (preview) {
+                preview.style.background = savedBackground;
+                preview.style.backgroundSize = 'cover';
+            }
+        }
+    
+        // Set theme controls
+        if (savedTheme.primaryColor) {
+            const primaryColor = this.contentArea.querySelector('#primaryColor');
+            if (primaryColor) primaryColor.value = savedTheme.primaryColor;
+        }
+        if (savedTheme.accentColor) {
+            const accentColor = this.contentArea.querySelector('#accentColor');
+            if (accentColor) accentColor.value = savedTheme.accentColor;
+        }
+        if (savedTheme.systemFont) {
+            const systemFont = this.contentArea.querySelector('#systemFont');
+            if (systemFont) systemFont.value = savedTheme.systemFont;
+        }
     }
 }

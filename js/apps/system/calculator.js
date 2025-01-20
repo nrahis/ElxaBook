@@ -1,4 +1,4 @@
-import { fileSystem } from '../storage.js';
+import { fileSystem } from '../../storage.js';
 
 export class Calculator {
     constructor(fileSystem) {

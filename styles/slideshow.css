@@ -1,0 +1,131 @@
+.slideshow-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.slideshow-menu {
+    display: flex;
+    background-color: #d5bde6;
+    border-bottom: 2px solid #b89fc7;
+    padding: 2px;
+    gap: 4px;
+}
+
+.slideshow-editor {
+    display: flex;
+    flex-grow: 1;
+}
+
+.slide-canvas {
+    flex-grow: 1;
+    padding: 8px;
+    background-color: #f0d9ff;
+}
+
+#slide-content {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    font-family: "Courier New", monospace;
+    font-size: 18px;
+    padding: 8px;
+    background-color: white;
+    border: 2px inset #b89fc7;
+    color: #441d57;
+}
+
+.slide-thumbnails {
+    width: 150px;
+    background-color: #e6d4f2;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+}
+
+.slide-thumbnail {
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slide-thumbnail:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.slide-thumbnail.active {
+    background-color: #67c9dc;
+    border-style: inset;
+}
+
+.slideshow-status {
+    display: flex;
+    justify-content: space-between;
+    background-color: #d5bde6;
+    border-top: 1px solid #b89fc7;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: #441d57;
+}
+
+/* Presentation Window Styles */
+.presentation-window {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #441d57;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.presentation-slide {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 36px;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.presentation-controls {
+    background-color: #a267ac;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.presentation-controls button {
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.presentation-controls button:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.presentation-controls button:disabled {
+    background-color: #e6d4f2;
+    color: #a267ac;
+    cursor: not-allowed;
+}

@@ -98,66 +98,90 @@ export class FileSystem {
             };
     
             const defaultFiles = {
-                '/ElxaOS/System/Paint.app': {
-                    name: 'Paint.app',
+                '/ElxaOS/System/Paint.abbi': {
+                    name: 'Paint.abbi',
                     type: 'program',
                     program: 'paint',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Notepad.app': {
-                    name: 'Notepad.app',
+                '/ElxaOS/System/Notepad.abbi': {
+                    name: 'Notepad.abbi',
                     type: 'program',
                     program: 'notepad',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Kittysweeper.app': {
-                    name: 'Kittysweeper.app',
+                '/ElxaOS/System/Kittysweeper.abbi': {
+                    name: 'Kittysweeper.abbi',
                     type: 'program',
                     program: 'minesweeper',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Terminal.app': {
-                    name: 'Terminal.app',
+                '/ElxaOS/System/Solitaire.abbi': {
+                    name: 'Solitaire.abbi',
+                    type: 'program',
+                    program: 'solitaire',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/DUCK.abbi': {
+                    name: 'DUCK.abbi',
                     type: 'program',
                     program: 'duck',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Settings.app': {
-                    name: 'Settings.app',
+                '/ElxaOS/System/Settings.abbi': {
+                    name: 'Settings.abbi',
                     type: 'program',
                     program: 'settings',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/About.app': {
-                    name: 'About.app',
+                '/ElxaOS/System/About.abbi': {
+                    name: 'About.abbi',
                     type: 'program',
                     program: 'about',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Clock.app': {
-                    name: 'Clock.app',
+                '/ElxaOS/System/Calculator.abbi': {
+                    name: 'Calculator.abbi',
+                    type: 'program',
+                    program: 'scientificCalculator',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Clock.abbi': {
+                    name: 'Clock.abbi',
                     type: 'program',
                     program: 'clock',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Calendar.app': {
-                    name: 'Calendar.app',
+                '/ElxaOS/System/Calendar.abbi': {
+                    name: 'Calendar.abbi',
                     type: 'program',
                     program: 'calendar',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Slideshow.abbi': {
+                    name: 'Slideshow.abbi',
+                    type: 'program',
+                    program: 'slideshow',
                     path: '/ElxaOS/System',
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
