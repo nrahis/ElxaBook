@@ -62,10 +62,10 @@
     - different user names
     - math games
     - calculator app
-    - Games folder
-    - default folder in ElxaOS folder, "System", for all default programs
     - custom alarm sounds
     - messenger - hook up to Gemini, generate messages
+    - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options
+
 
 
 

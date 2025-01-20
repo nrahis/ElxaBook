@@ -1,0 +1,104 @@
+.calculator-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.calculator-menu {
+    display: flex;
+    background-color: #d5bde6;
+    border-bottom: 2px solid #b89fc7;
+    padding: 2px;
+    gap: 4px;
+}
+
+.calculator-display {
+    display: flex;
+    align-items: center;
+    background-color: #f0d9ff;
+    padding: 8px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+#calculator-input {
+    flex-grow: 1;
+    text-align: right;
+    font-family: "Courier New", monospace;
+    font-size: 24px;
+    padding: 8px;
+    background-color: white;
+    border: 2px inset #b89fc7;
+    color: #441d57;
+}
+
+.memory-indicator {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 12px;
+    color: #a267ac;
+}
+
+.calculator-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    background-color: #e6d4f2;
+    flex-grow: 1; /* Add this to make buttons expand and fill remaining space */
+    height: 0;
+}
+
+.button-row {
+    display: flex;
+    gap: 4px;
+}
+
+.calc-button {
+    flex: 1;
+    padding: 12px;
+    font-size: 18px;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    color: #441d57;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.calc-button:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.calc-button:active {
+    background-color: #a267ac;
+    border-style: inset;
+}
+
+.calc-button.operator {
+    background-color: #67c9dc;
+}
+
+.calc-button.memory {
+    background-color: #ff99cc;
+}
+
+/* scientific calculator */
+.calc-button.scientific {
+    background-color: #67dcb0;
+    border: 2px outset #a0f0d0;
+    color: #2a5f4f;
+}
+
+.calc-button.scientific:hover {
+    background-color: #4ab394;
+    color: white;
+}
+
+.calc-button.scientific:active {
+    background-color: #3a9777;
+    border-style: inset;
+}

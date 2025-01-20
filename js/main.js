@@ -7,6 +7,7 @@ import { Notepad } from './apps/notepad.js';
 import { Duck } from './apps/duck.js';
 import { minesweeper } from './apps/minesweeper.js';
 import { About } from './apps/about.js';
+import { scientificCalculator } from './apps/scientific_calculator.js';
 import { Clock } from './apps/clock.js';
 import { Calendar } from './apps/calendar.js';
 import { Settings } from './settings.js';
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const paint = new Paint(fileSystem);
     const notepad = new Notepad(fileSystem);
     const about = new About();
+    const calculator = scientificCalculator;
     const clock = new Clock(fileSystem);
     const calendar = new Calendar(fileSystem);
     const settings = new Settings(fileSystem);
@@ -113,6 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 400, height: 300 },
         singleton: true,
         windowId: 'about-elxaos' // Changed to be more specific and consistent
+    });
+
+    windowManager.registerApp('scientificCalculator', {
+        title: 'Calculator',
+        initialize: (contentArea) => scientificCalculator.initialize(contentArea), // Fix typo from 'sceintificCalculator'
+        defaultSize: { width: 330, height: 410 }
     });
 
     windowManager.registerApp('clock', {
