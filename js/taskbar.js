@@ -1,3 +1,5 @@
+import { IconSet } from './icons.js';
+
 export class TaskBar {
     constructor(config) {
         this.startButtonId = config.startButtonId;
@@ -8,6 +10,7 @@ export class TaskBar {
     }
 
     initialize() {
+        console.log('TaskBar initializing...');
         this.startButton = document.getElementById(this.startButtonId);
         this.startMenu = document.getElementById(this.startMenuId);
         this.taskbarPrograms = document.querySelector(`.${this.taskbarProgramsClass}`);
@@ -28,7 +31,10 @@ export class TaskBar {
         });
 
         document.addEventListener('windowfocus', (e) => {
-            this.updateActiveState(e.detail.windowId);
+            const focusedWindow = this.activeWindows?.get(e.detail.windowId)?.window;
+            if (focusedWindow && focusedWindow.querySelector('.window-title').textContent === 'File Explorer') {
+                document.getElementById('taskbar-explorer').classList.add('active');
+            }
         });
 
         document.addEventListener('windowminimize', (e) => {
@@ -45,6 +51,50 @@ export class TaskBar {
                 this.hideStartMenu();
             }
         });
+
+        // Initialize File Explorer button
+        console.log('About to initialize explorer button...');
+        const explorerButton = document.getElementById('taskbar-explorer');
+        if (explorerButton) {
+            const folderIcon = IconSet.getIcon('folder', 'default');
+            folderIcon.className = 'file-icon';
+            explorerButton.appendChild(folderIcon);
+    
+            explorerButton.addEventListener('click', () => {
+                console.log('Explorer button clicked');
+                if (this.windowManager) {
+                    const userHome = '/ElxaOS/Users/kitkat';
+                    console.log('Checking for existing explorer windows with path:', userHome);
+                    
+                    const windows = Array.from(document.querySelectorAll('.program-window'));
+                    const explorerWindow = windows.find(w => w.dataset.path === userHome);
+                    
+                    if (explorerWindow) {
+                        console.log('Found existing window for home directory');
+                        if (explorerWindow.classList.contains('hidden')) {
+                            explorerWindow.classList.remove('hidden');
+                            this.windowManager.bringToFront(explorerWindow);
+                            explorerButton.classList.add('active');
+                        } else {
+                            explorerWindow.classList.add('hidden');
+                            explorerButton.classList.remove('active');
+                        }
+                    } else {
+                        console.log('Creating new window for home directory');
+                        const window = this.windowManager.createWindow('explorer', { path: userHome });
+                        if (window) {
+                            explorerButton.classList.add('active');
+                        }
+                    }
+                }
+            });
+        }
+
+    }
+
+    // Add setter for WindowManager
+    setWindowManager(windowManager) {
+        this.windowManager = windowManager;
     }
 
     updateClock() {

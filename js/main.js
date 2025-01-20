@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Now we can safely connect them
     windowManager.setTaskbar(taskbar);
+    taskbar.setWindowManager(windowManager);
 
     // Initialize core systems
     windowManager.initialize();
@@ -58,12 +59,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const settings = new Settings(fileSystem);
     const fileExplorer = new FileExplorer(fileSystem, windowManager);
 
-    // Register all applications with the window manager
     windowManager.registerApp('explorer', {
-        title: 'File Explorer',
+        title: 'File Explorer',  // This specific title will help us identify the main explorer
         initialize: (contentArea, params) => {
-            console.log('Explorer app initialize called with params:', params);  // Add this debug log
+            console.log('Explorer app initialize called with params:', params);
             fileExplorer.initialize(contentArea, params?.path);
+        },
+        defaultSize: { width: 800, height: 600 },
+        singleton: true  // Add this
+    });
+
+    windowManager.registerApp('folder', {
+        title: 'Folder',  // This will be replaced with the actual folder name
+        initialize: (contentArea, params) => {
+            console.log('Folder app initialize called with params:', params);
+            fileExplorer.initialize(contentArea, params?.path);
+            // Set the window title to the folder name
+            if (params?.path) {
+                const folderName = params.path.split('/').pop();
+                contentArea.closest('.program-window').querySelector('.window-title').textContent = folderName;
+            }
         },
         defaultSize: { width: 800, height: 600 }
     });
@@ -125,15 +140,6 @@ document.addEventListener('DOMContentLoaded', () => {
             duck.initialize(contentArea);
         },
         defaultSize: { width: 700, height: 500 }
-    });
-
-    windowManager.registerApp('folder', {
-        title: 'Folder',
-        initialize: (contentArea) => {
-            // This empty initialize function will be overridden by Desktop
-            contentArea.innerHTML = '';  // Just clear the content
-        },
-        defaultSize: { width: 600, height: 400 }
     });
     
     windowManager.registerApp('recyclebin', {

@@ -31,24 +31,53 @@ export class WindowManager {
         const app = this.apps.get(appName);
         if (!app) return null;
     
-        // Check for singleton apps
-        if (app.singleton) {
-            const existingWindow = document.getElementById(app.windowId);
+        // Enhanced window existence check
+        if (appName === 'explorer' || appName === 'folder') {
+            console.log('Checking for existing windows with path:', params?.path);
+            const windows = Array.from(document.querySelectorAll('.program-window'));
+            console.log('Found windows:', windows.length);
+            
+            const existingWindow = windows.find(w => {
+                const windowPath = w.dataset.path;
+                const matches = windowPath === params?.path;
+                console.log('Window path check:', windowPath, 'matches:', matches);
+                return matches;
+            });
+    
             if (existingWindow) {
-                this.showWindow(existingWindow);
+                console.log('Found existing window for path:', params?.path);
+                if (existingWindow.classList.contains('hidden')) {
+                    existingWindow.classList.remove('hidden');
+                    if (this.taskbar) {
+                        this.taskbar.activateTaskbarItem(existingWindow.id);
+                    }
+                } else {
+                    existingWindow.classList.add('hidden');
+                    if (this.taskbar) {
+                        this.taskbar.deactivateTaskbarItem(existingWindow.id);
+                    }
+                }
+                this.bringToFront(existingWindow);
                 return existingWindow;
             }
+            console.log('No existing window found for path:', params?.path);
         }
     
-        // Create new window
+        // Create new window with path data
         const window = this.template.cloneNode(true);
         const windowId = app.windowId || `window-${appName}-${Date.now()}`;
         window.id = windowId;
         window.classList.remove('hidden');
         window.classList.add('program-window');
     
-        // Set window title
-        window.querySelector('.window-title').textContent = app.title;
+        // Store the path and set title based on folder name
+        if (params?.path) {
+            window.dataset.path = params.path;
+            const folderName = params.path.split('/').pop();
+            window.querySelector('.window-title').textContent = folderName;
+        } else {
+            window.querySelector('.window-title').textContent = app.title;
+        }
     
         // Set initial position and size
         const { width, height } = app.defaultSize;
@@ -72,8 +101,9 @@ export class WindowManager {
         this.desktopArea.appendChild(window);
         this.activeWindows.set(windowId, { appName, window });
         
-        // Create taskbar item if taskbar exists
-        if (this.taskbar) {
+        // Only the main File Explorer (not folder windows) should skip creating a taskbar item
+        const isMainFileExplorer = appName === 'explorer' && window.querySelector('.window-title').textContent === 'File Explorer';
+        if (!isMainFileExplorer && this.taskbar) {
             this.taskbar.addTaskbarItem(window);
         }
         

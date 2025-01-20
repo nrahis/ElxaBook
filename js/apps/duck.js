@@ -26,6 +26,7 @@ export class Duck {
             ],
             "hack": [
                 "🦆 INITIATING FRIENDLY HACK...\n[ACCESS GRANTED]\nSuccessfully hacked into Dad's Dad Joke Database!\nRetrieving random dad joke...\n\nWhy don't eggs tell jokes? They'd crack up! 🥚",
+                "🦆 INITIATING DANGEROUS HACK...\n[ACCESS GRANTED]\nSuccessfully hacked into your sister's Terrible Joke Database!\nRetrieving random bad joke...\n\nWhat did the lawyer say to the other lawyer?\n\nWe're both lawyers.",
                 "🦆 ATTEMPTING BREACH...\n[ACCESS GRANTED]\nGained access to Mom's Recipe Vault!\nFound secret ingredient in chocolate chip cookies:\n\n'Extra love and a pinch of magic' ❤️",
                 "🦆 HACK SEQUENCE INITIATED...\n[ACCESS GRANTED]\nBreached the Ice Cream Truck's secret schedule!\nNext visit to your street: Tomorrow at 3pm 🍦",
                 "🦆 SUPER HACK ENGAGED...\n[ACCESS GRANTED]\nInfiltrated the School Lunch System!\nTomorrow's dessert will be: DOUBLE CHOCOLATE PUDDING 🍫"

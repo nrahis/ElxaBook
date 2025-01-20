@@ -26,6 +26,8 @@ export class IconSet {
     }
 
     static getIcon(category, type, size = 48) {
+        console.log('GetIcon called with:', { category, type, size }); // Debug log
+        
         let svgString;
         
         switch(category) {
@@ -35,6 +37,12 @@ export class IconSet {
             case 'system':
                 svgString = this.getSystemIcon(type);
                 break;
+            case 'program':  // Add this case
+                // Get program name from the file info object
+                const programName = type?.program;
+                console.log('Program file detected:', { programName }); // Debug log
+                svgString = this.getFileIcon(programName);
+                break;
             case 'file':
                 svgString = this.getFileIcon(type);
                 break;
@@ -42,7 +50,7 @@ export class IconSet {
                 console.warn(`Unknown category: ${category}, falling back to default file icon`);
                 svgString = this.getFileIcon('default');
         }
-
+    
         if (!svgString) {
             console.error(`No SVG string found for category: ${category}, type: ${type}`);
             const div = document.createElement('div');
@@ -52,7 +60,7 @@ export class IconSet {
             div.style.border = '1px solid #a267ac';
             return div;
         }
-
+    
         const img = document.createElement('img');
         img.width = size;
         img.height = size;
@@ -71,6 +79,37 @@ export class IconSet {
         
         img.src = this.toDataURL(svgString);
         return img;
+    }
+    
+    // In case we need to debug the SVG creation, add this log to toDataURL:
+    static toDataURL(svgString) {
+        if (!svgString) {
+            console.error('Received empty SVG string');
+            return '';
+        }
+        
+        // Clean up whitespace and ensure consistent formatting
+        const cleanSvg = svgString.trim()
+            .replace(/\s{2,}/g, ' ')
+            .replace(/>\s+</g, '><');
+    
+        // Create a properly URL-encoded version of the SVG
+        const encoded = cleanSvg
+            .replace(/"/g, "'")
+            .replace(/%/g, '%25')
+            .replace(/#/g, '%23')
+            .replace(/\{/g, '%7B')
+            .replace(/\}/g, '%7D')
+            .replace(/</g, '%3C')
+            .replace(/>/g, '%3E')
+            .replace(/\s+/g, ' ');
+    
+        try {
+            return `data:image/svg+xml;charset=utf-8,${encoded}`;
+        } catch (error) {
+            console.error('Error creating data URL:', error);
+            return '';
+        }
     }
 
     static getFolderIcon(type = 'default') {
@@ -119,6 +158,7 @@ export class IconSet {
     }
 
     static getFileIcon(type = 'default') {
+        // First, define all our icons
         const icons = {
             default: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
                 <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
@@ -134,13 +174,93 @@ export class IconSet {
             </svg>`,
             
             paint: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
-                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
-                <circle cx="24" cy="24" r="8" fill="none" stroke="#a267ac" stroke-width="2"/>
-                <path d="M20 24C20 22 22 20 24 20" stroke="#a267ac" stroke-width="2"/>
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <circle cx="24" cy="24" r="8" fill="none" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M20 24C20 22 22 20 24 20" stroke="#4a9bb0" stroke-width="2"/>
+                <circle cx="32" cy="16" r="2" fill="#4a9bb0"/>
+                <circle cx="16" cy="32" r="2" fill="#4a9bb0"/>
+            </svg>`,
+    
+            notepad: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <rect x="14" y="16" width="20" height="2" fill="#4a9bb0"/>
+                <rect x="14" y="22" width="20" height="2" fill="#4a9bb0"/>
+                <rect x="14" y="28" width="12" height="2" fill="#4a9bb0"/>
+            </svg>`,
+    
+            minesweeper: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <circle cx="24" cy="24" r="6" fill="#4a9bb0"/>
+                <path d="M24 15V18M24 30V33M33 24H30M18 24H15" stroke="#4a9bb0" stroke-width="2"/>
+            </svg>`,
+    
+            terminal: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <path d="M16 16L22 24L16 32M24 32H32" stroke="#4a9bb0" stroke-width="2"/>
+            </svg>`,
+    
+            settings: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <circle cx="24" cy="24" r="8" fill="none" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M24 14V16M24 32V34M34 24H32M16 24H14" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M30 18L29 19M19 29L18 30M30 30L29 29M19 19L18 18" stroke="#4a9bb0" stroke-width="2"/>
+            </svg>`,
+    
+            about: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <circle cx="24" cy="19" r="2" fill="#4a9bb0"/>
+                <path d="M24 24V32" stroke="#4a9bb0" stroke-width="2"/>
+            </svg>`,
+    
+            clock: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <circle cx="24" cy="24" r="8" fill="none" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M24 18V24H28" stroke="#4a9bb0" stroke-width="2"/>
+            </svg>`,
+    
+            calendar: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <rect x="14" y="16" width="20" height="16" rx="1" fill="none" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M18 14V18M30 14V18" stroke="#4a9bb0" stroke-width="2"/>
+                <path d="M20 22H28M20 26H24" stroke="#4a9bb0" stroke-width="2"/>
             </svg>`
+        };       
+    
+        // Program name to icon mapping
+        const programMap = {
+            'paint': 'paint',
+            'notepad': 'notepad',
+            'minesweeper': 'minesweeper',
+            'duck': 'terminal',    // Changed this to match the program name in the file system
+            'settings': 'settings',
+            'about': 'about',
+            'clock': 'clock',
+            'calendar': 'calendar'
         };
-        
+    
+        console.log('Getting file icon:', { type, fileInfo: arguments[1] }); // Debug log
+    
+        // For program files, use their specific program icon
+        if (type === 'program') {
+            // Get the program name from the file object if available
+            const programName = arguments[1]?.program;
+            console.log('Program file detected:', { programName }); // Debug log
+            if (programName && programMap[programName]) {
+                console.log('Using program icon:', programMap[programName]); // Debug log
+                return icons[programMap[programName]];
+            }
+        }
+    
+        // Return the requested icon or default if not found
+        console.log('Using icon type:', type); // Debug log
         return icons[type] || icons.default;
     }
 

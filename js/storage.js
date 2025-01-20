@@ -12,99 +12,178 @@ export class FileSystem {
     }
 
     // Initialize the basic file system structure
-// In storage.js, modify the initializeFileSystem method
-initializeFileSystem() {
-    if (!localStorage.getItem(this.SYSTEM_KEY)) {
-        const defaultSystem = {
-            root: {
-                name: 'ElxaOS',
-                path: '/',
-                type: 'system',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            users: {
-                name: 'Users',
-                path: '/ElxaOS',
-                type: 'system',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            kitkat: {
-                name: 'kitkat',
-                path: '/ElxaOS/Users',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            }
-        };
-
-        const defaultFolders = {
-            documents: {
-                name: 'Documents',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            pictures: {
-                name: 'Pictures',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            desktop: {  // This is the Desktop folder in the hierarchy
-                name: 'Desktop',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            downloads: {
-                name: 'Downloads',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            music: {
-                name: 'Music',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            videos: {
-                name: 'Videos',
-                path: '/ElxaOS/Users/kitkat',
-                type: 'user',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            },
-            recycle: {
-                name: 'Recycle Bin',
-                path: '/ElxaOS',  // This stays at root level
-                type: 'system',
-                created: new Date().toISOString(),
-                modified: new Date().toISOString()
-            }
-        };
-
-        localStorage.setItem(this.SYSTEM_KEY, JSON.stringify(defaultSystem));
-        localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(defaultFolders));
-        localStorage.setItem(this.FILES_KEY, JSON.stringify({}));
+    initializeFileSystem() {
+        if (!localStorage.getItem(this.SYSTEM_KEY)) {
+            const defaultSystem = {
+                root: {
+                    name: 'ElxaOS',
+                    path: '/',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                }
+            };
+    
+            const defaultFolders = {
+                '/ElxaOS': {
+                    name: 'ElxaOS',
+                    path: '/',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System': {
+                    name: 'System',
+                    path: '/ElxaOS',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users': {
+                    name: 'Users',
+                    path: '/ElxaOS',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat': {
+                    name: 'kitkat',
+                    path: '/ElxaOS/Users',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Recycle Bin': {
+                    name: 'Recycle Bin',
+                    path: '/ElxaOS',
+                    type: 'system',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Documents': {
+                    name: 'Documents',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Pictures': {
+                    name: 'Pictures',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Music': {
+                    name: 'Music',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Downloads': {
+                    name: 'Downloads',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Games': {
+                    name: 'Games',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                }
+            };
+    
+            const defaultFiles = {
+                '/ElxaOS/System/Paint.app': {
+                    name: 'Paint.app',
+                    type: 'program',
+                    program: 'paint',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Notepad.app': {
+                    name: 'Notepad.app',
+                    type: 'program',
+                    program: 'notepad',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Kittysweeper.app': {
+                    name: 'Kittysweeper.app',
+                    type: 'program',
+                    program: 'minesweeper',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Terminal.app': {
+                    name: 'Terminal.app',
+                    type: 'program',
+                    program: 'duck',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Settings.app': {
+                    name: 'Settings.app',
+                    type: 'program',
+                    program: 'settings',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/About.app': {
+                    name: 'About.app',
+                    type: 'program',
+                    program: 'about',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Clock.app': {
+                    name: 'Clock.app',
+                    type: 'program',
+                    program: 'clock',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Calendar.app': {
+                    name: 'Calendar.app',
+                    type: 'program',
+                    program: 'calendar',
+                    path: '/ElxaOS/System',
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                }
+            };
+                
+            // Save everything to localStorage in the correct order
+            localStorage.setItem(this.SYSTEM_KEY, JSON.stringify(defaultSystem));
+            localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(defaultFolders));
+            localStorage.setItem(this.FILES_KEY, JSON.stringify(defaultFiles));
+        }
     }
-}
 
     // Path handling methods
     normalizePath(path) {
-        // Remove trailing slashes and ensure leading slash
-        return '/' + path.replace(/^\/+|\/+$/g, '');
+        if (!path) return '/';
+        // Remove multiple slashes and ensure leading slash
+        return '/' + path.replace(/^\/+|\/+$/g, '').replace(/\/+/g, '/');
     }
 
     joinPaths(...parts) {
-        return this.normalizePath(parts.join('/'));
+        const joined = parts
+            .map(part => part.replace(/^\/+|\/+$/g, '')) // Remove leading/trailing slashes
+            .filter(Boolean) // Remove empty segments
+            .join('/');
+        return this.normalizePath(joined);
     }
 
     getParentPath(path) {
@@ -115,14 +194,20 @@ initializeFileSystem() {
 
     // Folder operations
     createFolder(parentPath, name) {
+        console.log('Creating folder:', { parentPath, name }); // Debug log
+        
         const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
         const fullPath = this.joinPaths(parentPath, name);
         
+        console.log('Full path:', fullPath); // Debug log
+        console.log('Existing folders:', folders); // Debug log
+        
         // Check if folder already exists
-        if (this.folderExists(fullPath)) {
+        if (folders[fullPath]) {
+            console.log('Folder already exists at path:', fullPath); // Debug log
             throw new Error('Folder already exists');
         }
-
+    
         // Create new folder
         folders[fullPath] = {
             name,
@@ -131,9 +216,21 @@ initializeFileSystem() {
             created: new Date().toISOString(),
             modified: new Date().toISOString()
         };
-
+    
+        console.log('Created new folder:', folders[fullPath]); // Debug log
+    
+        // Save to localStorage
         localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
+        
         return folders[fullPath];
+    }
+    
+    // Add a method to reset the file system (useful for debugging)
+    resetFileSystem() {
+        localStorage.removeItem(this.SYSTEM_KEY);
+        localStorage.removeItem(this.FOLDERS_KEY);
+        localStorage.removeItem(this.FILES_KEY);
+        this.initializeFileSystem();
     }
 
     deleteFolder(path) {
@@ -162,99 +259,148 @@ initializeFileSystem() {
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
 
+
     renameFolder(path, newName) {
+        console.log('Attempting to rename folder:', { path, newName });
+        
         const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         
-        // Check if folder exists and is not a system folder
-        if (!folders[path] || folders[path].type === 'system') {
-            throw new Error('Cannot rename folder');
+        // Check if folder exists
+        if (!folders[path]) {
+            console.error('Folder not found at path:', path);
+            console.log('Available folders:', Object.keys(folders));
+            throw new Error('Folder not found');
         }
-
+    
+        // Check if it's a system folder
+        if (folders[path].type === 'system') {
+            throw new Error('System folders cannot be renamed');
+        }
+    
         const parentPath = this.getParentPath(path);
         const newPath = this.joinPaths(parentPath, newName);
+        
+        console.log('Rename operation:', {
+            oldPath: path,
+            newPath: newPath,
+            parentPath: parentPath,
+            folderExists: this.folderExists(path),
+            newPathExists: this.folderExists(newPath)
+        });
         
         // Check if new name already exists
         if (this.folderExists(newPath)) {
             throw new Error('A folder with that name already exists');
         }
-
-        // Update folder and all subfolders/files
-        const oldPrefix = path;
-        const newPrefix = newPath;
-
-        // Create new folder entry
-        folders[newPath] = {
-            ...folders[path],
-            name: newName,
-            modified: new Date().toISOString()
-        };
-        delete folders[path];
-
-        // Update subfolders
+    
+        // Store all paths that need to be updated
+        const pathUpdates = new Map();
+        
+        // Add the folder itself
+        pathUpdates.set(path, newPath);
+        
+        // Find all subfolders and files that need to be updated
         Object.keys(folders).forEach(folderPath => {
-            if (folderPath.startsWith(oldPrefix + '/')) {
-                const newFolderPath = newPrefix + folderPath.slice(oldPrefix.length);
-                folders[newFolderPath] = {
-                    ...folders[folderPath],
-                    path: this.getParentPath(newFolderPath)
-                };
-                delete folders[folderPath];
+            if (folderPath.startsWith(path + '/')) {
+                const relativePath = folderPath.slice(path.length);
+                pathUpdates.set(folderPath, newPath + relativePath);
             }
         });
-
-        // Update files
+        
         Object.keys(files).forEach(filePath => {
-            if (filePath.startsWith(oldPrefix + '/')) {
-                const newFilePath = newPrefix + filePath.slice(oldPrefix.length);
-                files[newFilePath] = {
-                    ...files[filePath],
-                    path: this.getParentPath(newFilePath)
-                };
-                delete files[filePath];
+            if (filePath.startsWith(path + '/')) {
+                const relativePath = filePath.slice(path.length);
+                pathUpdates.set(filePath, newPath + relativePath);
             }
         });
-
+        
+        // Perform all updates
+        pathUpdates.forEach((newPath, oldPath) => {
+            if (folders[oldPath]) {
+                folders[newPath] = {
+                    ...folders[oldPath],
+                    name: oldPath === path ? newName : folders[oldPath].name,
+                    path: this.getParentPath(newPath),
+                    modified: new Date().toISOString()
+                };
+                delete folders[oldPath];
+            } else if (files[oldPath]) {
+                files[newPath] = {
+                    ...files[oldPath],
+                    path: this.getParentPath(newPath),
+                    modified: new Date().toISOString()
+                };
+                delete files[oldPath];
+            }
+        });
+    
         localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        
+        console.log('Folder renamed successfully, new structure:', folders);
+        return newPath; // Return the new path
     }
 
-getFolderContents(path) {
-    const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
-    const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-    const contents = {
-        folders: [],
-        files: []
-    };
+    getFolderContents(path) {
+        console.log('Getting contents for path:', path);
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        const normalizedPath = this.normalizePath(path);
+        
+        const contents = {
+            folders: [],
+            files: []
+        };
+    
+        // Get folders that are direct children of the current path
+        Object.entries(folders).forEach(([folderPath, folder]) => {
+            const normalizedFolderPath = this.normalizePath(folder.path);
+            
+            // Only include folders that are direct children of the current path
+            if (normalizedFolderPath === normalizedPath && 
+                folderPath !== normalizedPath) { // Don't include the current folder itself
+                console.log('Adding folder:', folder.name, 'from path:', folder.path);
+                contents.folders.push({
+                    ...folder,
+                    fullPath: folderPath
+                });
+            }
+        });
+    
+        // Get files that are direct children of the current path
+        Object.entries(files).forEach(([filePath, file]) => {
+            const normalizedFilePath = this.normalizePath(file.path);
+            if (normalizedFilePath === normalizedPath) {
+                console.log('Adding file:', file.name, 'from path:', file.path);
+                contents.files.push({
+                    ...file,
+                    fullPath: filePath
+                });
+            }
+        });
+    
+        console.log('Returning contents:', contents);
+        return contents;
+    }
 
-    // Get subfolders
-    Object.entries(folders).forEach(([folderPath, folder]) => {
-        if (folder.path === path) {
-            contents.folders.push({
-                ...folder,
-                fullPath: folderPath
-            });
-        }
-    });
-
-    // Get files
-    Object.entries(files).forEach(([filePath, file]) => {
-        if (file.path === path) {
-            contents.files.push({
-                ...file,
-                fullPath: filePath
-            });
-        }
-    });
-
-    return contents;
-}
+    getFolderInfo(path) {
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const normalizedPath = this.normalizePath(path);
+        return folders[normalizedPath];
+    }
 
     // File operations
     saveFile(path, name, content, type = 'text') {
+        console.log('=== Saving File ===');
+        console.log('Parameters:', { path, name, type });
+        
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         const fullPath = this.joinPaths(path, name);
-
+        
+        console.log('Full path:', fullPath);
+        console.log('Current files:', files);
+    
         files[fullPath] = {
             name,
             content,
@@ -263,14 +409,20 @@ getFolderContents(path) {
             created: files[fullPath]?.created || new Date().toISOString(),
             modified: new Date().toISOString()
         };
-
+    
+        console.log('New file object:', files[fullPath]);
+        console.log('Updated files structure:', files);
+    
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
-        return files[fullPath];
+        return fullPath; // Return the full path instead of just the file object
     }
 
     getFile(path) {
+        console.log('Getting file at path:', path);
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        return files[path];
+        const file = files[path];
+        console.log('Found file:', file);
+        return file;
     }
 
     deleteFile(path) {
@@ -279,29 +431,147 @@ getFolderContents(path) {
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
 
+
+
     renameFile(path, newName) {
-        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        const file = files[path];
+        console.log('=== Renaming File ===');
+        console.log('Parameters:', { path, newName });
         
-        if (!file) {
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        console.log('Current files:', files);
+        console.log('Looking for file at path:', path);
+        
+        // Check if file exists
+        if (!files[path]) {
+            console.error('File not found at path:', path);
+            console.log('Available file paths:', Object.keys(files));
             throw new Error('File not found');
         }
-
+    
         const parentPath = this.getParentPath(path);
         const newPath = this.joinPaths(parentPath, newName);
         
-        if (files[newPath]) {
+        console.log('Path details:', {
+            oldPath: path,
+            newPath: newPath,
+            parentPath: parentPath
+        });
+        
+        // Check if new name already exists
+        if (this.fileExists(newPath)) {
             throw new Error('A file with that name already exists');
         }
-
+    
+        // Create new file entry
         files[newPath] = {
-            ...file,
+            ...files[path],
             name: newName,
+            path: parentPath,
             modified: new Date().toISOString()
         };
+        
+        // Delete old entry
         delete files[path];
-
+    
+        console.log('Final files structure:', files);
+    
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        return newPath;
+    }
+
+    copyFolder(sourcePath, targetPath) {
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        const sourceFolder = folders[sourcePath];
+        
+        if (!sourceFolder) {
+            throw new Error('Source folder not found');
+        }
+    
+        // Generate new folder name if needed
+        let newName = sourceFolder.name;
+        let counter = 1;
+        let finalTargetPath = this.joinPaths(targetPath, newName);
+        
+        while (this.folderExists(finalTargetPath)) {
+            newName = `${sourceFolder.name} (${counter})`;
+            finalTargetPath = this.joinPaths(targetPath, newName);
+            counter++;
+        }
+    
+        // Copy the folder itself
+        folders[finalTargetPath] = {
+            name: newName,
+            path: targetPath,
+            type: sourceFolder.type === 'system' ? 'user' : sourceFolder.type, // Never copy as system
+            created: new Date().toISOString(),
+            modified: new Date().toISOString()
+        };
+    
+        // Copy all subfolders and files
+        Object.entries(folders).forEach(([path, folder]) => {
+            if (path.startsWith(sourcePath + '/')) {
+                const relativePath = path.slice(sourcePath.length);
+                const newPath = finalTargetPath + relativePath;
+                folders[newPath] = {
+                    ...folder,
+                    path: this.getParentPath(newPath),
+                    type: folder.type === 'system' ? 'user' : folder.type,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                };
+            }
+        });
+    
+        Object.entries(files).forEach(([path, file]) => {
+            if (path.startsWith(sourcePath + '/')) {
+                const relativePath = path.slice(sourcePath.length);
+                const newPath = finalTargetPath + relativePath;
+                files[newPath] = {
+                    ...file,
+                    path: this.getParentPath(newPath),
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                };
+            }
+        });
+    
+        localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
+        localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        return finalTargetPath;
+    }
+    
+    copyFile(sourcePath, targetPath) {
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        const sourceFile = files[sourcePath];
+        
+        if (!sourceFile) {
+            throw new Error('Source file not found');
+        }
+    
+        // Generate new file name if needed
+        let newName = sourceFile.name;
+        let counter = 1;
+        let finalTargetPath = this.joinPaths(targetPath, newName);
+        
+        while (this.fileExists(finalTargetPath)) {
+            const nameWithoutExt = newName.replace(/\.[^/.]+$/, "");
+            const extension = newName.match(/\.[^/.]+$/)?.[0] || "";
+            newName = `${nameWithoutExt} (${counter})${extension}`;
+            finalTargetPath = this.joinPaths(targetPath, newName);
+            counter++;
+        }
+    
+        files[finalTargetPath] = {
+            ...sourceFile,
+            name: newName,
+            path: targetPath,
+            created: new Date().toISOString(),
+            modified: new Date().toISOString()
+        };
+    
+        localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        return finalTargetPath;
     }
 
     // Utility methods
@@ -311,8 +581,11 @@ getFolderContents(path) {
     }
 
     fileExists(path) {
+        console.log('Checking if file exists:', path);
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        return !!files[path];
+        const exists = !!files[path];
+        console.log('File exists?', exists);
+        return exists;
     }
 
     getFullPath(parentPath, name) {
@@ -354,3 +627,13 @@ getFolderContents(path) {
 }
 
 export const fileSystem = new FileSystem();
+
+// Add this at the end of storage.js after creating the fileSystem instance
+window._resetFileSystem = function() {
+    console.log('Resetting file system...');
+    localStorage.removeItem('elxaos_system');
+    localStorage.removeItem('elxaos_folders');
+    localStorage.removeItem('elxaos_files');
+    fileSystem.initializeFileSystem();
+    console.log('File system reset complete. Please refresh the page.');
+};

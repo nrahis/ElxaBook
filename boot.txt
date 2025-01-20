@@ -54,6 +54,19 @@
         </div>
     </div>
 
+    TO DO
+    - change font
+    - military time for clocks
+    - log out - needs to be default bg and log in screen
+    - EX Abbi Code - pretend coder, cat themed
+    - different user names
+    - math games
+    - calculator app
+    - Games folder
+    - default folder in ElxaOS folder, "System", for all default programs
+    - custom alarm sounds
+    - messenger - hook up to Gemini, generate messages
+
 
 
     

@@ -198,12 +198,24 @@ export class Desktop {
     
         const path = paths[name];
         if (path) {
-            if (name === 'Computer') {
-                this.windowManager.createWindow('computer');
-            } else {
-                const params = { path: path };
-                this.windowManager.createWindow('explorer', params);
+            console.log('Opening folder:', name, 'path:', path);
+            
+            // Look for existing window with this path
+            const windows = Array.from(document.querySelectorAll('.program-window'));
+            const existingWindow = windows.find(w => w.dataset.path === path);
+            
+            if (existingWindow) {
+                console.log('Found existing window for path:', path);
+                if (existingWindow.classList.contains('hidden')) {
+                    existingWindow.classList.remove('hidden');
+                }
+                this.windowManager.bringToFront(existingWindow);
+                return;
             }
+            
+            console.log('Creating new window for path:', path);
+            const params = { path: path };
+            this.windowManager.createWindow('folder', params);
         }
     }
 

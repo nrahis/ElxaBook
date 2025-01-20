@@ -173,7 +173,7 @@ body {
 .taskbar-programs {
     display: flex;
     gap: 4px;
-    margin-left: 10px;
+    margin-left: 4px;
     height: 100%;
     flex-grow: 1;
     overflow: hidden;
@@ -210,4 +210,47 @@ body {
 
 .hidden {
     display: none !important;
+}
+
+/* Pinned taskbar items section */
+.taskbar-pinned {
+    display: flex;
+    gap: 4px;
+    margin-left: 10px;
+    height: 100%;
+    /* Add these properties for better browser support */
+    position: relative;
+    align-items: center;
+    min-width: 36px; /* Ensure minimum width for the container */
+}
+
+.taskbar-pinned-item {
+    height: 24px;
+    width: 32px;
+    margin: 2px;
+    padding: 0 4px;
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    /* Add these properties */
+    position: relative;
+    flex-shrink: 0; /* Prevent shrinking */
+    box-sizing: border-box;
+}
+
+.taskbar-pinned-item:hover {
+    background-color: #e6d4f2;
+}
+
+.taskbar-pinned-item.active {
+    background-color: #b89fc7;
+    border-style: inset;
+}
+
+.taskbar-pinned-item .file-icon {
+    width: 16px;
+    height: 16px;
 }
