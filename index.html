@@ -27,61 +27,7 @@
     </head>
 <body>
 
-    <!-- Add this at the start of your body tag in index.html -->
-    <div id="boot-sequence" class="fullscreen">
-        <!-- Initial boot screen -->
-        <div id="boot-screen" class="boot-phase">
-            <div class="boot-content">
-                <div class="elxa-logo">ELXA</div>
-                <div class="boot-message">Starting ElxaOS...</div>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-                <div id="boot-status">Initializing core systems...</div>
-            </div>
-        </div>
-
-        <!-- Welcome screen -->
-        <div id="welcome-screen" class="boot-phase hidden">
-            <div class="welcome-content">
-                <div class="welcome-logo">ElxaOS</div>
-                <div class="welcome-message">Welcome to the future of computing</div>
-                <div class="welcome-version">Chocolate Mist Edition v1.1</div>
-                <button id="start-button">Start ElxaOS</button>
-            </div>
-        </div>
-        <!-- Log in -->
-        <div id="login-screen" class="boot-phase hidden">
-            <div class="login-container">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        <svg viewBox="0 0 100 100" class="snake-icon">
-                            <path d="M75,50 Q60,35 50,50 T25,50" 
-                                    fill="none" 
-                                    stroke="#00ff9d" 
-                                    stroke-width="8" 
-                                    class="snake-body"/>
-                            <circle cx="80" cy="50" r="5" fill="#ff71ce" class="snake-eye"/>
-                            <path d="M85,50 L90,45 L90,55 Z" 
-                                    fill="#ff71ce" 
-                                    class="snake-tongue"/>
-                        </svg>
-                    </div>
-                    <div class="user-name">kitkat</div>
-                </div>
-                
-                <div class="password-container">
-                    <input type="password" 
-                            id="password-input" 
-                            placeholder="Enter password"
-                            autocomplete="off">
-                    <button id="login-button">Log In</button>
-                </div>
-                
-                <div id="login-message" class="login-message"></div>
-            </div>
-        </div>
-    </div>   
+  
 
     <div id="desktop">
         <nav id="taskbar">
@@ -109,7 +55,7 @@
                             <div class="submenu">
                                 <a href="#" data-app="mathMatch">Math Match</a> 
                                 <a href="#" data-app="timeCrunch">Time Crunch</a> 
-                                <!-- <a href="#" data-app="snakeEquation">Snake Equation</a> -->
+                                <a href="#" data-app="snakeEquation">Snake Equation</a>
                             </div>
                         </div>
                         <a href="#" data-app="minesweeper">Kittysweeper</a>
@@ -187,7 +133,7 @@
             </div>
         </div>
     </div>
-    <script type="module" src="js/boot.js"></script>
+    <!-- <script type="module" src="js/boot.js"></script> -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

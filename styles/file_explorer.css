@@ -68,29 +68,248 @@
 }
 
 .menu-item {
-    padding: 1px 8px;
-    color: #441d57;
+    position: relative;
+    padding: 2px 8px;
+    color: #000000;
     cursor: pointer;
     font-size: 12px;
     border: 1px solid transparent;
+    user-select: none;
 }
 
-.menu-item:hover {
-    background-color: #b89fc7;
-    color: white;
+.menu-item:hover,
+.menu-item.active {
+    background-color: #d5bde6;
     border: 1px solid #8b6b9c;
 }
 
-/* Menu Dropdowns */
 .menu-dropdown {
     position: absolute;
     background-color: #f0d9ff;
     border: 1px solid #b89fc7;
-    border-radius: 2px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     min-width: 180px;
     padding: 2px;
+    margin-top: -1px;
+    margin-left: -1px;
+}
+
+.menu-item-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 4px 16px;
+    border: none;
+    background: none;
+    color: #000000;
+    font-size: 12px;
+    font-family: var(--system-font);
+    cursor: pointer;
+    white-space: nowrap;
+    position: relative;
+}
+
+.menu-item-button:hover {
+    background-color: #d5bde6;
+}
+
+.menu-item-button:disabled {
+    color: #999;
+    cursor: default;
+}
+
+.menu-dropdown hr {
+    margin: 2px 0;
+    border: none;
+    border-top: 1px solid #b89fc7;
+}
+
+.menu-shortcut {
+    margin-left: 32px;
+    color: #666;
+    font-size: 11px;
+}
+
+/* Submenu Indicators */
+.submenu-container {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    display: none;
+}
+
+.has-submenu {
+    position: relative;
+}
+
+.has-submenu::after {
+    content: '►';
+    position: absolute;
+    right: 8px;
+    font-size: 10px;
+    color: #8b6b9c;
+}
+
+.has-submenu:hover .submenu-container {
+    display: block;
+}
+
+/* Universal file item selection styles */
+.file-item {
+    border: 1px solid transparent;
+}
+
+.file-item.selected {
+    background-color: rgba(213, 189, 230, 0.4);
+    border: 1px solid #8b6b9c;
+}
+
+.file-item:hover {
+    background-color: rgba(213, 189, 230, 0.2);
+    border: 1px solid #b89fc7;
+}
+
+/* Icon View */
+.file-list.view-icons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 4px;
+    padding: 8px;
+}
+
+.view-icons .file-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 76px;
+    height: 76px;
+    padding: 4px;
+}
+
+.view-icons .file-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 4px;
+}
+
+.view-icons .file-label {
+    text-align: center;
+    font-size: 11px;
+    max-width: 68px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* List View */
+.file-list.view-list {
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+}
+
+.view-list .file-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 2px 4px;
+    gap: 4px;
+    height: 22px;
+}
+
+.view-list .file-icon {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.view-list .file-label {
+    text-align: left;
+    font-size: 11px;
+    flex-grow: 1;
+}
+
+/* Details View */
+.file-list.view-details {
+    display: table;
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.view-details .details-header {
+    display: table-row;
+    background-color: #f0d9ff;
+    height: 20px;
+}
+
+.view-details .header-cell {
+    display: table-cell;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: #441d57;
+    border-bottom: 1px solid #b89fc7;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.view-details .file-item {
+    display: table-row;
+    height: 20px;
+}
+
+.view-details .file-icon {
+    width: 16px;
+    height: 16px;
+    padding: 2px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.view-details .file-label {
+    padding: 1px 8px;
+    display: table-cell;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 11px;
+}
+
+.view-details .file-details {
+    display: table-cell;
+    padding: 1px 8px;
+    font-size: 11px;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Column widths for details view */
+.view-details .file-icon {
+    width: 24px;
+}
+
+.view-details .file-label {
+    width: 200px;
+}
+
+.view-details .file-details.type {
+    width: 100px;
+}
+
+.view-details .file-details.size {
+    width: 80px;
+}
+
+.view-details .file-details.modified {
+    width: auto;
 }
 
 /* Address Bar */
@@ -104,9 +323,42 @@
     margin: 0 4px;
 }
 
-/* Add these styles to file_explorer.css */
+.path-segments {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px;
+}
+
+.path-segment {
+    color: #441d57;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.path-segment:hover {
+    background-color: rgba(213, 189, 230, 0.2);
+    text-decoration: underline;
+}
+
+.path-separator {
+    color: #8b6b9c;
+    margin: 0 4px;
+}
 
 /* Tree View */
+.folder-tree {
+    width: 200px;
+    min-width: 150px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 4px;
+    background-color: white;
+    border-right: 1px solid #b89fc7;
+    flex-shrink: 0;
+}
+
 .tree-container {
     display: flex;
     flex-direction: column;
@@ -121,7 +373,7 @@
     color: #441d57;
     font-size: 12px;
     white-space: nowrap;
-    gap: 4px;  /* Consistent spacing between elements */
+    gap: 4px;
 }
 
 .expand-arrow {
@@ -159,8 +411,7 @@
     background-color: rgba(213, 189, 230, 0.4);
 }
 
-/* context menu stuff */
-
+/* Context Menu */
 .context-menu {
     position: fixed;
     background: #f0d9ff;
@@ -190,10 +441,6 @@
     background-color: #d5bde6;
 }
 
-.context-menu button:hover {
-    background-color: #d5bde6;
-}
-
 .context-menu button:disabled {
     color: #999;
     cursor: default;
@@ -205,79 +452,7 @@
     border-top: 1px solid #b89fc7;
 }
 
-/* Ensure file list items are properly styled for context menu interaction */
-.file-item {
-    position: relative;
-    user-select: none;
-}
-
-/* Add styles for the rename input */
-.rename-input {
-    width: 100%;
-    padding: 2px;
-    border: 1px solid #b89fc7;
-    background: white;
-    color: #441d57;
-    font-size: 11px;
-    outline: none;
-}
-
-.rename-input:focus {
-    border-color: #8b6b9c;
-    box-shadow: 0 0 3px rgba(139, 107, 156, 0.5);
-}
-
-/* Navigation toolbar enhancements */
-.toolbar-button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 8px;
-    height: 24px;
-}
-
-.toolbar-button:disabled {
-    opacity: 0.5;
-    cursor: default;
-}
-
-.toolbar-button:disabled:hover {
-    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
-}
-
-/* Address bar enhancements */
-.path-segments {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px;
-}
-
-.path-segment {
-    color: #441d57;
-    cursor: pointer;
-    padding: 2px 4px;
-    border-radius: 2px;
-}
-
-.path-segment:hover {
-    background-color: rgba(213, 189, 230, 0.2);
-}
-
-.path-separator {
-    color: #8b6b9c;
-}
-
-.path-segment:hover {
-    text-decoration: underline;
-}
-
-.path-separator {
-    color: #8b6b9c;
-    margin: 0 4px;
-}
-
-/* Main Content Area - enhance the flex layout */
+/* Main Content Area */
 .explorer-content {
     display: flex;
     flex-grow: 1;
@@ -285,87 +460,10 @@
     background-color: white;
 }
 
-/* File List */
-.file-icon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 2px;  /* Reduced from 4px */
-}
-
-.file-label {
-    text-align: center;
-    font-size: 11px;
-    color: #441d57;
-    max-width: 76px;  /* Adjusted to match new grid size */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 1px;  /* Added small padding */
-}
-
-/* Update file item styling */
-.file-item {
-    display: inline-flex;  /* Changed to inline-flex */
-    flex-direction: column;
-    align-items: center;
-    padding: 4px 2px;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    cursor: pointer;
-    height: fit-content;  /* Only be as tall as needed */
-    justify-self: center;  /* Center in grid cell */
-    width: 76px;  /* Fixed width instead of stretching */
-}
-
-.file-item:hover {
-    background-color: rgba(213, 189, 230, 0.2);
-    border-color: #b89fc7;
-}
-
-.file-item.selected {
-    background-color: rgba(213, 189, 230, 0.4);
-    border-color: #8b6b9c;
-}
-
-/* Adjust icon and label spacing */
-.file-icon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 2px;
-}
-
-.file-label {
-    text-align: center;
-    font-size: 11px;
-    color: #441d57;
-    max-width: 72px;  /* Slightly smaller than container to account for padding */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 1px;
-}
-
-/* Folder Tree */
-.folder-tree {
-    width: 200px;  /* Set fixed width for tree */
-    min-width: 150px;  /* Minimum width */
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 4px;
-    background-color: white;
-    border-right: 1px solid #b89fc7;  /* Add the divider line */
-    flex-shrink: 0;  /* Prevent tree from shrinking */
-}
-
 .file-list {
     flex-grow: 1;
     overflow-y: auto;
     padding: 2px;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 2px;
-    align-items: start;
-    content-visibility: auto;
 }
 
 /* Status Bar */
@@ -380,7 +478,7 @@
     align-items: center;
 }
 
-/* Scrollbar Styling */
+/* Scrollbars */
 .folder-tree::-webkit-scrollbar,
 .file-list::-webkit-scrollbar {
     width: 16px;
@@ -410,4 +508,20 @@
 .file-list {
     scrollbar-width: thin;
     scrollbar-color: #b89fc7 #f0d9ff;
+}
+
+/* Rename Input */
+.rename-input {
+    width: 100%;
+    padding: 2px;
+    border: 1px solid #b89fc7;
+    background: white;
+    color: #441d57;
+    font-size: 11px;
+    outline: none;
+}
+
+.rename-input:focus {
+    border-color: #8b6b9c;
+    box-shadow: 0 0 3px rgba(139, 107, 156, 0.5);
 }

@@ -24,6 +24,8 @@ export class FileSystem {
                     name: 'ElxaOS',
                     path: '/',
                     type: 'system',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 }
@@ -34,6 +36,8 @@ export class FileSystem {
                     name: 'ElxaOS',
                     path: '/',
                     type: 'system',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -41,6 +45,17 @@ export class FileSystem {
                     name: 'System',
                     path: '/ElxaOS',
                     type: 'system',
+                    isProtected: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/System/Installers': {
+                    name: 'Installers',
+                    path: '/ElxaOS/System',
+                    type: 'system',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -48,13 +63,17 @@ export class FileSystem {
                     name: 'Users',
                     path: '/ElxaOS',
                     type: 'system',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
                 '/ElxaOS/Users/kitkat': {
                     name: 'kitkat',
                     path: '/ElxaOS/Users',
-                    type: 'user',
+                    type: 'user-root',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -62,6 +81,17 @@ export class FileSystem {
                     name: 'Recycle Bin',
                     path: '/ElxaOS',
                     type: 'system',
+                    isProtected: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/.settings': {
+                    name: '.settings',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'system',
+                    isProtected: true,
+                    isHidden: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -69,6 +99,8 @@ export class FileSystem {
                     name: 'Documents',
                     path: '/ElxaOS/Users/kitkat',
                     type: 'user',
+                    isProtected: false,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -76,6 +108,8 @@ export class FileSystem {
                     name: 'Pictures',
                     path: '/ElxaOS/Users/kitkat',
                     type: 'user',
+                    isProtected: false,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -83,6 +117,8 @@ export class FileSystem {
                     name: 'Music',
                     path: '/ElxaOS/Users/kitkat',
                     type: 'user',
+                    isProtected: false,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -90,6 +126,8 @@ export class FileSystem {
                     name: 'Downloads',
                     path: '/ElxaOS/Users/kitkat',
                     type: 'user',
+                    isProtected: false,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -97,17 +135,30 @@ export class FileSystem {
                     name: 'Games',
                     path: '/ElxaOS/Users/kitkat',
                     type: 'user',
+                    isProtected: false,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Applications': {
+                    name: 'Applications',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    isProtected: false,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 }
             };
     
+            // Update the system files to be protected
             const defaultFiles = {
                 '/ElxaOS/System/Paint.abbi': {
                     name: 'Paint.abbi',
                     type: 'program',
                     program: 'paint',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -116,6 +167,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'notepad',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -124,6 +176,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'minesweeper',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -132,6 +185,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'solitaire',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -140,6 +194,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'duck',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -148,6 +203,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'settings',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -156,6 +212,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'about',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -164,6 +221,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'scientificCalculator',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -172,6 +230,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'clock',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -180,6 +239,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'calendar',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -188,6 +248,7 @@ export class FileSystem {
                     type: 'program',
                     program: 'slideshow',
                     path: '/ElxaOS/System',
+                    isProtected: true,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 }
@@ -198,6 +259,9 @@ export class FileSystem {
             localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(defaultFolders));
             localStorage.setItem(this.FILES_KEY, JSON.stringify(defaultFiles));
         }
+
+        // Add showHiddenFiles flag to the class
+        this.showHiddenFiles = false;
     }
 
     // Path handling methods
@@ -271,38 +335,41 @@ export class FileSystem {
         if (!folders[path]) {
             throw new Error('Folder not found');
         }
-
+    
         const folder = folders[path];
         
-        // Special handling for user folder deletion
-        if (isUserDelete && path.startsWith('/ElxaOS/Users/')) {
-            const pathParts = path.split('/');
-            const userIndex = pathParts.indexOf('Users') + 1;
-            if (userIndex > 0 && userIndex < pathParts.length) {
-                const username = pathParts[userIndex];
-                // Allow deletion if it's a user folder being deleted as part of account removal
-                console.log('Deleting user folder:', username);
-            } else {
-                throw new Error('Invalid user folder path');
+        // Protection checks
+        if (folder.isProtected) {
+            if (folder.type === 'system') {
+                throw new Error('System folders cannot be deleted');
             }
-        } else if (folder.type === 'system') {
-            // Still prevent deletion of system folders
-            throw new Error('Cannot delete system folder');
+            
+            if (folder.type === 'user-root' && !isUserDelete) {
+                throw new Error('User folder can only be deleted when removing the account');
+            }
         }
-
+    
         // Delete all subfolders and files
         Object.keys(folders).forEach(folderPath => {
             if (folderPath === path || folderPath.startsWith(path + '/')) {
+                // Check if any system folders would be affected
+                if (folders[folderPath].type === 'system') {
+                    throw new Error('Cannot delete folder containing system folders');
+                }
                 delete folders[folderPath];
             }
         });
-
+    
         Object.keys(files).forEach(filePath => {
             if (filePath.startsWith(path + '/')) {
+                // Check if any protected files would be affected
+                if (files[filePath].isProtected) {
+                    throw new Error('Cannot delete folder containing protected files');
+                }
                 delete files[filePath];
             }
         });
-
+    
         localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
@@ -316,25 +383,22 @@ export class FileSystem {
         // Check if folder exists
         if (!folders[path]) {
             console.error('Folder not found at path:', path);
-            console.log('Available folders:', Object.keys(folders));
             throw new Error('Folder not found');
         }
     
-        // Check if it's a system folder
-        if (folders[path].type === 'system') {
-            throw new Error('System folders cannot be renamed');
+        // Protection checks
+        const folder = folders[path];
+        if (folder.isProtected) {
+            if (folder.type === 'system') {
+                throw new Error('System folders cannot be renamed');
+            }
+            if (folder.type === 'user-root') {
+                throw new Error('User root folders cannot be renamed');
+            }
         }
     
         const parentPath = this.getParentPath(path);
         const newPath = this.joinPaths(parentPath, newName);
-        
-        console.log('Rename operation:', {
-            oldPath: path,
-            newPath: newPath,
-            parentPath: parentPath,
-            folderExists: this.folderExists(path),
-            newPathExists: this.folderExists(newPath)
-        });
         
         // Check if new name already exists
         if (this.folderExists(newPath)) {
@@ -343,8 +407,6 @@ export class FileSystem {
     
         // Store all paths that need to be updated
         const pathUpdates = new Map();
-        
-        // Add the folder itself
         pathUpdates.set(path, newPath);
         
         // Find all subfolders and files that need to be updated
@@ -385,12 +447,42 @@ export class FileSystem {
         localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
         
-        console.log('Folder renamed successfully, new structure:', folders);
-        return newPath; // Return the new path
+        return newPath;
     }
 
-
-// In storage.js, update the getFolderContents method
+    async toggleHiddenFiles(password) {
+        // Verify the user is an administrator and password is correct
+        const userManager = new UserManager(this);
+        const currentUser = userManager.getCurrentUser();
+        
+        if (currentUser.type !== 'administrator') {
+            throw new Error('Only administrators can toggle hidden files');
+        }
+    
+        if (!userManager.validateLogin(currentUser.username, password)) {
+            throw new Error('Invalid administrator password');
+        }
+    
+        this.showHiddenFiles = !this.showHiddenFiles;
+        return this.showHiddenFiles;
+    }
+    
+    isHidden(path) {
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        
+        // Check if it's a folder
+        if (folders[path]) {
+            return folders[path].isHidden;
+        }
+        
+        // Check if it's a file
+        if (files[path]) {
+            return files[path].isHidden;
+        }
+        
+        return false;
+    }
 
     getFolderContents(path) {
         console.log('Getting contents for path:', path);
@@ -405,14 +497,15 @@ export class FileSystem {
             folders: [],
             files: []
         };
-
+    
         // Special handling for Users directory
         if (normalizedPath === '/ElxaOS/Users') {
             // If we're in the Users directory, only show current user's folder
             Object.entries(folders).forEach(([folderPath, folder]) => {
                 if (folder.path === normalizedPath) {
-                    // Only add the folder if it matches the current username
-                    if (folder.name === this.currentUsername) {
+                    // Only add the folder if it matches the current username and visibility rules
+                    if (folder.name === this.currentUsername && 
+                        (this.showHiddenFiles || !folder.isHidden)) {
                         console.log('Found matching user folder:', folder.name);
                         contents.folders.push({
                             ...folder,
@@ -430,7 +523,8 @@ export class FileSystem {
             // Only show contents if we're in the current user's folder
             if (userFolder === this.currentUsername) {
                 Object.entries(folders).forEach(([folderPath, folder]) => {
-                    if (folder.path === normalizedPath) {
+                    if (folder.path === normalizedPath && 
+                        (this.showHiddenFiles || !folder.isHidden)) {
                         console.log('Adding folder in user directory:', folder.name);
                         contents.folders.push({
                             ...folder,
@@ -438,9 +532,10 @@ export class FileSystem {
                         });
                     }
                 });
-
+    
                 Object.entries(files).forEach(([filePath, file]) => {
-                    if (file.path === normalizedPath) {
+                    if (file.path === normalizedPath && 
+                        (this.showHiddenFiles || !file.isHidden)) {
                         console.log('Adding file in user directory:', file.name);
                         contents.files.push({
                             ...file,
@@ -450,9 +545,10 @@ export class FileSystem {
                 });
             }
         } else {
-            // For all other paths (system folders, etc.), show everything
+            // For all other paths (system folders, etc.), show everything subject to hidden rules
             Object.entries(folders).forEach(([folderPath, folder]) => {
-                if (folder.path === normalizedPath) {
+                if (folder.path === normalizedPath && 
+                    (this.showHiddenFiles || !folder.isHidden)) {
                     console.log('Adding folder:', folder.name, 'from path:', folder.path);
                     contents.folders.push({
                         ...folder,
@@ -460,9 +556,10 @@ export class FileSystem {
                     });
                 }
             });
-
+    
             Object.entries(files).forEach(([filePath, file]) => {
-                if (file.path === normalizedPath) {
+                if (file.path === normalizedPath && 
+                    (this.showHiddenFiles || !file.isHidden)) {
                     console.log('Adding file:', file.name, 'from path:', file.path);
                     contents.files.push({
                         ...file,
@@ -471,7 +568,11 @@ export class FileSystem {
                 }
             });
         }
-
+    
+        // Sort folders and files alphabetically
+        contents.folders.sort((a, b) => a.name.localeCompare(b.name));
+        contents.files.sort((a, b) => a.name.localeCompare(b.name));
+    
         console.log('Returning contents:', contents);
         return contents;
     }
@@ -519,35 +620,40 @@ export class FileSystem {
 
     deleteFile(path) {
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        
+        // Check if file exists
+        if (!files[path]) {
+            throw new Error('File not found');
+        }
+    
+        // Protection check
+        if (files[path].isProtected) {
+            throw new Error('Protected files cannot be deleted');
+        }
+    
         delete files[path];
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
-
-
 
     renameFile(path, newName) {
         console.log('=== Renaming File ===');
         console.log('Parameters:', { path, newName });
         
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        console.log('Current files:', files);
-        console.log('Looking for file at path:', path);
         
         // Check if file exists
         if (!files[path]) {
             console.error('File not found at path:', path);
-            console.log('Available file paths:', Object.keys(files));
             throw new Error('File not found');
+        }
+    
+        // Protection check
+        if (files[path].isProtected) {
+            throw new Error('Protected files cannot be renamed');
         }
     
         const parentPath = this.getParentPath(path);
         const newPath = this.joinPaths(parentPath, newName);
-        
-        console.log('Path details:', {
-            oldPath: path,
-            newPath: newPath,
-            parentPath: parentPath
-        });
         
         // Check if new name already exists
         if (this.fileExists(newPath)) {
@@ -565,8 +671,6 @@ export class FileSystem {
         // Delete old entry
         delete files[path];
     
-        console.log('Final files structure:', files);
-    
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
         return newPath;
     }
@@ -580,6 +684,18 @@ export class FileSystem {
             throw new Error('Source folder not found');
         }
     
+        // Protection checks for system folders
+        if (sourceFolder.type === 'system') {
+            throw new Error('System folders cannot be copied');
+        }
+    
+        // Check if target path is under a protected folder
+        const targetFolderPath = this.getParentPath(targetPath);
+        const targetFolder = folders[targetFolderPath];
+        if (targetFolder && targetFolder.isProtected && targetFolder.type === 'system') {
+            throw new Error('Cannot copy folders into system directories');
+        }
+    
         // Generate new folder name if needed
         let newName = sourceFolder.name;
         let counter = 1;
@@ -591,11 +707,13 @@ export class FileSystem {
             counter++;
         }
     
-        // Copy the folder itself
+        // Copy the folder itself, but never copy as system type
         folders[finalTargetPath] = {
             name: newName,
             path: targetPath,
-            type: sourceFolder.type === 'system' ? 'user' : sourceFolder.type, // Never copy as system
+            type: sourceFolder.type === 'system' ? 'user' : sourceFolder.type,
+            isProtected: false, // Copies are never protected
+            isHidden: sourceFolder.isHidden,
             created: new Date().toISOString(),
             modified: new Date().toISOString()
         };
@@ -609,6 +727,7 @@ export class FileSystem {
                     ...folder,
                     path: this.getParentPath(newPath),
                     type: folder.type === 'system' ? 'user' : folder.type,
+                    isProtected: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 };
@@ -622,6 +741,7 @@ export class FileSystem {
                 files[newPath] = {
                     ...file,
                     path: this.getParentPath(newPath),
+                    isProtected: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 };
@@ -633,12 +753,21 @@ export class FileSystem {
         return finalTargetPath;
     }
     
+    // Update copyFile method
     copyFile(sourcePath, targetPath) {
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         const sourceFile = files[sourcePath];
         
         if (!sourceFile) {
             throw new Error('Source file not found');
+        }
+    
+        // Check if target path is under a protected folder
+        const targetFolderPath = this.getParentPath(targetPath);
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const targetFolder = folders[targetFolderPath];
+        if (targetFolder && targetFolder.isProtected && targetFolder.type === 'system') {
+            throw new Error('Cannot copy files into system directories');
         }
     
         // Generate new file name if needed
@@ -654,10 +783,12 @@ export class FileSystem {
             counter++;
         }
     
+        // Create the copy, but never as protected
         files[finalTargetPath] = {
             ...sourceFile,
             name: newName,
             path: targetPath,
+            isProtected: false,
             created: new Date().toISOString(),
             modified: new Date().toISOString()
         };
@@ -736,7 +867,8 @@ export class FileSystem {
             'Pictures',
             'Music',
             'Downloads',
-            'Games'
+            'Games',
+            'Programs'
         ];
     
         console.log('Attempting to create user folders...');

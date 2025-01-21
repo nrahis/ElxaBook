@@ -132,16 +132,25 @@ export class WindowManager {
     setupWindowControls(window) {
         const controls = window.querySelector('.window-controls');
         
+        // Existing control button handlers...
         controls.querySelector('.minimize').addEventListener('click', () => {
             this.minimizeWindow(window);
         });
-
+    
         controls.querySelector('.maximize').addEventListener('click', () => {
             this.toggleMaximize(window);
         });
-
+    
         controls.querySelector('.close').addEventListener('click', () => {
             this.closeWindow(window);
+        });
+    
+        // Add click handler for the entire window
+        window.addEventListener('mousedown', (e) => {
+            // Don't interfere with controls
+            if (!e.target.closest('.window-controls')) {
+                this.bringToFront(window);
+            }
         });
     }
 

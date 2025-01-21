@@ -11,7 +11,53 @@ export class FileExplorer {
         this.historyIndex = -1;
         this.currentPath = '';
         this.clipboard = null;
-        this.elements = {}; // Initialize the elements object
+        this.elements = {};
+        this.activeMenu = null;  // Track active menu
+        this.activeMenuType = null; // 'main' or 'context'
+        this.menuClickInProgress = false;
+        this.menuDefinitions = {
+            file: {
+                items: [
+                    { label: 'New', submenu: [
+                        { label: 'Folder', action: 'new-folder' },
+                        { label: 'Text Document', action: 'new-file' }
+                    ]},
+                    { type: 'separator' },
+                    { label: 'Properties', action: 'properties' },
+                    { type: 'separator' },
+                    { label: 'Close', action: 'close', shortcut: 'Alt+F4' }
+                ]
+            },
+            edit: {
+                items: [
+                    { label: 'Cut', action: 'cut', shortcut: 'Ctrl+X' },
+                    { label: 'Copy', action: 'copy', shortcut: 'Ctrl+C' },
+                    { label: 'Paste', action: 'paste', shortcut: 'Ctrl+V' },
+                    { type: 'separator' },
+                    { label: 'Select All', action: 'select-all', shortcut: 'Ctrl+A' },
+                    { type: 'separator' },
+                    { label: 'Delete', action: 'delete', shortcut: 'Del' }
+                ]
+            },
+            view: {
+                items: [
+                    { label: 'View Mode', submenu: [
+                        { label: 'Icons', action: 'view-icons', type: 'radio', checked: true },
+                        { label: 'List', action: 'view-list', type: 'radio' },
+                        { label: 'Details', action: 'view-details', type: 'radio' }
+                    ]},
+                    { type: 'separator' },
+                    { label: 'Show Hidden Files', action: 'toggle-hidden', type: 'checkbox' },
+                    { type: 'separator' },
+                    { label: 'Refresh', action: 'refresh', shortcut: 'F5' }
+                ]
+            },
+            help: {
+                items: [
+                    { label: 'About File Explorer', action: 'about' }
+                ]
+            }
+        };
     }
 
     initialize(contentArea, initialPath) {
@@ -34,10 +80,12 @@ export class FileExplorer {
         
         this.populateContent();
         this.setupEventListeners();
+        this.setupMenus();
         this.populateFolderTree();
         
         this.updateNavigationButtons();
     }
+
 
     setupExplorerWindow(contentArea) {
         if (!contentArea) {
@@ -52,7 +100,8 @@ export class FileExplorer {
                     <div class="menu-item" data-menu="view">View</div>
                     <div class="menu-item" data-menu="help">Help</div>
                 </div>
-
+    
+                <!-- Rest of your existing HTML template... -->
                 <div class="explorer-toolbar">
                     <button class="toolbar-button" data-action="back" disabled>
                         <span class="toolbar-icon">◀</span>
@@ -71,22 +120,21 @@ export class FileExplorer {
                         <div class="path-segments"></div>
                     </div>
                 </div>
-
+    
                 <div class="explorer-content">
                     <div class="folder-tree"></div>
                     <div class="file-list"></div>
                 </div>
-
+    
                 <div class="explorer-statusbar">
                     <span class="status-text">0 items</span>
                 </div>
             </div>
         `;
-
+    
         // Store element references
         this.elements = {
             window: contentArea.querySelector('.explorer-window'),
-            titleBar: contentArea.closest('.program-window').querySelector('.window-title'),  // Add this line
             menubar: contentArea.querySelector('.explorer-menubar'),
             toolbar: contentArea.querySelector('.explorer-toolbar'),
             addressBar: contentArea.querySelector('.address-bar'),
@@ -96,18 +144,22 @@ export class FileExplorer {
             statusBar: contentArea.querySelector('.explorer-statusbar'),
             backButton: contentArea.querySelector('[data-action="back"]'),
             forwardButton: contentArea.querySelector('[data-action="forward"]'),
-            upButton: contentArea.querySelector('[data-action="up"]')
+            upButton: contentArea.querySelector('[data-action="up"]'),
+            titleBar: contentArea.closest('.program-window').querySelector('.window-title')
         };
-
+    
         // Verify that all elements were found
         Object.entries(this.elements).forEach(([key, element]) => {
             if (!element) {
                 console.error(`Failed to find element: ${key}`);
             }
         });
-
+    
         // Update the window title
         this.updateWindowTitle();
+    
+        // Initialize menus right after setting up the window
+        this.setupMenus();
     }
 
     updateWindowTitle() {
@@ -122,15 +174,8 @@ export class FileExplorer {
         this.elements.backButton.addEventListener('click', () => this.navigateBack());
         this.elements.forwardButton.addEventListener('click', () => this.navigateForward());
         this.elements.upButton.addEventListener('click', () => this.navigateUp());
-
-        // Menu items
-        this.elements.menubar.addEventListener('click', (e) => {
-            const menuItem = e.target.closest('.menu-item');
-            if (menuItem) {
-                this.showMenu(menuItem.dataset.menu);
-            }
-        });
-
+        document.addEventListener('keydown', (e) => this.handleShortcut(e));
+    
         // File list
         this.elements.fileList.addEventListener('click', (e) => {
             const item = e.target.closest('.file-item');
@@ -141,25 +186,25 @@ export class FileExplorer {
             }
         });
 
-            // Context menu for file list
-            this.elements.fileList.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                console.log('Context menu triggered');
-                
-                const item = e.target.closest('.file-item');
-                if (item) {
-                    if (!item.classList.contains('selected')) {
-                        this.clearSelection();
-                        this.selectItem(item);
-                    }
-                    this.showContextMenu(e, item);
-                } else {
+        // Context menu for file list
+        this.elements.fileList.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Context menu triggered');
+            
+            const item = e.target.closest('.file-item');
+            if (item) {
+                if (!item.classList.contains('selected')) {
                     this.clearSelection();
-                    this.showFolderContextMenu(e);
+                    this.selectItem(item);
                 }
-            });
+                this.showContextMenu(e, item);
+            } else {
+                this.clearSelection();
+                this.showFolderContextMenu(e);
+            }
+        });
 
         // Double click handling
         this.elements.fileList.addEventListener('dblclick', (e) => {
@@ -469,6 +514,37 @@ export class FileExplorer {
     updateFileList(contents) {
         this.elements.fileList.innerHTML = '';
         
+        // Add header row for details view
+        if (this.viewMode === 'details') {
+            const header = document.createElement('div');
+            header.className = 'details-header';
+            
+            const nameHeader = document.createElement('div');
+            nameHeader.className = 'header-cell';
+            nameHeader.textContent = 'Name';
+            nameHeader.style.paddingLeft = '28px'; // Account for icon width
+            
+            const typeHeader = document.createElement('div');
+            typeHeader.className = 'header-cell';
+            typeHeader.textContent = 'Type';
+            
+            const sizeHeader = document.createElement('div');
+            sizeHeader.className = 'header-cell';
+            sizeHeader.textContent = 'Size';
+            
+            const modifiedHeader = document.createElement('div');
+            modifiedHeader.className = 'header-cell';
+            modifiedHeader.textContent = 'Date Modified';
+            
+            header.appendChild(document.createElement('div')); // Empty cell for icon
+            header.appendChild(nameHeader);
+            header.appendChild(typeHeader);
+            header.appendChild(sizeHeader);
+            header.appendChild(modifiedHeader);
+            
+            this.elements.fileList.appendChild(header);
+        }
+        
         // Add folders first
         contents.folders.forEach(folder => {
             const item = this.createFileListItem(folder.name, 'folder', folder);
@@ -495,24 +571,15 @@ export class FileExplorer {
     }
 
     createFileListItem(name, type, fileInfo = null) {
-        console.log('Creating file list item:', { name, type, fileInfo }); // Debug log
-        
         const item = document.createElement('div');
         item.className = 'file-item';
         item.dataset.name = name;
         item.dataset.type = type;
     
         // Determine correct icon category and type
-        let iconCategory;
-        if (type === 'folder') {
-            iconCategory = 'folder';
-        } else if (type === 'program') {
-            iconCategory = 'program';
-        } else {
-            iconCategory = 'file';
-        }
-    
-        console.log('Getting icon with:', { iconCategory, fileInfo }); // Debug log
+        let iconCategory = type === 'folder' ? 'folder' : 
+                          type === 'program' ? 'program' : 'file';
+        
         const icon = IconSet.getIcon(iconCategory, fileInfo);
         icon.className = 'file-icon';
     
@@ -523,7 +590,43 @@ export class FileExplorer {
         item.appendChild(icon);
         item.appendChild(label);
     
+        // Add details view information
+        if (this.viewMode === 'details') {
+            const modified = fileInfo?.modified ? 
+                new Date(fileInfo.modified).toLocaleString() : '';
+            const typeLabel = type === 'folder' ? 'File Folder' : 
+                             type === 'program' ? 'Application' :
+                             fileInfo?.type?.toUpperCase() + ' File' || 'File';
+            const size = type === 'folder' ? '' : 
+                        fileInfo?.size ? this.formatFileSize(fileInfo.size) : '';
+    
+            const typeCell = document.createElement('div');
+            typeCell.className = 'file-details type';
+            typeCell.textContent = typeLabel;
+    
+            const sizeCell = document.createElement('div');
+            sizeCell.className = 'file-details size';
+            sizeCell.textContent = size;
+    
+            const modifiedCell = document.createElement('div');
+            modifiedCell.className = 'file-details modified';
+            modifiedCell.textContent = modified;
+    
+            item.appendChild(typeCell);
+            item.appendChild(sizeCell);
+            item.appendChild(modifiedCell);
+        }
+    
         return item;
+    }    
+    
+    // Add this helper method for formatting file sizes
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 
     handleItemClick(e, item) {
@@ -595,6 +698,13 @@ export class FileExplorer {
     }
 
     showContextMenu(e, item) {
+        console.log('Showing context menu');
+        e.preventDefault();
+        e.stopPropagation();
+        
+        this.closeAllMenus();
+        this.activeMenuType = 'context';
+
         const menu = document.createElement('div');
         menu.className = 'context-menu';
         
@@ -678,15 +788,30 @@ export class FileExplorer {
 
 
     showMenu(menu, e) {
-        console.log('Positioning menu at:', e.pageX, e.pageY); // Debug log
-        menu.style.left = `${e.pageX}px`;
-        menu.style.top = `${e.pageY}px`;
+        // Remove any existing menus first
+        document.querySelectorAll('.context-menu').forEach(m => m.remove());
+        
+        // If e (event) is provided, position relative to click
+        if (e) {
+            console.log('Positioning menu at:', e.pageX, e.pageY);
+            menu.style.left = `${e.pageX}px`;
+            menu.style.top = `${e.pageY}px`;
+        } else {
+            // For non-event-based menus (like main menubar), position under the menu item
+            const menuItem = this.elements.menubar.querySelector('.menu-item.active');
+            if (menuItem) {
+                const rect = menuItem.getBoundingClientRect();
+                menu.style.left = `${rect.left}px`;
+                menu.style.top = `${rect.bottom}px`;
+            }
+        }
+        
         document.body.appendChild(menu);
     
         // Handle clicking outside the menu
         const closeMenu = (event) => {
             if (!menu.contains(event.target)) {
-                console.log('Closing menu due to outside click'); // Debug log
+                console.log('Closing menu due to outside click');
                 menu.remove();
                 document.removeEventListener('click', closeMenu);
                 document.removeEventListener('contextmenu', closeMenu);
@@ -815,8 +940,6 @@ export class FileExplorer {
     }
 
     // folder creation and deletion
-
-// Update this method in FileExplorer class
 
     createNewFolder() {
         console.log('=== Starting CreateNewFolder ===');
@@ -1210,4 +1333,322 @@ export class FileExplorer {
             alert('The following errors occurred while pasting:\n' + errors.join('\n'));
         }
     }
+
+    // File/Edit/View menus
+    
+    setupMenus() {
+        const menubar = this.elements.menubar;
+        let activeMenuItem = null;
+        
+        // Handle menu item clicks
+        menubar.querySelectorAll('.menu-item').forEach(menuItem => {
+            menuItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const menuName = menuItem.dataset.menu;
+                
+                // If clicking the same menu item, close it
+                if (menuItem === activeMenuItem) {
+                    this.closeAllMenus();
+                    activeMenuItem = null;
+                    return;
+                }
+                
+                // Close any open menus
+                this.closeAllMenus();
+                
+                // Open the clicked menu
+                menuItem.classList.add('active');
+                activeMenuItem = menuItem;
+                
+                const dropdown = this.createMenuDropdown(this.menuDefinitions[menuName].items);
+                menuItem.appendChild(dropdown);
+            });
+        });
+        
+        // Close menus when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.menu-item') && !e.target.closest('.menu-dropdown')) {
+                this.closeAllMenus();
+                activeMenuItem = null;
+            }
+        });
+    }
+    
+    createMenuDropdown(items) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'menu-dropdown';
+        
+        items.forEach(item => {
+            if (item.type === 'separator') {
+                dropdown.appendChild(document.createElement('hr'));
+                return;
+            }
+            
+            const button = document.createElement('button');
+            button.className = 'menu-item-button';
+            
+            // Add type-specific classes
+            if (item.type === 'checkbox') {
+                button.classList.add('checkbox-item');
+                if (item.checked) button.classList.add('checked');
+            } else if (item.type === 'radio') {
+                button.classList.add('radio-item');
+                if (item.checked) button.classList.add('checked');
+            }
+            
+            button.textContent = item.label;
+            
+            if (item.submenu) {
+                button.classList.add('has-submenu');
+                const submenuContainer = document.createElement('div');
+                submenuContainer.className = 'submenu-container';
+                const submenu = this.createMenuDropdown(item.submenu);
+                submenuContainer.appendChild(submenu);
+                button.appendChild(submenuContainer);
+            } else {
+                if (item.shortcut) {
+                    const shortcut = document.createElement('span');
+                    shortcut.className = 'menu-shortcut';
+                    shortcut.textContent = item.shortcut;
+                    button.appendChild(shortcut);
+                }
+                
+                if (item.action) {
+                    button.dataset.action = item.action;
+                }
+                
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if (item.type === 'checkbox') {
+                        button.classList.toggle('checked');
+                    } else if (item.type === 'radio') {
+                        // Uncheck all other radio items in the group
+                        const siblings = button.parentElement.querySelectorAll('.radio-item');
+                        siblings.forEach(sib => sib.classList.remove('checked'));
+                        button.classList.add('checked');
+                    }
+                    
+                    if (item.action) {
+                        this.handleMenuAction(item.action);
+                    }
+                });
+            }
+            
+            dropdown.appendChild(button);
+        });
+        
+        return dropdown;
+    }
+    
+    closeAllMenus() {
+        console.log('Closing all menus');
+        const dropdowns = this.elements.window.querySelectorAll('.menu-dropdown');
+        console.log('Found dropdowns to remove:', dropdowns.length);
+        dropdowns.forEach(menu => {
+            console.log('Removing dropdown:', menu.outerHTML);
+            menu.remove();
+        });
+        
+        const activeItems = this.elements.menubar.querySelectorAll('.menu-item.active');
+        console.log('Found active items to deactivate:', activeItems.length);
+        activeItems.forEach(item => item.classList.remove('active'));
+        
+        this.activeMenuType = null;
+    }
+
+    handleMenuAction(action) {
+        console.log('Handling menu action:', action); // Debug log
+        
+        switch (action) {
+            case 'new-folder':
+                this.createNewFolder();
+                break;
+                
+            case 'new-file':
+                this.createNewFile();
+                break;
+                
+            case 'properties':
+                if (this.selectedItems.size === 1) {
+                    const item = this.elements.fileList.querySelector('.file-item.selected');
+                    this.showProperties(item);
+                } else {
+                    this.showFolderProperties();
+                }
+                break;
+                
+            case 'close':
+                this.windowManager.closeWindow(this.elements.window.closest('.program-window'));
+                break;
+                
+            case 'cut':
+                this.cutSelectedItems();
+                break;
+                
+            case 'copy':
+                this.copySelectedItems();
+                break;
+                
+            case 'paste':
+                this.pasteItems();
+                break;
+                
+            case 'select-all':
+                this.selectAll();
+                break;
+                
+            case 'delete':
+                this.deleteSelectedItems();
+                break;
+                
+            case 'view-icons':
+            case 'view-list':
+            case 'view-details':
+                this.setViewMode(action.split('-')[1]);
+                break;
+                
+            case 'toggle-hidden':
+                this.toggleHiddenFiles();
+                break;
+                
+            case 'refresh':
+                this.populateContent();
+                break;
+                
+            case 'about':
+                this.showAboutDialog();
+                break;
+                
+            default:
+                console.warn('Unhandled menu action:', action);
+        }
+        
+        this.closeAllMenus();
+    }
+
+    handleShortcut(e) {
+        // Only handle shortcuts if the window is active
+        if (!this.elements.window.classList.contains('active')) return;
+
+        if (e.ctrlKey) {
+            switch (e.key.toLowerCase()) {
+                case 'a':
+                    e.preventDefault();
+                    this.handleMenuAction('select-all');
+                    break;
+                case 'c':
+                    e.preventDefault();
+                    this.handleMenuAction('copy');
+                    break;
+                case 'v':
+                    e.preventDefault();
+                    this.handleMenuAction('paste');
+                    break;
+                case 'x':
+                    e.preventDefault();
+                    this.handleMenuAction('cut');
+                    break;
+            }
+        } else if (e.key === 'Delete') {
+            this.handleMenuAction('delete');
+        } else if (e.key === 'F5') {
+            e.preventDefault();
+            this.handleMenuAction('refresh');
+        }
+    }
+
+    // file/edit/view menu actions
+    // Add these methods to FileExplorer class
+
+    selectAll() {
+        this.elements.fileList.querySelectorAll('.file-item').forEach(item => {
+            item.classList.add('selected');
+            this.selectedItems.add(item.dataset.name);
+        });
+        this.updateStatusBar(this.fileSystem.getFolderContents(this.currentPath));
+    }
+
+    setViewMode(mode) {
+        this.viewMode = mode;
+        this.elements.fileList.className = `file-list view-${mode}`;
+        
+        // Update radio buttons in view menu
+        const viewModeButtons = this.elements.menubar
+            .querySelectorAll('.menu-dropdown .radio-item');
+        viewModeButtons.forEach(button => {
+            button.classList.toggle('checked', 
+                button.textContent.toLowerCase() === mode);
+        });
+        
+        // Refresh the view to apply the new mode
+        this.populateContent();
+    }
+
+    async toggleHiddenFiles() {
+        try {
+            const password = await this.promptForPassword();
+            if (await this.fileSystem.toggleHiddenFiles(password)) {
+                // Update checkbox in view menu
+                const hideButton = this.elements.menubar
+                    .querySelector('[data-action="toggle-hidden"]');
+                if (hideButton) {
+                    hideButton.classList.toggle('checked');
+                }
+                
+                // Refresh the view
+                this.populateContent();
+            }
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    async promptForPassword() {
+        return new Promise((resolve, reject) => {
+            const password = prompt('Enter administrator password to toggle hidden files:');
+            if (password === null) {
+                reject(new Error('Operation cancelled'));
+            } else {
+                resolve(password);
+            }
+        });
+    }
+
+    showAboutDialog() {
+        alert(
+            'File Explorer\n\n' +
+            'Version 1.0\n' +
+            'Part of ElxaOS\n\n' +
+            '© 2025 Elxa Corporation'
+        );
+    }
+
+    cutSelectedItems() {
+        const selectedElements = Array.from(this.elements.fileList.querySelectorAll('.file-item.selected'));
+        if (selectedElements.length === 0) return;
+
+        this.clipboard = {
+            type: 'cut',
+            items: Array.from(this.selectedItems)
+        };
+
+        // Add visual feedback for cut items
+        selectedElements.forEach(item => {
+            item.style.opacity = '0.5';
+        });
+    }
+
+    copySelectedItems() {
+        if (this.selectedItems.size === 0) return;
+
+        this.clipboard = {
+            type: 'copy',
+            items: Array.from(this.selectedItems)
+        };
+    }
+
 }

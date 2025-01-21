@@ -1,4 +1,4 @@
-        <!-- Add this at the start of your body tag in index.html -->
+    <!-- Add this at the start of your body tag in index.html -->
     <div id="boot-sequence" class="fullscreen">
         <!-- Initial boot screen -->
         <div id="boot-screen" class="boot-phase">
@@ -28,14 +28,14 @@
                     <div class="user-avatar">
                         <svg viewBox="0 0 100 100" class="snake-icon">
                             <path d="M75,50 Q60,35 50,50 T25,50" 
-                                  fill="none" 
-                                  stroke="#00ff9d" 
-                                  stroke-width="8" 
-                                  class="snake-body"/>
+                                    fill="none" 
+                                    stroke="#00ff9d" 
+                                    stroke-width="8" 
+                                    class="snake-body"/>
                             <circle cx="80" cy="50" r="5" fill="#ff71ce" class="snake-eye"/>
                             <path d="M85,50 L90,45 L90,55 Z" 
-                                  fill="#ff71ce" 
-                                  class="snake-tongue"/>
+                                    fill="#ff71ce" 
+                                    class="snake-tongue"/>
                         </svg>
                     </div>
                     <div class="user-name">kitkat</div>
@@ -43,34 +43,38 @@
                 
                 <div class="password-container">
                     <input type="password" 
-                           id="password-input" 
-                           placeholder="Enter password"
-                           autocomplete="off">
+                            id="password-input" 
+                            placeholder="Enter password"
+                            autocomplete="off">
                     <button id="login-button">Log In</button>
                 </div>
                 
                 <div id="login-message" class="login-message"></div>
             </div>
         </div>
-    </div>
+    </div> 
 
 codes
 window._resetFileSystem()
 
     TO DO
-    - when switching users, still shows other user's User folder (and not new user)
-    - Games folder isnt creating for new users
-    Add more validation to the password change process (like minimum length, required characters)?
-Add a user preferences panel where users can change their theme/background settings?
-    - change font
+
+    - Add more validation to the password change process (like minimum length, required characters)?
+    - drag and drop for folders and files
+    - delete should sent to Recycle Bin; add ability to empty Recycle Bin, and restore apps
     - military time for clocks
-    - log out - needs to be default bg and log in screen
+    - pretend battery beside clock Display
+    - color themes
+    - b-bomb app
     - EX Abbi Code - pretend coder, cat themed
-    - different user names
     - math games
-    - custom alarm sounds
+    - custom alarm sounds; fix stopwatch
     - messenger - hook up to Gemini, generate messages
-    - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options
+    - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options-Display preferences
+    - should have settings icon on desktop that also links to Options
+    - should put all games that arent "system games" in Games folder with custom icons
+        - ability to "uninstall" non-system games, with installers kept in System/Installers folder
+        - fix desktop grid; allow non-system files and programs to have desktop shortcuts
 
 
 

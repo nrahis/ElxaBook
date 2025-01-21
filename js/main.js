@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('snakeEquation', {
         title: 'Snake Equation',
         initialize: (contentArea) => snakeEquation.initialize(contentArea),
-        defaultSize: { width: 400, height: 550 }
+        defaultSize: { width: 400, height: 600 }
     });
 
     windowManager.registerApp('solitaire', {
