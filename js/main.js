@@ -9,7 +9,7 @@ import { Notepad } from './apps/system/notepad.js';
 import { Duck } from './apps/system/duck.js';
 import { minesweeper } from './apps/system/minesweeper.js';
 import { MathMatch, mathMatch } from './apps/system/math_games/math_match.js';
-import { SnakeEquation } from './apps/system/math_games/snake_equation.js';
+import { SnakeEquation, snakeEquation } from './apps/system/math_games/snake_equation.js';
 import { timeCrunch } from './apps/system/math_games/time_crunch.js';
 import { solitaire } from './apps/system/solitaire.js';
 import { About } from './apps/system/about.js';
@@ -159,12 +159,15 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 410, height: 500 }
     });
 
-    windowManager.registerApp('SnakeEquation', {
+    windowManager.registerApp('snakeEquation', {  // lowercase to match the data-app attribute
         title: 'Snake Equation',
-        initialize: (contentArea) => snakeEquation.initialize(contentArea),
-        defaultSize: { width: 500, height: 600 }  // This gives enough room for the canvas plus UI
+        initialize: (contentArea) => {
+            const game = new SnakeEquation();
+            game.initialize(contentArea);
+        },
+        defaultSize: { width: 500, height: 600 }
     });
-
+    
     windowManager.registerApp('solitaire', {
         title: 'Solitaire',
         initialize: (contentArea) => solitaire.initialize(contentArea),
