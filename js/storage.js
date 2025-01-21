@@ -584,30 +584,32 @@ export class FileSystem {
     }
 
     // File operations
-    saveFile(path, name, content, type = 'text') {
-        console.log('=== Saving File ===');
-        console.log('Parameters:', { path, name, type });
-        
+    saveFile(path, name, content, type = 'text', additionalProps = {}) {
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         const fullPath = this.joinPaths(path, name);
         
-        console.log('Full path:', fullPath);
-        console.log('Current files:', files);
-    
-        files[fullPath] = {
-            name,
+        // Determine file extension based on type
+        let finalName = name;
+        if (type === 'text' && !name.toLowerCase().endsWith('.txt')) {
+            finalName = name + '.txt';
+        } else if (type === 'image' && !name.toLowerCase().endsWith('.png')) {
+            finalName = name + '.png';
+        }
+        
+        const fullPathWithExt = this.joinPaths(path, finalName);
+        
+        files[fullPathWithExt] = {
+            name: finalName,
             content,
             type,
             path,
-            created: files[fullPath]?.created || new Date().toISOString(),
-            modified: new Date().toISOString()
+            created: files[fullPathWithExt]?.created || new Date().toISOString(),
+            modified: new Date().toISOString(),
+            ...additionalProps
         };
     
-        console.log('New file object:', files[fullPath]);
-        console.log('Updated files structure:', files);
-    
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
-        return fullPath; // Return the full path instead of just the file object
+        return fullPathWithExt;
     }
 
     getFile(path) {
@@ -635,9 +637,9 @@ export class FileSystem {
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
     }
 
-    renameFile(path, newName) {
-        console.log('=== Renaming File ===');
-        console.log('Parameters:', { path, newName });
+    renameFile(path, newName, targetParentPath = null) {  // Add targetParentPath parameter
+        console.log('=== Storage renameFile Debug ===');
+        console.log('Parameters:', { path, newName, targetParentPath });
         
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
         
@@ -652,15 +654,17 @@ export class FileSystem {
             throw new Error('Protected files cannot be renamed');
         }
     
-        const parentPath = this.getParentPath(path);
+        // If targetParentPath is provided, use it; otherwise use current parent path
+        const parentPath = targetParentPath || this.getParentPath(path);
         const newPath = this.joinPaths(parentPath, newName);
+        console.log('New path will be:', newPath);
         
-        // Check if new name already exists
-        if (this.fileExists(newPath)) {
+        // Check if new path already exists (not just the name)
+        if (files[newPath]) {
             throw new Error('A file with that name already exists');
         }
     
-        // Create new file entry
+        // Create new file entry with updated path
         files[newPath] = {
             ...files[path],
             name: newName,
@@ -673,6 +677,132 @@ export class FileSystem {
     
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
         return newPath;
+    }
+
+    moveFile(sourcePath, targetFolderPath) {
+        console.log('=== Moving File ===', { sourcePath, targetFolderPath });
+        
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        
+        // Check if source file exists
+        if (!files[sourcePath]) {
+            throw new Error('Source file not found');
+        }
+    
+        const file = files[sourcePath];
+        
+        // Protection check
+        if (file.isProtected) {
+            throw new Error('Protected files cannot be moved');
+        }
+    
+        // Create the new path
+        const targetPath = this.joinPaths(targetFolderPath, file.name);
+        console.log('Target path will be:', targetPath);
+        
+        // Don't do anything if source and target are the same
+        if (sourcePath === targetPath) {
+            return sourcePath;
+        }
+        
+        // Check if target already exists
+        if (files[targetPath]) {
+            throw new Error('A file with that name already exists in the destination');
+        }
+    
+        // Create new entry at target path
+        files[targetPath] = {
+            ...file,
+            path: targetFolderPath,
+            modified: new Date().toISOString()
+        };
+        
+        // Remove the old entry
+        delete files[sourcePath];
+    
+        localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        return targetPath;
+    }
+    
+    moveFolder(sourcePath, targetFolderPath) {
+        console.log('=== Moving Folder ===', { sourcePath, targetFolderPath });
+        
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        
+        // Check if source folder exists
+        if (!folders[sourcePath]) {
+            throw new Error('Source folder not found');
+        }
+    
+        const folder = folders[sourcePath];
+        
+        // Protection checks
+        if (folder.type === 'system') {
+            throw new Error('System folders cannot be moved');
+        }
+        
+        // Create the new path
+        const targetPath = this.joinPaths(targetFolderPath, folder.name);
+        console.log('Target path will be:', targetPath);
+        
+        // Don't do anything if source and target are the same
+        if (sourcePath === targetPath) {
+            return sourcePath;
+        }
+        
+        // Check if moving into own subdirectory
+        if (targetFolderPath.startsWith(sourcePath + '/')) {
+            throw new Error('Cannot move a folder into itself or its subdirectories');
+        }
+        
+        // Check if target already exists
+        if (folders[targetPath]) {
+            throw new Error('A folder with that name already exists in the destination');
+        }
+    
+        // Store all paths that need to be updated
+        const pathUpdates = new Map();
+        
+        // Find all subfolders and files that need to be moved
+        Object.entries(folders).forEach(([path, info]) => {
+            if (path === sourcePath || path.startsWith(sourcePath + '/')) {
+                const relativePath = path.slice(sourcePath.length);
+                const newPath = targetPath + relativePath;
+                pathUpdates.set(path, { newPath, type: 'folder' });
+            }
+        });
+        
+        Object.entries(files).forEach(([path, info]) => {
+            if (path.startsWith(sourcePath + '/')) {
+                const relativePath = path.slice(sourcePath.length);
+                const newPath = targetPath + relativePath;
+                pathUpdates.set(path, { newPath, type: 'file' });
+            }
+        });
+        
+        // Perform all updates
+        pathUpdates.forEach((update, oldPath) => {
+            if (update.type === 'folder') {
+                folders[update.newPath] = {
+                    ...folders[oldPath],
+                    path: this.getParentPath(update.newPath),
+                    modified: new Date().toISOString()
+                };
+                delete folders[oldPath];
+            } else {
+                files[update.newPath] = {
+                    ...files[oldPath],
+                    path: this.getParentPath(update.newPath),
+                    modified: new Date().toISOString()
+                };
+                delete files[oldPath];
+            }
+        });
+    
+        localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
+        localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+        return targetPath;
     }
 
     copyFolder(sourcePath, targetPath) {

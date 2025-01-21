@@ -6,11 +6,25 @@ export class WindowManager {
         this.activeWindows = new Map();
         this.zIndexCounter = 100;
         this.fileSystem = window.elxaFileSystem;
+        this._desktop = null;  // Add underscore to denote private property
+    }
+
+    // Add these methods at the top of the class, right after constructor
+    get desktop() {
+        return this._desktop;
+    }
+
+    // Add this method to properly set the desktop instance
+    setDesktop(desktop) {
+        console.log('Setting desktop in WindowManager:', desktop);
+        this._desktop = desktop;
+        window.elxaDesktop = desktop;  // Make desktop globally accessible
     }
 
     initialize() {
         this.template = document.getElementById(this.templateId);
         this.desktopArea = document.getElementById(this.desktopAreaId);
+        console.log('WindowManager initialized with desktop:', this._desktop);
     }
 
     registerApp(appName, config) {

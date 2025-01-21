@@ -5,7 +5,7 @@ export class Calendar {
         this.currentDate = new Date();
         this.selectedDate = new Date();
         this.events = this.loadEvents();
-        this.activeTab = 'calendar'; // Default tab
+        this.activeTab = 'calendar';
         this.icons = {
             birthday: '🎂',
             party: '🎉',
@@ -18,13 +18,26 @@ export class Calendar {
             movie: '🎬',
             food: '🍕'
         };
+
+        this.funFacts = [
+            "Did you know? A year on Jupiter is almost 12 Earth years long!",
+            "Fun fact: Penguins can't fly, but they're excellent swimmers!",
+            "Wow! A rainbow forms a complete circle when viewed from above!",
+            "Amazing! Your heart beats about 100,000 times every day!",
+            "Cool fact: Cats spend 70% of their lives sleeping!",
+            "Did you know? The first oranges weren't orange!",
+            "Fun fact: Butterflies taste with their feet!",
+            "Wow! A snail can sleep for three years!",
+            "Amazing! Honey never spoils - ever!",
+            "Cool fact: Dolphins have names for each other!"
+        ];
+        this.currentFact = 0;
     }
 
     initialize(contentArea) {
         this.contentArea = contentArea;
         this.render();
         this.setupEventListeners();
-        // Explicitly refresh calendar after setup
         this.refreshCalendar();
     }
 
@@ -58,25 +71,43 @@ export class Calendar {
                         <button class="nav-btn next-month">▶</button>
                     </div>
                 </div>
-                
-                <div class="tab-content calendar-tab ${this.activeTab === 'calendar' ? '' : 'hidden'}">
-                    <div class="calendar-grid">
-                        <div class="weekdays">
-                            <div>Sun</div>
-                            <div>Mon</div>
-                            <div>Tue</div>
-                            <div>Wed</div>
-                            <div>Thu</div>
-                            <div>Fri</div>
-                            <div>Sat</div>
+                <div class="calendar-content">
+                    <div class="calendar-main">
+                        <div class="tab-content calendar-tab ${this.activeTab === 'calendar' ? '' : 'hidden'}">
+                            <div class="calendar-grid">
+                                <div class="weekdays">
+                                    <div>Sun</div>
+                                    <div>Mon</div>
+                                    <div>Tue</div>
+                                    <div>Wed</div>
+                                    <div>Thu</div>
+                                    <div>Fri</div>
+                                    <div>Sat</div>
+                                </div>
+                                <div class="days"></div>
+                            </div>
+                            
+                            <div class="fun-zone">
+                                <div class="cat-container">
+                                    <img src="/assets/rainbowcat.gif" class="cat-gif" alt="Cute cat">
+                                </div>
+                                <div class="fun-fact-box">
+                                    <div class="fact-text">${this.funFacts[0]}</div>
+                                    <button class="new-fact-btn">Tell me something else! ✨</button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="days"></div>
-                    </div>
-                </div>
 
-                <div class="tab-content upcoming-tab ${this.activeTab === 'upcoming' ? '' : 'hidden'}">
-                    <h3>Upcoming Events</h3>
-                    <div class="upcoming-events"></div>
+                        <div class="tab-content upcoming-tab ${this.activeTab === 'upcoming' ? '' : 'hidden'}">
+                            <h3>Upcoming Events</h3>
+                            <div class="upcoming-events"></div>
+                        </div>
+                    </div>
+
+                    <div class="today-panel">
+                        <h3>Today's Events</h3>
+                        <div class="today-events"></div>
+                    </div>
                 </div>
 
                 <!-- Event Dialog -->
@@ -84,7 +115,10 @@ export class Calendar {
                     <div class="dialog-content">
                         <h3 class="dialog-title">New Event</h3>
                         <input type="text" class="event-title" placeholder="Event Title">
-                        <input type="date" class="event-date">
+                        <div class="event-datetime">
+                            <input type="date" class="event-date">
+                            <input type="time" class="event-time">
+                        </div>
                         <textarea class="event-description" placeholder="Description (optional)"></textarea>
                         <div class="icon-selector">
                             <h4>Choose an Icon:</h4>
@@ -132,6 +166,25 @@ export class Calendar {
 
         // Setup icon grid
         this.setupIconGrid();
+
+        // Add fun fact button listener
+        const factBtn = this.contentArea.querySelector('.new-fact-btn');
+        factBtn.addEventListener('click', () => {
+            // Update fact text
+            this.currentFact = (this.currentFact + 1) % this.funFacts.length;
+            const factText = this.contentArea.querySelector('.fact-text');
+            factText.style.opacity = '0';
+            setTimeout(() => {
+                factText.textContent = this.funFacts[this.currentFact];
+                factText.style.opacity = '1';
+            }, 300);
+            
+            // Animate the cat GIF
+            const catGif = this.contentArea.querySelector('.cat-gif');
+            catGif.style.animation = 'none';
+            catGif.offsetHeight; // Trigger reflow
+            catGif.style.animation = 'bounce 0.5s ease';
+        });
     }
 
     // Add the missing hideEventDialog method
@@ -157,6 +210,7 @@ export class Calendar {
         const dialog = this.contentArea.querySelector('.event-dialog');
         const titleInput = dialog.querySelector('.event-title');
         const dateInput = dialog.querySelector('.event-date');
+        const timeInput = dialog.querySelector('.event-time');
         const descInput = dialog.querySelector('.event-description');
         const deleteBtn = dialog.querySelector('.delete-event');
         const dialogTitle = dialog.querySelector('.dialog-title');
@@ -167,17 +221,18 @@ export class Calendar {
             dialogTitle.textContent = 'Edit Event';
             titleInput.value = existingEvent.title;
             dateInput.value = existingEvent.date;
+            timeInput.value = existingEvent.time || '';
             descInput.value = existingEvent.description || '';
             deleteBtn.classList.remove('hidden');
             dialog.dataset.eventId = existingEvent.id;
             
-            // Select the existing icon
             const iconBtn = dialog.querySelector(`[data-icon="${existingEvent.icon}"]`);
             if (iconBtn) this.selectIcon(iconBtn);
         } else {
             dialogTitle.textContent = 'New Event';
             titleInput.value = '';
             dateInput.value = date.toISOString().split('T')[0];
+            timeInput.value = '';
             descInput.value = '';
             deleteBtn.classList.add('hidden');
             delete dialog.dataset.eventId;
@@ -265,6 +320,54 @@ export class Calendar {
         
         calendarTab.classList.toggle('hidden', this.activeTab !== 'calendar');
         upcomingTab.classList.toggle('hidden', this.activeTab !== 'upcoming');
+        // Update the today panel
+        this.updateTodayPanel();
+    }
+
+    updateTodayPanel() {
+        const todayEventsDiv = this.contentArea.querySelector('.today-events');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const todayEvents = this.events
+            .filter(event => {
+                const eventDate = new Date(event.date + 'T00:00:00'); // Ensure consistent timezone handling
+                return eventDate.toDateString() === today.toDateString(); // Compare date strings instead of components
+            })
+            .sort((a, b) => {
+                if (!a.time) return 1;
+                if (!b.time) return -1;
+                return a.time.localeCompare(b.time);
+            });
+    
+        if (todayEvents.length === 0) {
+            todayEventsDiv.innerHTML = '<p class="no-events">No events scheduled for today</p>';
+            return;
+        }
+    
+        todayEventsDiv.innerHTML = todayEvents.map(event => `
+            <div class="today-event" data-event-id="${event.id}">
+                <div class="event-time">${event.time || 'All Day'}</div>
+                <div class="event-content">
+                    <span class="event-icon">${this.icons[event.icon]}</span>
+                    <div class="event-info">
+                        <div class="event-title">${event.title}</div>
+                        ${event.description ? `<div class="event-description">${event.description}</div>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    
+        // Add click handlers for editing events
+        todayEventsDiv.querySelectorAll('.today-event').forEach(eventElement => {
+            eventElement.addEventListener('click', () => {
+                const eventId = parseInt(eventElement.dataset.eventId);
+                const event = this.events.find(e => e.id === eventId);
+                if (event) {
+                    this.showEventDialog(new Date(event.date), event);
+                }
+            });
+        });
     }
 
     updateUpcomingEvents() {
@@ -412,6 +515,7 @@ export class Calendar {
         const dialog = this.contentArea.querySelector('.event-dialog');
         const title = dialog.querySelector('.event-title').value;
         const date = dialog.querySelector('.event-date').value;
+        const time = dialog.querySelector('.event-time').value;
         const description = dialog.querySelector('.event-description').value;
         const selectedIcon = dialog.querySelector('.icon-option.selected');
 
@@ -419,7 +523,6 @@ export class Calendar {
 
         const eventId = dialog.dataset.eventId ? parseInt(dialog.dataset.eventId) : Date.now();
         
-        // Remove existing event if editing
         if (dialog.dataset.eventId) {
             this.events = this.events.filter(event => event.id !== eventId);
         }
@@ -428,6 +531,7 @@ export class Calendar {
             id: eventId,
             title,
             date,
+            time,
             description,
             icon: selectedIcon ? selectedIcon.dataset.icon : 'star'
         };
@@ -436,5 +540,17 @@ export class Calendar {
         this.saveEvents();
         this.hideEventDialog();
         this.refreshCalendar();
+        this.updateTodayPanel();
     }
+
+    loadEvents() {
+        const savedEvents = localStorage.getItem('elxaos_calendar_events');
+        return savedEvents ? JSON.parse(savedEvents) : [];
+    }
+
+    saveEvents() {
+        localStorage.setItem('elxaos_calendar_events', JSON.stringify(this.events));
+    }
+
+
 }

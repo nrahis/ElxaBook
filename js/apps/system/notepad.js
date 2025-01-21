@@ -1,316 +1,518 @@
 import { fileSystem } from '../../storage.js';
+import { FileOpenDialog } from '../../dialogs/file_open_dialog.js';
+import { FileSaveDialog } from '../../dialogs/file_save_dialog.js';
 
-export class Notepad {
-    constructor() {
+class Notepad {
+    constructor(fileSystem) {
+        this.fileSystem = fileSystem;
         this.currentDocument = {
-            name: 'Untitled',
+            name: 'Untitled.txt',
             content: '',
-            path: '/Documents'  // Update default path
+            path: null
         };
         this.wordWrap = true;
         this.fontSize = 16;
+        this.modified = false;
+        this.defaultPath = `/ElxaOS/Users/${fileSystem.currentUsername}/Documents`;
     }
 
     initialize(contentArea) {
-        this.contentArea = contentArea; // Store reference to contentArea
-        this.renderUI(contentArea);
+        this.contentArea = contentArea;
+        this.renderUI();
         this.setupEventListeners();
-        this.loadLastDocument();
+        this.loadLastSession();
     }
 
-    renderUI(contentArea) {
-        contentArea.innerHTML = `
-            <div class="notepad-container">
-                <div class="notepad-menu">
-                    <div class="menu-item">
-                        File
-                        <div class="menu-dropdown">
-                            <button id="notepad-new">New</button>
-                            <button id="notepad-open">Open...</button>
-                            <button id="notepad-save">Save</button>
-                            <button id="notepad-save-as">Save As...</button>
-                            <hr>
-                            <button id="notepad-exit">Exit</button>
-                        </div>
-                    </div>
-                    <div class="menu-item">
-                        Edit
-                        <div class="menu-dropdown">
-                            <button id="notepad-cut">Cut</button>
-                            <button id="notepad-copy">Copy</button>
-                            <button id="notepad-paste">Paste</button>
-                            <hr>
-                            <button id="notepad-select-all">Select All</button>
-                        </div>
-                    </div>
-                    <div class="menu-item">
-                        Format
-                        <div class="menu-dropdown">
-                            <button id="notepad-word-wrap">Word Wrap</button>
-                            <button id="notepad-font-increase">Increase Font Size</button>
-                            <button id="notepad-font-decrease">Decrease Font Size</button>
-                        </div>
-                    </div>
-                    <div class="menu-item">
-                        Debug
-                        <div class="menu-dropdown">
-                            <button id="check-storage">Check Storage</button>
-                        </div>
-                    </div>
+    renderUI() {
+        this.contentArea.innerHTML = `
+            <div class="ex-notepad-container">
+                <div class="ex-notepad-menubar">
+                    <div class="ex-notepad-menu-item" data-menu="file">File</div>
+                    <div class="ex-notepad-menu-item" data-menu="edit">Edit</div>
+                    <div class="ex-notepad-menu-item" data-menu="format">Format</div>
+                    <div class="ex-notepad-menu-item" data-menu="help">Help</div>
                 </div>
-                <textarea id="notepad-textarea" spellcheck="false"></textarea>
-                <div class="notepad-status">
-                    <span id="char-count">Characters: 0</span>
-                    <span id="current-file">Untitled</span>
+                <textarea class="ex-notepad-textarea" spellcheck="false"></textarea>
+                <div class="ex-notepad-status">
+                    <span class="ex-notepad-status-modified"></span>
+                    <span class="ex-notepad-status-info">
+                        <span class="ex-notepad-char-count">Characters: 0</span>
+                        <span class="ex-notepad-cursor-position">Ln 1, Col 1</span>
+                    </span>
                 </div>
             </div>
         `;
+
+        this.elements = {
+            textarea: this.contentArea.querySelector('.ex-notepad-textarea'),
+            menubar: this.contentArea.querySelector('.ex-notepad-menubar'),
+            statusModified: this.contentArea.querySelector('.ex-notepad-status-modified'),
+            charCount: this.contentArea.querySelector('.ex-notepad-char-count'),
+            cursorPosition: this.contentArea.querySelector('.ex-notepad-cursor-position')
+        };
     }
 
     setupEventListeners() {
-        // Get elements
-        this.textarea = this.contentArea.querySelector('#notepad-textarea');
-        this.charCount = this.contentArea.querySelector('#char-count');
-        this.currentFileDisplay = this.contentArea.querySelector('#current-file');
-
-        // File menu
-        this.contentArea.querySelector('#notepad-new').addEventListener('click', () => this.newDocument());
-        this.contentArea.querySelector('#notepad-open').addEventListener('click', () => this.openDocument());
-        this.contentArea.querySelector('#notepad-save').addEventListener('click', () => this.saveDocument());
-        this.contentArea.querySelector('#notepad-save-as').addEventListener('click', () => this.saveDocumentAs());
-        this.contentArea.querySelector('#notepad-exit').addEventListener('click', () => this.exit());
-
-        // Edit menu
-        this.contentArea.querySelector('#notepad-cut').addEventListener('click', () => document.execCommand('cut'));
-        this.contentArea.querySelector('#notepad-copy').addEventListener('click', () => document.execCommand('copy'));
-        this.contentArea.querySelector('#notepad-paste').addEventListener('click', () => document.execCommand('paste'));
-        this.contentArea.querySelector('#notepad-select-all').addEventListener('click', () => this.textarea.select());
-
-        // Format menu
-        this.contentArea.querySelector('#notepad-word-wrap').addEventListener('click', () => this.toggleWordWrap());
-        this.contentArea.querySelector('#notepad-font-increase').addEventListener('click', () => this.changeFontSize(2));
-        this.contentArea.querySelector('#notepad-font-decrease').addEventListener('click', () => this.changeFontSize(-2));
-
-        // Text change events
-        this.textarea.addEventListener('input', () => this.updateCharCount());
-        this.textarea.addEventListener('keydown', (e) => this.handleKeyDown(e));
-
-        // Debug
-        this.contentArea.querySelector('#check-storage').addEventListener('click', () => {
-            const documents = fileSystem.getDocuments();
-            const paintFiles = fileSystem.getPaintFiles();
-            console.log('All documents:', documents);
-            console.log('All paint files:', paintFiles);
-            alert(`Found ${Object.keys(documents).length} documents and ${Object.keys(paintFiles).length} paint files`);
-        });
-
         // Menu handling
         this.setupMenus();
+        
+        // Text changes
+        this.elements.textarea.addEventListener('input', () => {
+            this.handleTextChange();
+            this.updateCharCount();
+        });
+
+        this.elements.textarea.addEventListener('keydown', (e) => {
+            if (e.ctrlKey) {
+                switch(e.key.toLowerCase()) {
+                    case 's':
+                        e.preventDefault();
+                        this.saveDocument();
+                        break;
+                    case 'o':
+                        e.preventDefault();
+                        this.openDocument();
+                        break;
+                    case 'n':
+                        e.preventDefault();
+                        this.newDocument();
+                        break;
+                }
+            }
+        });
+
+        // Cursor position tracking
+        this.elements.textarea.addEventListener('keyup', () => this.updateCursorPosition());
+        this.elements.textarea.addEventListener('click', () => this.updateCursorPosition());
+        this.elements.textarea.addEventListener('select', () => this.updateCursorPosition());
+
+        // Window close handling
+        const windowElement = this.contentArea.closest('.program-window');
+        if (windowElement) {
+            const closeButton = windowElement.querySelector('.window-button[data-action="close"]');
+            if (closeButton) {
+                closeButton.addEventListener('click', (e) => {
+                    if (this.modified) {
+                        e.stopPropagation();
+                        if (confirm('Do you want to save changes?')) {
+                            this.saveDocument().then(() => this.closeWindow());
+                        } else {
+                            this.closeWindow();
+                        }
+                    }
+                });
+            }
+        }
     }
 
     setupMenus() {
-        const menuItems = this.contentArea.querySelectorAll('.menu-item');
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                menuItems.forEach(otherItem => {
-                    if (otherItem !== item) {
-                        otherItem.classList.remove('active');
-                    }
-                });
-                item.classList.toggle('active');
+        const menus = {
+            file: [
+                { label: 'New', action: 'new', shortcut: 'Ctrl+N' },
+                { label: 'Open...', action: 'open', shortcut: 'Ctrl+O' },
+                { label: 'Save', action: 'save', shortcut: 'Ctrl+S' },
+                { label: 'Save As...', action: 'saveAs' },
+                { type: 'separator' },
+                { label: 'Exit', action: 'exit' }
+            ],
+            edit: [
+                { label: 'Undo', action: 'undo', shortcut: 'Ctrl+Z' },
+                { label: 'Redo', action: 'redo', shortcut: 'Ctrl+Y' },
+                { type: 'separator' },
+                { label: 'Cut', action: 'cut', shortcut: 'Ctrl+X' },
+                { label: 'Copy', action: 'copy', shortcut: 'Ctrl+C' },
+                { label: 'Paste', action: 'paste', shortcut: 'Ctrl+V' },
+                { label: 'Delete', action: 'delete', shortcut: 'Del' },
+                { type: 'separator' },
+                { label: 'Select All', action: 'selectAll', shortcut: 'Ctrl+A' }
+            ],
+            format: [
+                { label: 'Word Wrap', action: 'wordWrap', type: 'checkbox', checked: this.wordWrap },
+                { type: 'separator' },
+                { label: 'Font Size', submenu: [
+                    { label: 'Increase', action: 'increaseFontSize', shortcut: 'Ctrl+Plus' },
+                    { label: 'Decrease', action: 'decreaseFontSize', shortcut: 'Ctrl+Minus' },
+                    { label: 'Reset', action: 'resetFontSize' }
+                ]}
+            ],
+            help: [
+                { label: 'About Notepad', action: 'about' }
+            ]
+        };
+
+        let activeMenu = null;
+        const menuItems = this.elements.menubar.querySelectorAll('.ex-notepad-menu-item');
+        
+        menuItems.forEach(menuItem => {
+            menuItem.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                if (activeMenu === menuItem) {
+                    this.closeMenus();
+                    activeMenu = null;
+                    return;
+                }
+        
+                this.closeMenus();
+                this.showMenu(menuItem, menus[menuItem.dataset.menu]);
+                activeMenu = menuItem;
             });
         });
-
-        // Close menus when clicking outside
+        
+        // Add document click handler to close menus
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.menu-item')) {
-                menuItems.forEach(item => item.classList.remove('active'));
+            if (!e.target.closest('.ex-notepad-menu-item') && 
+                !e.target.closest('.ex-notepad-menu-dropdown')) {
+                this.closeMenus();
+                activeMenu = null;
             }
         });
+    }
+
+    showMenu(menuItem, items) {
+        const dropdown = document.createElement('div');
+        dropdown.className = 'ex-notepad-menu-dropdown';
+        
+        items.forEach(item => {
+            if (item.type === 'separator') {
+                dropdown.appendChild(document.createElement('hr'));
+                return;
+            }
+
+            const menuEntry = document.createElement('div');
+            menuEntry.className = 'ex-notepad-menu-entry';
+            
+            if (item.submenu) {
+                menuEntry.classList.add('has-submenu');
+                menuEntry.innerHTML = `
+                    <span>${item.label}</span>
+                    <div class="ex-notepad-submenu">${this.createSubmenu(item.submenu)}</div>
+                `;
+            } else {
+                menuEntry.innerHTML = `
+                    <span>${item.label}</span>
+                    ${item.shortcut ? `<span class="ex-notepad-shortcut">${item.shortcut}</span>` : ''}
+                `;
+                
+                if (item.type === 'checkbox') {
+                    menuEntry.classList.add('checkbox');
+                    if (item.checked) menuEntry.classList.add('checked');
+                }
+                
+                menuEntry.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.handleMenuAction(item.action);
+                    this.closeMenus();
+                });
+            }
+            
+            dropdown.appendChild(menuEntry);
+        });
+
+        menuItem.appendChild(dropdown);
+        menuItem.classList.add('active');
+    }
+
+    createSubmenu(items) {
+        const submenu = document.createElement('div');
+        submenu.className = 'ex-notepad-submenu';
+        
+        items.forEach(item => {
+            const entry = document.createElement('div');
+            entry.className = 'ex-notepad-menu-entry';
+            
+            entry.innerHTML = `
+                <span>${item.label}</span>
+                ${item.shortcut ? `<span class="ex-notepad-shortcut">${item.shortcut}</span>` : ''}
+            `;
+            
+            entry.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.handleMenuAction(item.action);
+                this.closeMenus();
+            });
+            
+            submenu.appendChild(entry);
+        });
+        
+        return submenu.outerHTML;
+    }
+
+    closeMenus() {
+        this.elements.menubar.querySelectorAll('.ex-notepad-menu-item').forEach(item => {
+            item.classList.remove('active');
+            const dropdown = item.querySelector('.ex-notepad-menu-dropdown');
+            if (dropdown) dropdown.remove();
+        });
+    }
+
+    handleMenuAction(action) {
+        switch (action) {
+            case 'new':
+                this.newDocument();
+                break;
+            case 'open':
+                this.openDocument();
+                break;
+            case 'save':
+                this.saveDocument();
+                break;
+            case 'saveAs':
+                this.saveDocumentAs();
+                break;
+            case 'exit':
+                this.closeWindow();
+                break;
+            case 'wordWrap':
+                this.toggleWordWrap();
+                break;
+            case 'increaseFontSize':
+                this.changeFontSize(2);
+                break;
+            case 'decreaseFontSize':
+                this.changeFontSize(-2);
+                break;
+            case 'resetFontSize':
+                this.resetFontSize();
+                break;
+            case 'about':
+                this.showAbout();
+                break;
+            case 'undo':
+                document.execCommand('undo');
+                break;
+            case 'redo':
+                document.execCommand('redo');
+                break;
+            case 'cut':
+                document.execCommand('cut');
+                break;
+            case 'copy':
+                document.execCommand('copy');
+                break;
+            case 'paste':
+                document.execCommand('paste');
+                break;
+            case 'delete':
+                document.execCommand('delete');
+                break;
+            case 'selectAll':
+                this.elements.textarea.select();
+                break;
+        }
+    }
+
+    handleTextChange() {
+        if (!this.modified) {
+            this.modified = true;
+            this.updateModifiedStatus();
+        }
     }
 
     updateCharCount() {
-        this.charCount.textContent = `Characters: ${this.textarea.value.length}`;
+        const count = this.elements.textarea.value.length;
+        this.elements.charCount.textContent = `Characters: ${count}`;
     }
 
-    handleKeyDown(e) {
-        // Handle Ctrl+S for save
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            this.saveDocument();
-        }
+    updateCursorPosition() {
+        const text = this.elements.textarea.value;
+        const position = this.elements.textarea.selectionStart;
+        
+        // Calculate line and column
+        const lines = text.substr(0, position).split('\n');
+        const currentLine = lines.length;
+        const currentColumn = lines[lines.length - 1].length + 1;
+        
+        this.elements.cursorPosition.textContent = `Ln ${currentLine}, Col ${currentColumn}`;
     }
 
-    newDocument() {
-        if (this.hasUnsavedChanges()) {
-            if (!confirm('Do you want to save changes to ' + this.currentDocument.name + '?')) {
-                return;
-            }
-            this.saveDocument();
+    // Document management methods remain the same as they don't involve CSS classes
+    async newDocument() {
+        if (this.modified && await this.confirmSave()) {
+            await this.saveDocument();
         }
-
+        
         this.currentDocument = {
-            name: 'Untitled',
+            name: 'Untitled.txt',
             content: '',
-            path: 'Documents/ElxaOS/Notes'
+            path: null
         };
-        this.textarea.value = '';
-        this.currentFileDisplay.textContent = 'Untitled';
+        this.elements.textarea.value = '';
+        this.modified = false;
+        this.updateTitle();
+        this.updateModifiedStatus();
         this.updateCharCount();
     }
 
-    async openDocument() {
-        // Prevent default file open behavior
-        event?.preventDefault();
-    
-        const documents = fileSystem.getDocuments();
-        const fileList = Object.values(documents);
-    
-        if (fileList.length === 0) {
-            alert('No saved documents found.');
-            return;
-        }
-    
-        const fileNames = fileList.map(doc => doc.name).join('\n');
-        const selected = prompt(
-            'Select a file to open:\n\n' + fileNames + '\n\nEnter file name:',
-            fileList[0].name
-        );
-    
-        if (selected) {
-            const doc = fileList.find(doc => doc.name === selected);
-            if (doc) {
-                this.currentDocument = {
-                    name: doc.name,
-                    content: doc.content,
-                    path: doc.path || '/Documents'
-                };
-                this.textarea.value = doc.content;
-                this.currentFileDisplay.textContent = doc.name;
-                this.updateCharCount();
-                this.saveToLocalState();
-            } else {
-                alert('File not found.');
+    updateModifiedStatus() {
+        this.elements.statusModified.textContent = this.modified ? '●' : '';
+        this.updateTitle();
+    }
+
+    updateTitle() {
+        const windowElement = this.contentArea.closest('.program-window');
+        if (windowElement) {
+            const titleElement = windowElement.querySelector('.window-title');
+            if (titleElement) {
+                titleElement.textContent = `${this.currentDocument.name}${this.modified ? ' *' : ''} - Notepad`;
             }
         }
-    }
-    
-    loadLastDocument() {
-        try {
-            const lastDocument = localStorage.getItem('elxaos_notepad_current');
-            if (lastDocument) {
-                const doc = JSON.parse(lastDocument);
-                // Verify the document still exists in the file system
-                const existingDoc = fileSystem.getDocument(doc.path, doc.name);
-                if (existingDoc) {
-                    this.currentDocument = doc;
-                    this.textarea.value = doc.content;
-                    this.currentFileDisplay.textContent = doc.name;
-                    this.updateCharCount();
-                } else {
-                    // If the document no longer exists, start with a new document
-                    this.newDocument();
-                }
-            }
-        } catch (error) {
-            console.error('Error loading last document:', error);
-            this.newDocument();
-        }
-    }
-
-    saveDocument() {
-        event?.preventDefault();
-        
-        if (this.currentDocument.name === 'Untitled') {
-            this.saveDocumentAs();
-            return;
-        }
-    
-        // Ensure the path starts with a forward slash
-        const path = this.currentDocument.path.startsWith('/') ? 
-            this.currentDocument.path : 
-            '/' + this.currentDocument.path;
-        
-        this.currentDocument.content = this.textarea.value;
-        fileSystem.saveDocument(
-            path,
-            this.currentDocument.name,
-            this.currentDocument.content
-        );
-    
-        this.showSaveNotification();
-        this.saveToLocalState();
-    }
-    
-    saveDocumentAs() {
-        event?.preventDefault();
-        
-        const fileName = prompt('Enter file name:', this.currentDocument.name);
-        if (!fileName) return;
-    
-        this.currentDocument.name = fileName;
-        // Ensure the path starts with a forward slash
-        this.currentDocument.path = '/Documents';
-        
-        this.currentFileDisplay.textContent = fileName;
-        this.currentDocument.content = this.textarea.value;
-        
-        fileSystem.saveDocument(
-            this.currentDocument.path,
-            fileName,
-            this.currentDocument.content
-        );
-    
-        this.showSaveNotification();
-        this.saveToLocalState();
-    }    
-
-    showSaveNotification() {
-        const originalText = this.currentFileDisplay.textContent;
-        this.currentFileDisplay.textContent = 'Saved!';
-        setTimeout(() => {
-            this.currentFileDisplay.textContent = originalText;
-        }, 1000);
-    }
-
-    saveToLocalState() {
-        localStorage.setItem('elxaos_notepad_current', JSON.stringify(this.currentDocument));
-    }
-
-    hasUnsavedChanges() {
-        return this.textarea.value !== this.currentDocument.content;
     }
 
     toggleWordWrap() {
         this.wordWrap = !this.wordWrap;
-        this.textarea.style.whiteSpace = this.wordWrap ? 'pre-wrap' : 'nowrap';
-        const menuItem = this.contentArea.querySelector('#notepad-word-wrap');
-        menuItem.style.backgroundColor = this.wordWrap ? '#b89fc7' : '';
-        menuItem.style.color = this.wordWrap ? 'white' : '';
+        this.elements.textarea.style.whiteSpace = this.wordWrap ? 'pre-wrap' : 'pre';
+        
+        // Update menu checkbox
+        const menuItem = this.elements.menubar.querySelector('[data-action="wordWrap"]');
+        if (menuItem) {
+            menuItem.classList.toggle('checked', this.wordWrap);
+        }
     }
 
     changeFontSize(delta) {
-        this.fontSize = Math.min(Math.max(this.fontSize + delta, 12), 24);
-        this.textarea.style.fontSize = `${this.fontSize}px`;
+        this.fontSize = Math.max(8, Math.min(72, this.fontSize + delta));
+        this.elements.textarea.style.fontSize = `${this.fontSize}px`;
     }
 
-    exit() {
-        if (this.hasUnsavedChanges()) {
-            if (confirm('Do you want to save changes to ' + this.currentDocument.name + '?')) {
-                this.saveDocument();
+    resetFontSize() {
+        this.fontSize = 16;
+        this.elements.textarea.style.fontSize = `${this.fontSize}px`;
+    }
+
+    showAbout() {
+        alert(
+            'Notepad for ElxaOS\n\n' +
+            'Version 1.0\n' +
+            'A simple text editor for ElxaOS\n\n' +
+            '© 2025 Elxa Corporation'
+        );
+    }
+
+    async openDocument() {
+        try {
+            // Check for unsaved changes first
+            if (this.isModified) {
+                const save = confirm('Do you want to save changes to the current document?');
+                if (save) {
+                    await this.saveDocument();
+                }
+            }
+    
+            const openDialog = new FileOpenDialog(this.fileSystem);
+            const file = await openDialog.show();
+            
+            // Load the selected file
+            this.currentFile = file;
+            this.textarea.value = file.content;
+            this.updateTitle();
+            this.setModified(false);
+            
+        } catch (error) {
+            if (error.message !== 'Open cancelled') {
+                console.error('Open failed:', error);
+                alert('Failed to open file: ' + error.message);
             }
         }
-        // Find and close the window
+    }
+
+    async saveDocument() {
+        if (this.currentFile) {
+            // Direct save if we already have a file
+            try {
+                this.fileSystem.saveFile(
+                    this.currentFile.path,
+                    this.currentFile.name,
+                    this.elements.textarea.value, // Use this.elements.textarea instead of this.textarea
+                    'text'
+                );
+                this.modified = false;
+                this.updateModifiedStatus();
+            } catch (error) {
+                console.error('Save failed:', error);
+                alert('Failed to save file: ' + error.message);
+            }
+        } else {
+            // If no current file, do Save As
+            await this.saveDocumentAs();
+        }
+    }
+    
+    async saveDocumentAs() {
+        try {
+            const saveDialog = new FileSaveDialog(
+                this.fileSystem,
+                this.elements.textarea.value, // Use this.elements.textarea instead of this.textarea
+                this.currentDocument.name || 'Untitled.txt'
+            );
+            
+            const result = await saveDialog.show();
+            
+            // Update the current file reference
+            this.currentDocument = {
+                name: result.filename,
+                content: this.elements.textarea.value,
+                path: result.path
+            };
+            this.modified = false;
+            this.updateModifiedStatus();
+            this.updateTitle();
+            
+        } catch (error) {
+            if (error.message !== 'Save cancelled') {
+                console.error('Save failed:', error);
+                alert('Failed to save file: ' + error.message);
+            }
+        }
+    }
+
+    confirmSave() {
+        return confirm('Do you want to save changes to ' + this.currentDocument.name + '?');
+    }
+
+    loadLastSession() {
+        try {
+            const lastSession = localStorage.getItem('elxaos_notepad_session');
+            if (lastSession) {
+                const session = JSON.parse(lastSession);
+                // Verify the file still exists
+                const file = fileSystem.getFile(session.path);
+                if (file) {
+                    this.currentDocument = {
+                        name: session.name,
+                        content: file.content,
+                        path: session.path
+                    };
+                    this.elements.textarea.value = file.content;
+                    this.updateTitle();
+                    this.updateCharCount();
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load last session:', error);
+        }
+    }
+
+    saveSession() {
+        if (this.currentDocument.path) {
+            localStorage.setItem('elxaos_notepad_session', JSON.stringify({
+                name: this.currentDocument.name,
+                path: this.currentDocument.path
+            }));
+        }
+    }
+
+    closeWindow() {
+        this.saveSession();
         const windowElement = this.contentArea.closest('.program-window');
         if (windowElement) {
             const closeEvent = new CustomEvent('windowclose', {
                 detail: { windowId: windowElement.id }
             });
             document.dispatchEvent(closeEvent);
-            windowElement.remove();
         }
     }
 }
 
 // Create and export default instance
-export const notepad = new Notepad();
+export { Notepad };

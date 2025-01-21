@@ -613,7 +613,9 @@ export class Settings {
         const settings = {
             display: {
                 background: this.contentArea.querySelector('#backgroundSelect').value,
-                customBackgrounds: JSON.parse(localStorage.getItem('customBackgrounds') || '[]')
+                customBackgrounds: JSON.parse(localStorage.getItem('customBackgrounds') || '[]'),
+                fileExplorerView: 'icons', // Add default view mode
+                desktopIcons: {}
             },
             personalization: {
                 primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
@@ -631,6 +633,12 @@ export class Settings {
                 console.error('Failed to create settings directory:', error);
                 return false;
             }
+        }
+
+        // When user changes view mode in File Explorer, update it:
+        const lastViewMode = localStorage.getItem('lastFileExplorerView');
+        if (lastViewMode) {
+            settings.display.fileExplorerView = lastViewMode;
         }
 
         // Save settings to file

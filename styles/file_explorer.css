@@ -175,9 +175,10 @@
 /* Icon View */
 .file-list.view-icons {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 4px;
+    grid-template-columns: repeat(auto-fill, 80px);
+    gap: 8px;
     padding: 8px;
+    justify-content: start;
 }
 
 .view-icons .file-item {
@@ -242,56 +243,73 @@
     table-layout: fixed;
 }
 
+/* Force the list to take up minimum space rather than expanding */
+.view-details {
+    height: min-content;
+}
+
 .view-details .details-header {
     display: table-row;
     background-color: #f0d9ff;
-    height: 20px;
+    height: 18px; /* Fixed header height */
 }
 
 .view-details .header-cell {
     display: table-cell;
-    padding: 2px 8px;
+    height: 18px; /* Match header height */
+    padding: 0 8px;
     font-size: 11px;
     color: #441d57;
     border-bottom: 1px solid #b89fc7;
     text-align: left;
     vertical-align: middle;
+    line-height: 18px; /* Match height for vertical centering */
 }
 
 .view-details .file-item {
     display: table-row;
-    height: 20px;
+    height: 18px; /* Fixed row height */
 }
 
 .view-details .file-icon {
+    display: table-cell;
+    width: 24px;
+    height: 18px; /* Match row height */
+    padding: 1px;
+    vertical-align: middle;
+}
+
+.view-details .file-icon img {  /* Added to control icon size within cell */
     width: 16px;
     height: 16px;
-    padding: 2px;
-    display: table-cell;
     vertical-align: middle;
 }
 
 .view-details .file-label {
-    padding: 1px 8px;
     display: table-cell;
+    height: 18px; /* Match row height */
+    padding: 0 8px;
+    font-size: 11px;
     vertical-align: middle;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: 11px;
+    line-height: 18px; /* Match height for vertical centering */
 }
 
 .view-details .file-details {
     display: table-cell;
-    padding: 1px 8px;
+    height: 18px; /* Match row height */
+    padding: 0 8px;
     font-size: 11px;
     vertical-align: middle;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 18px; /* Match height for vertical centering */
 }
 
-/* Column widths for details view */
+/* Column widths */
 .view-details .file-icon {
     width: 24px;
 }

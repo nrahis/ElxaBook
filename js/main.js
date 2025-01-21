@@ -9,7 +9,7 @@ import { Notepad } from './apps/system/notepad.js';
 import { Duck } from './apps/system/duck.js';
 import { minesweeper } from './apps/system/minesweeper.js';
 import { MathMatch, mathMatch } from './apps/system/math_games/math_match.js';
-import { snakeEquation } from './apps/system/math_games/snake_equation.js';
+import { SnakeEquation } from './apps/system/math_games/snake_equation.js';
 import { timeCrunch } from './apps/system/math_games/time_crunch.js';
 import { solitaire } from './apps/system/solitaire.js';
 import { About } from './apps/system/about.js';
@@ -18,6 +18,9 @@ import { Clock } from './apps/system/clock.js';
 import { Calendar } from './apps/system/calendar.js';
 import { Slideshow } from './apps/system/slideshow.js';
 import { Settings } from './settings.js';
+import { RecycleBinHandler } from './recycle-bin-handler.js';
+import { FileOpenDialog } from './dialogs/file_open_dialog.js';
+import { FileSaveDialog } from './dialogs/file_save_dialog.js';
 
 // Declare these in module scope so they can be exported
 let windowManager;
@@ -33,16 +36,21 @@ function updateClock() {
 }
 
 // Wait for DOM to be ready before doing anything
-// Wait for DOM to be ready before doing anything
 document.addEventListener('DOMContentLoaded', () => {
     // Make sure we use a single fileSystem instance globally
     window.elxaFileSystem = window.elxaFileSystem || fileSystem;
+
+    // Create and set up global RecycleBinHandler
+    window.elxaRecycleBinHandler = new RecycleBinHandler(window.elxaFileSystem);
     
     // Create all system objects
     windowManager = new WindowManager({
         templateId: 'windowTemplate',
         desktopAreaId: 'desktop-area'
     });
+
+    console.log('WindowManager created:', windowManager);
+    console.log('WindowManager methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(windowManager)));
 
     taskbar = new TaskBar({
         startButtonId: 'startButton',
@@ -63,21 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.initialize();
     taskbar.initialize();
 
-    // Initialize applications
-    const paint = new Paint(fileSystem);
-    const notepad = new Notepad(fileSystem);
-    const about = new About();
-    // const mathMatch = new MathMatch();
-    // const calculator = scientificCalculator;
-    const clock = new Clock(fileSystem);
-    const calendar = new Calendar(fileSystem);
-    const slideshow = new Slideshow(fileSystem);
-    const settings = new Settings(fileSystem);
-    
     // Create file explorer instance with shared file system
     const fileExplorer = new FileExplorer(window.elxaFileSystem, windowManager);
 
-    // Register core apps
+    // Register core system apps first
     windowManager.registerApp('explorer', {
         title: 'File Explorer',
         initialize: (contentArea, params) => {
@@ -109,6 +106,29 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 800, height: 600 }
     });
 
+    // Now create desktop after core apps are registered
+    console.log('Creating desktop...');
+    const desktop = new Desktop(window.elxaFileSystem, windowManager);
+    console.log('Desktop created:', desktop);
+
+    try {
+        console.log('Attempting to set desktop...');
+        windowManager.setDesktop(desktop);
+        console.log('Desktop set successfully');
+    } catch (error) {
+        console.error('Error setting desktop:', error);
+    }
+
+    // Initialize applications
+    const paint = new Paint(fileSystem);
+    const notepad = new Notepad(fileSystem);
+    const about = new About();
+    const clock = new Clock(fileSystem);
+    const calendar = new Calendar(fileSystem);
+    const slideshow = new Slideshow(fileSystem);
+    const settings = new Settings(fileSystem);
+
+    // Now continue with registering non-core apps
     windowManager.registerApp('paint', {
         title: 'EX Paint',
         initialize: (contentArea) => paint.initialize(contentArea),
@@ -139,10 +159,10 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 410, height: 500 }
     });
 
-    windowManager.registerApp('snakeEquation', {
+    windowManager.registerApp('SnakeEquation', {
         title: 'Snake Equation',
         initialize: (contentArea) => snakeEquation.initialize(contentArea),
-        defaultSize: { width: 400, height: 600 }
+        defaultSize: { width: 500, height: 600 }  // This gives enough room for the canvas plus UI
     });
 
     windowManager.registerApp('solitaire', {
@@ -174,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('calendar', {
         title: 'Calendar',
         initialize: (contentArea) => calendar.initialize(contentArea),
-        defaultSize: { width: 750, height: 600 }
+        defaultSize: { width: 850, height: 600 }
     });
 
     windowManager.registerApp('slideshow', {
@@ -211,9 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         defaultSize: { width: 600, height: 400 }
     });
-
-    // Initialize desktop with shared file system
-    const desktop = new Desktop(window.elxaFileSystem, windowManager);
 
     // Handle start menu application launches
     document.querySelectorAll('#startMenu a[data-app]').forEach(menuItem => {

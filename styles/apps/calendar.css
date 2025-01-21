@@ -1,4 +1,4 @@
-/* calendar.css */
+/* === Base Calendar Container === */
 .calendar-app {
     display: flex;
     flex-direction: column;
@@ -8,10 +8,18 @@
     padding: 15px;
     font-family: var(--system-font);
     box-sizing: border-box;
-    overflow: hidden; /* Add this to prevent overflow */
+    overflow: hidden;
 }
 
-/* New Tab Styles */
+/* === Header Section === */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
 .calendar-tabs {
     display: flex;
     gap: 10px;
@@ -29,19 +37,6 @@
     background-color: #a267ac;
     color: white;
     border-style: inset;
-}
-
-.tab-content.hidden {
-    display: none;
-}
-
-/* Calendar Header */
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    width: 100%;
 }
 
 .month-navigation {
@@ -71,33 +66,35 @@
     text-align: center;
 }
 
-/* Calendar Grid */
+/* === Main Content Layout === */
+.calendar-content {
+    display: flex;
+    gap: 15px;
+    height: calc(100% - 60px);
+    overflow: hidden;
+    min-height: 0;
+}
+
+.calendar-main {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+/* === Calendar Grid === */
 .calendar-grid {
     background-color: #f0d9ff;
     border: 2px inset #b89fc7;
     padding: 10px;
-    flex: 1; /* Change from flex-grow: 1 to just flex: 1 */
+    height: calc(100% - 20px);
     width: 100%;
+    min-width: 0;
     box-sizing: border-box;
-    overflow: auto; /* Add this to allow scrolling if needed */
-}
-
-.days {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-    width: 100%;
-}
-
-.day {
-    background-color: #e6d4f2;
-    border: 1px solid #b89fc7;
-    min-height: 50px; /* Reduced from 80px */
-    padding: 5px;
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.2s;
-    aspect-ratio: 4/3; /* This makes rectangles instead of squares - adjust ratio as needed */
+    overflow: auto;
 }
 
 .weekdays {
@@ -106,8 +103,30 @@
     text-align: center;
     font-weight: bold;
     color: #441d57;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     width: 100%;
+}
+
+.weekdays div {
+    padding: 4px;
+}
+
+.days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    width: 100%;
+    height: calc(100% - 25px);
+}
+
+.day {
+    background-color: #e6d4f2;
+    border: 1px solid #b89fc7;
+    min-height: 45px;
+    padding: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s;
 }
 
 .day:hover {
@@ -126,53 +145,80 @@
 
 .event-indicator {
     position: absolute;
-    bottom: 2px; /* Reduced from 5px */
+    bottom: 2px;
     left: 5px;
     right: 5px;
     display: flex;
     flex-wrap: wrap;
     gap: 2px;
-    font-size: 11px; /* Slightly smaller font for events */
+    font-size: 11px;
 }
 
-/* Upcoming Events Tab */
-.upcoming-events {
+/* === Today Panel === */
+.today-panel {
+    width: 220px;
+    flex-shrink: 0;
     background-color: #f0d9ff;
     border: 2px inset #b89fc7;
-    padding: 20px;
-    flex: 1; /* Change from height: 100% to flex: 1 */
+    padding: 15px;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
 }
 
-.no-events-message {
-    text-align: center;
-    color: #666;
-    padding: 20px;
-    font-style: italic;
-}
-
-.event-date-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 40px;
-}
-
-.month-header {
+.today-panel h3 {
     color: #441d57;
-    font-size: 18px;
-    margin: 0;
+    margin: 0 0 15px 0;
     padding-bottom: 5px;
     border-bottom: 2px solid #b89fc7;
 }
 
-.month-events {
+.today-events {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
+}
+
+.today-event {
+    background-color: #e6d4f2;
+    border: 1px solid #b89fc7;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.today-event:hover {
+    background-color: #d5bde6;
+}
+
+.event-time {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.event-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.no-events {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* === Upcoming Events Tab === */
+.upcoming-events {
+    background-color: #f0d9ff;
+    border: 2px inset #b89fc7;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .upcoming-month-section {
@@ -212,38 +258,7 @@
     background-color: #d5bde6;
 }
 
-.event-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.event-icon {
-    font-size: 20px;
-}
-
-.event-title {
-    font-weight: bold;
-    color: #441d57;
-}
-
-.event-date {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.event-description {
-    font-size: 0.9em;
-    color: #666;
-    font-style: italic;
-}
-
-.days-until {
-    font-size: 10px;
-    color: #666;
-}
-
-/* Event Dialog */
+/* === Event Dialog === */
 .event-dialog {
     position: absolute;
     top: 0;
@@ -254,6 +269,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
 }
 
 .event-dialog.hidden {
@@ -270,6 +286,16 @@
 .dialog-content h3 {
     margin: 0 0 15px 0;
     color: #441d57;
+}
+
+.event-datetime {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.event-datetime input {
+    flex: 1;
 }
 
 .dialog-content input,
@@ -343,40 +369,116 @@
     background-color: #ffcccc !important;
 }
 
-/* Animation for new events */
-@keyframes eventAdded {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-.upcoming-event.new {
-    animation: eventAdded 0.3s ease-out;
-}
-
-/* Scrollbar Styles */
-.upcoming-events::-webkit-scrollbar {
+/* === Scrollbar Styles === */
+.upcoming-events::-webkit-scrollbar,
+.today-panel::-webkit-scrollbar {
     width: 16px;
 }
 
-.upcoming-events::-webkit-scrollbar-track {
+.upcoming-events::-webkit-scrollbar-track,
+.today-panel::-webkit-scrollbar-track {
     background: #f0d9ff;
     border-left: 1px solid #b89fc7;
 }
 
-.upcoming-events::-webkit-scrollbar-thumb {
+.upcoming-events::-webkit-scrollbar-thumb,
+.today-panel::-webkit-scrollbar-thumb {
     background-color: #b89fc7;
     border: 3px solid #f0d9ff;
     border-radius: 8px;
     min-height: 40px;
 }
 
-.upcoming-events::-webkit-scrollbar-thumb:hover {
+.upcoming-events::-webkit-scrollbar-thumb:hover,
+.today-panel::-webkit-scrollbar-thumb:hover {
     background-color: #a267ac;
 }
 
 /* Firefox scrollbar */
-.upcoming-events {
+.upcoming-events,
+.today-panel {
     scrollbar-width: thin;
     scrollbar-color: #b89fc7 #f0d9ff;
+}
+
+/* Fun Zone Styles */
+.calendar-grid {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.weekdays, .days {
+    /* ... existing styles ... */
+    flex: 0 0 auto; /* Prevent flex stretching */
+}
+
+.fun-zone {
+    background: linear-gradient(45deg, #e6d4f2, #f0d9ff);
+    border-top: 2px solid #b89fc7;
+    margin-top: auto; /* Push to bottom of calendar-grid */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 100px; /* Fixed height */
+}
+
+/* Cat Container */
+.cat-container {
+    width: 128px;
+    height: 128px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cat-gif {
+    width: 128px;
+    height: 128px;
+    object-fit: contain;
+}
+
+/* Fun Fact Box */
+.fun-fact-box {
+    background-color: white;
+    border: 2px solid #a267ac;
+    border-radius: 15px;
+    padding: 12px;
+    width: 280px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.fact-text {
+    color: #441d57;
+    font-size: 14px;
+    margin-bottom: 8px;
+    min-height: 40px;
+    transition: opacity 0.3s ease;
+}
+
+.new-fact-btn {
+    background-color: #a267ac;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+.new-fact-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Animation for the cat GIF */
+@keyframes bounce {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
 }

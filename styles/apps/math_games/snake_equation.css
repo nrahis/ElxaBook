@@ -1,149 +1,245 @@
-/* Snake Equation Styles */
+/* Snake Equation Game Styles */
 .snake-equation-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: linear-gradient(135deg, #ffccf9, #a2d2ff);
-    height: 100%;
-    padding: 20px;
-    font-family: 'Courier New', Courier, monospace;
-    color: #2b2d42;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background: linear-gradient(45deg, #000033, #330066);
+    padding: 10px;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    height: calc(100% - 20px); /* Account for padding */
+    width: calc(100% - 20px); /* Account for padding */
+    color: #00ff00;
+    position: relative;
+    overflow: hidden; /* Prevent scrollbars */
 }
 
-.snake-equation-header {
+.game-header {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-    padding: 10px;
-    background: linear-gradient(135deg, #ff99cc, #67c9dc);
-    border: 2px solid #f0f0f0;
-    border-radius: 8px;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.snake-equation-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ffffff;
-    text-shadow: 2px 2px 2px #000000;
-}
-
-.snake-equation-controls {
-    display: flex;
+    margin-bottom: 10px;
     gap: 10px;
 }
 
-.difficulty-button {
-    padding: 5px 15px;
-    background-color: #d4a5a5;
-    border: 2px outset #f5f5f5;
-    border-radius: 5px;
-    color: #ffffff;
-    font-weight: bold;
+.controls {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap; /* Allow buttons to wrap on narrow screens */
+}
+
+.difficulty-btn, .start-btn {
+    padding: 6px 12px;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 10px;
+    border: 2px solid #00ff00;
+    background: #000033;
+    color: #00ff00;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+    transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
-.difficulty-button:hover {
-    background-color: #e6b8b8;
-    transform: scale(1.1);
+.difficulty-btn:hover, .start-btn:hover {
+    background: #00ff00;
+    color: #000033;
+    box-shadow: 0 0 10px #00ff00;
 }
 
-.difficulty-button.active {
-    border-style: inset;
-    background-color: #c27c7c;
+.difficulty-btn.active {
+    background: #00ff00;
+    color: #000033;
 }
 
-.start-button {
-    padding: 5px 15px;
-    background-color: #67c9dc;
-    border: 2px outset #f0f0f0;
-    border-radius: 5px;
-    color: #ffffff;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
+.score-display {
+    font-size: 14px;
+    color: #ff00ff;
+    text-shadow: 0 0 5px #ff00ff;
+    white-space: nowrap;
 }
 
-.start-button:hover {
-    background-color: #5ab8d8;
-    transform: scale(1.1);
-}
-
-.snake-equation-score {
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-}
-
-.snake-equation-grid {
-    display: grid;
-    gap: 2px;
-    padding: 10px;
-    background-color: #f0f8ff;
-    border: 2px solid #a2d2ff;
-    border-radius: 8px;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
+.target-equation, .current-equation {
+    font-size: 12px;
+    margin: 5px 0;
+    color: #00ffff;
+    text-shadow: 0 0 5px #00ffff;
+    text-align: center;
     width: 100%;
 }
 
-.snake-equation-cell {
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
-    font-size: 1.25rem;
-    font-weight: bold;
-    color: #4a4e69;
-    user-select: none;
-    transition: background-color 0.3s, transform 0.2s;
+.game-canvas {
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 20px #00ff00;
+    margin: 10px 0;
+    max-width: 100%; /* Ensure canvas doesn't overflow */
+    height: auto; /* Maintain aspect ratio */
 }
 
-.snake-head {
-    background-color: #ff6b6b; /* Example color for snake head */
-    border-color: #ff4757;
-    color: #ffffff;
-}
-
-.snake-body {
-    background-color: #ffb142; /* Example color for snake body */
-    border-color: #ff9f43;
-    color: #ffffff;
-}
-
-.food {
-    background-color: #feca57; /* Example color for food */
-    border-color: #ff9f43;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-.operator {
-    background-color: #54a0ff; /* Example color for operators */
-    border-color: #2e86de;
-    color: #ffffff;
-    font-weight: bold;
-}
-
-.snake-equation-cell:hover {
-    background-color: #cbbde6;
-    transform: scale(1.05);
-}
-
-.snake-equation-message {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #ff99cc;
-    border: 2px solid #ffffff;
-    border-radius: 8px;
-    color: #ffffff;
-    font-size: 1.2rem;
+.game-message {
+    font-size: 16px;
+    color: #ff0000;
+    text-shadow: 0 0 5px #ff0000;
     text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    margin-top: 10px;
     display: none;
+    animation: pulse 2s infinite;
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+/* High score / Game over */
+
+.game-over-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.game-over-overlay.flash {
+    background: rgba(255, 0, 0, 0.5);
+    animation: flashRed 0.5s;
+}
+
+@keyframes flashRed {
+    0% { background: rgba(255, 0, 0, 0.8); }
+    50% { background: rgba(255, 0, 0, 0.4); }
+    100% { background: rgba(255, 0, 0, 0.8); }
+}
+
+.game-over-content {
+    background: rgba(0, 0, 51, 0.9);
+    padding: 20px;
+    border: 2px solid #00ff00;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 0 20px #00ff00;
+    animation: glowPulse 2s infinite;
+}
+
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 20px #00ff00; }
+    50% { box-shadow: 0 0 40px #00ff00; }
+    100% { box-shadow: 0 0 20px #00ff00; }
+}
+
+.game-over-message {
+    color: #ff0000;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #ff0000;
+}
+
+.final-score {
+    color: #00ffff;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.new-high-score {
+    color: #ffff00;
+    font-size: 20px;
+    margin-bottom: 20px;
+    animation: rainbow 2s infinite;
+}
+
+.new-high-score.hidden {
+    display: none;
+}
+
+@keyframes rainbow {
+    0% { color: #ff0000; }
+    20% { color: #ffff00; }
+    40% { color: #00ff00; }
+    60% { color: #00ffff; }
+    80% { color: #ff00ff; }
+    100% { color: #ff0000; }
+}
+
+.retry-btn {
+    padding: 10px 20px;
+    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-size: 16px;
+    background: #000033;
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.retry-btn:hover {
+    background: #00ff00;
+    color: #000033;
+    box-shadow: 0 0 20px #00ff00;
+}
+
+.high-scores {
+    background: rgba(0, 0, 51, 0.5);
+    padding: 10px;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.high-scores-title {
+    color: #00ffff;
+    font-size: 14px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+.high-scores-list {
+    color: #ffff00;
+    font-size: 12px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+}
+
+/* Grid animation */
+.snake-equation-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(90deg, #00ff0022 1px, transparent 1px) 0 0 / 20px 20px,
+        linear-gradient(#00ff0022 1px, transparent 1px) 0 0 / 20px 20px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(20px, 20px); }
+}
+
+/* Ensure all content stays above the grid background */
+.game-header,
+.target-equation,
+.current-equation,
+.game-canvas,
+.game-message {
+    position: relative;
+    z-index: 1;
 }

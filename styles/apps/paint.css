@@ -1,74 +1,273 @@
-/* Paint styles */
-.paint-container {
-    height: 100%;
+/* Main Container */
+.ex-paint-container {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    width: 100%;
+    background-color: white;
 }
 
-.paint-menu {
+/* Menu Bar */
+.ex-paint-menubar {
     display: flex;
-    background-color: #d5bde6;
-    border-bottom: 2px solid #b89fc7;
+    background: linear-gradient(to right, #e6d4f2, #d5bde6);
+    border-bottom: 1px solid #b89fc7;
     padding: 2px;
     gap: 4px;
+    user-select: none;
 }
 
-.paint-toolbar {
+.ex-paint-menu-item {
+    padding: 2px 8px;
+    color: #441d57;
+    cursor: pointer;
+    font-size: 12px;
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.ex-paint-menu-item:hover,
+.ex-paint-menu-item.active {
+    background-color: #d5bde6;
+    border: 1px solid #8b6b9c;
+}
+
+/* Dropdown Menus */
+.ex-paint-menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: -1px;
+    background-color: #f0d9ff;
+    border: 1px solid #b89fc7;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    min-width: 200px;
+    margin-top: -1px;
+}
+
+.ex-paint-menu-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px;
+    color: #441d57;
+    cursor: pointer;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.ex-paint-menu-entry:hover {
+    background-color: #d5bde6;
+}
+
+.ex-paint-menu-entry.disabled {
+    color: #999;
+    cursor: default;
+}
+
+.ex-paint-menu-entry.disabled:hover {
+    background-color: transparent;
+}
+
+/* Menu Shortcuts */
+.ex-paint-shortcut {
+    margin-left: 32px;
+    color: #666;
+    font-size: 11px;
+}
+
+/* Toolbar */
+.ex-paint-toolbar {
     display: flex;
     gap: 10px;
-    padding: 5px;
-    background-color: #d5bde6;
-    border-bottom: 2px solid #b89fc7;
-    margin-bottom: 5px;
+    padding: 8px;
+    background-color: #f0d9ff;
+    border-bottom: 1px solid #b89fc7;
+    align-items: center;
 }
 
-.paint-toolbar select,
-.paint-toolbar input,
-.paint-toolbar button {
-    padding: 2px 5px;
-    background-color: #f0d9ff;
+.ex-paint-tools {
+    display: flex;
+    gap: 4px;
+    padding-right: 10px;
+}
+
+.ex-paint-tool {
+    width: 32px;
+    height: 32px;
     border: 2px outset #d5bde6;
+    background-color: #f0d9ff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    padding: 0;
+}
+
+.ex-paint-tool:hover {
+    background-color: #e6d4f2;
+}
+
+.ex-paint-tool.active {
+    border-style: inset;
+    background-color: #d5bde6;
+}
+
+.ex-paint-tool-separator {
+    width: 1px;
+    background-color: #b89fc7;
+    margin: 0 4px;
+}
+
+.ex-paint-tool-options {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Color Pickers and Brush Size */
+.ex-paint-colors {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.ex-paint-color-picker {
+    width: 32px;
+    height: 32px;
+    padding: 2px;
+    border: 2px solid #b89fc7;
+    cursor: pointer;
+}
+
+#ex-paint-brush-size {
+    padding: 4px;
+    border: 2px solid #b89fc7;
+    background-color: #f0d9ff;
     color: #441d57;
     cursor: pointer;
 }
 
-.paint-toolbar button:active {
-    border-style: inset;
-}
-
-.paint-toolbar .color-picker {
-    width: 40px;
-    padding: 0;
-    height: 24px;
-    cursor: pointer;
-}
-
-.canvas-container {
+/* Canvas Container */
+.ex-paint-canvas-container {
     flex-grow: 1;
-    overflow: hidden;
-    background-color: white;
+    position: relative;
+    overflow: auto;
+    background: #f0f0f0;
     border: 1px solid #b89fc7;
+}
+
+#ex-paint-canvas,
+#ex-paint-temp-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#ex-paint-temp-canvas {
+    pointer-events: none;
+}
+
+/* Status Bar */
+.ex-paint-status {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    margin-bottom: 2px;
-}
-
-#paint-canvas {
-    background-color: white;
-    cursor: crosshair;
-}
-
-.paint-status {
-    background-color: #d5bde6;
+    background: linear-gradient(to right, #e6d4f2, #d5bde6);
     border-top: 1px solid #b89fc7;
     padding: 2px 8px;
-    font-size: 12px;
+    font-size: 11px;
     color: #441d57;
-    display: flex;
-    justify-content: flex-end;
+    height: 20px;
 }
 
-#current-paint-file {
-    font-style: italic;
+.ex-paint-status-modified {
+    color: #a267ac;
+    font-size: 14px;
+    width: 20px;
+}
+
+#ex-paint-coordinates,
+#ex-paint-current-tool {
+    padding: 2px 8px;
+    border-left: 1px solid #b89fc7;
+}
+
+/* Save Notification */
+.ex-paint-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #f0d9ff;
+    border: 1px solid #b89fc7;
+    padding: 10px 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: #441d57;
+    font-size: 12px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.ex-paint-notification-hide {
+    opacity: 0;
+}
+
+/* Menu Separators */
+.ex-paint-menu-dropdown hr {
+    margin: 4px 0;
+    border: none;
+    border-top: 1px solid #b89fc7;
+}
+
+/* Scrollbars */
+.ex-paint-canvas-container::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+.ex-paint-canvas-container::-webkit-scrollbar-track {
+    background: #f0d9ff;
+    border: 1px solid #b89fc7;
+}
+
+.ex-paint-canvas-container::-webkit-scrollbar-thumb {
+    background-color: #b89fc7;
+    border: 3px solid #f0d9ff;
+    border-radius: 8px;
+}
+
+.ex-paint-canvas-container::-webkit-scrollbar-thumb:hover {
+    background-color: #a267ac;
+}
+
+/* Firefox scrollbar */
+.ex-paint-canvas-container {
+    scrollbar-width: thin;
+    scrollbar-color: #b89fc7 #f0d9ff;
+}
+
+/* Focus States */
+.ex-paint-tool:focus,
+.ex-paint-color-picker:focus,
+#ex-paint-brush-size:focus {
+    outline: none;
+    border-color: #a267ac;
+}
+
+/* Disabled States */
+.ex-paint-tool:disabled,
+.ex-paint-color-picker:disabled,
+#ex-paint-brush-size:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Selection Color */
+::selection {
+    background-color: #d5bde6;
+    color: #441d57;
 }

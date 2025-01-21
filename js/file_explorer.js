@@ -1,5 +1,6 @@
 // file_explorer.js
 import { IconSet } from './icons.js'; 
+import { RecycleBinHandler } from './recycle-bin-handler.js';
 
 export class FileExplorer {
     constructor(fileSystem, windowManager) {
@@ -58,6 +59,8 @@ export class FileExplorer {
                 ]
             }
         };
+
+        this.recycleBinHandler = new RecycleBinHandler(fileSystem);
     }
 
     initialize(contentArea, initialPath) {
@@ -69,6 +72,26 @@ export class FileExplorer {
         }
         
         console.log('Initializing FileExplorer with path:', initialPath);
+
+        // Load preferred view mode from settings
+        try {
+            const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
+            const settingsFile = this.fileSystem.getFile(settingsPath);
+            if (settingsFile) {
+                const settings = JSON.parse(settingsFile.content);
+                if (settings.display?.fileExplorerView) {
+                    this.viewMode = settings.display.fileExplorerView;
+                }
+            }
+        } catch (error) {
+            console.log('Could not load view mode preference, using default');
+            this.viewMode = 'icons'; // Set explicit default
+        }
+
+        // Apply the view mode class immediately after setup
+        if (this.elements.fileList) {
+            this.elements.fileList.className = `file-list view-${this.viewMode}`;
+        }
         
         this.setupExplorerWindow(contentArea);
         
@@ -123,7 +146,7 @@ export class FileExplorer {
     
                 <div class="explorer-content">
                     <div class="folder-tree"></div>
-                    <div class="file-list"></div>
+                    <div class="file-list view-${this.viewMode}"></div>
                 </div>
     
                 <div class="explorer-statusbar">
@@ -167,6 +190,14 @@ export class FileExplorer {
             const currentFolder = this.currentPath.split('/').pop() || 'File Explorer';
             this.elements.titleBar.textContent = currentFolder;
         }
+    }
+
+    setupDragAndDrop(item) {
+        item.addEventListener('dragstart', (e) => this.handleDragStart(e, item));
+        item.addEventListener('dragend', (e) => this.handleDragEnd(e, item));
+        item.addEventListener('dragover', (e) => this.handleDragOver(e, item));
+        item.addEventListener('dragleave', (e) => this.handleDragLeave(e, item));
+        item.addEventListener('drop', (e) => this.handleDrop(e, item));
     }
 
     setupEventListeners() {
@@ -213,6 +244,170 @@ export class FileExplorer {
                 this.handleItemDoubleClick(item);
             }
         });
+
+        // Make the file list itself a drop target
+        this.elements.fileList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!this.isDraggingFile) return;
+            
+            this.elements.fileList.classList.add('drag-over');
+        });
+
+        this.elements.fileList.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!e.target.closest('.file-list')) {
+                this.elements.fileList.classList.remove('drag-over');
+            }
+        });
+
+        this.elements.fileList.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.elements.fileList.classList.remove('drag-over');
+            
+            if (this.draggedItem) {
+                this.handleDropOnFolder(e, this.currentPath);
+            }
+        });
+    }
+
+//Drag and drop functionality
+
+    handleDragStart(e, item) {
+        this.draggedItem = item;
+        this.isDraggingFile = true;
+        
+        // Create and set drag image
+        const dragImage = item.cloneNode(true);
+        dragImage.style.position = 'absolute';
+        dragImage.style.top = '-1000px';
+        document.body.appendChild(dragImage);
+        e.dataTransfer.setDragImage(dragImage, 0, 0);
+        setTimeout(() => dragImage.remove(), 0);
+        
+        item.classList.add('dragging');
+        
+        // Store the original path
+        e.dataTransfer.setData('text/plain', item.dataset.path);
+    }
+    
+    handleDragEnd(e, item) {
+        this.isDraggingFile = false;
+        this.draggedItem = null;
+        item.classList.remove('dragging');
+        
+        // Remove any remaining drag-over classes
+        document.querySelectorAll('.drag-over').forEach(el => 
+            el.classList.remove('drag-over'));
+    }
+    
+    handleDragOver(e, item) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Only show drop target if dragging onto a folder
+        if (this.draggedItem && item.dataset.type === 'folder' && 
+            item !== this.draggedItem) {
+            item.classList.add('drag-over');
+        }
+    }
+    
+    handleDragLeave(e, item) {
+        e.preventDefault();
+        e.stopPropagation();
+        item.classList.remove('drag-over');
+    }
+    
+    handleDrop(e, targetItem) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        targetItem.classList.remove('drag-over');
+        
+        if (!this.draggedItem || targetItem === this.draggedItem) {
+            return;
+        }
+        
+        // Only allow dropping on folders
+        if (targetItem.dataset.type !== 'folder') {
+            return;
+        }
+        
+        const sourcePath = this.draggedItem.dataset.path;
+        const targetPath = targetItem.dataset.path;
+        
+        console.log('Processing drop:', {
+            sourcePath,
+            targetPath,
+            sourceType: this.draggedItem.dataset.type,
+            targetType: targetItem.dataset.type
+        });
+        
+        this.moveItem(sourcePath, targetPath);
+    }
+    
+    handleDropOnFolder(e, targetPath) {
+        if (!this.draggedItem) {
+            return;
+        }
+        
+        const sourcePath = this.draggedItem.dataset.path;
+        
+        console.log('Processing drop on folder:', {
+            sourcePath,
+            targetPath,
+            sourceType: this.draggedItem.dataset.type
+        });
+        
+        if (sourcePath === targetPath) {
+            return;
+        }
+        
+        this.moveItem(sourcePath, targetPath);
+    }
+
+    moveItem(sourcePath, targetPath) {
+        try {
+            const sourceType = this.draggedItem.dataset.type;
+            console.log('Moving file:', sourcePath, 'to', targetPath);
+            
+            if (sourceType === 'folder') {
+                // Check if it's a system folder
+                const folderInfo = this.fileSystem.getFolderInfo(sourcePath);
+                if (folderInfo?.type === 'system') {
+                    throw new Error("Cannot move system folders");
+                }
+                
+                // Don't allow moving into itself or its subdirectories
+                if (targetPath.startsWith(sourcePath)) {
+                    throw new Error("Cannot move a folder into itself");
+                }
+                
+                this.fileSystem.moveFolder(sourcePath, targetPath);
+            } else {
+                // For files, just move directly
+                const currentFile = this.fileSystem.getFile(sourcePath);
+                if (!currentFile) {
+                    throw new Error("Source file not found");
+                }
+                
+                const fileName = sourcePath.split('/').pop();
+                const newPath = this.fileSystem.joinPaths(targetPath, fileName);
+                
+                // Update the file's path in storage
+                this.fileSystem.saveFile(targetPath, fileName, currentFile.content, currentFile.type);
+                this.fileSystem.deleteFile(sourcePath);
+            }
+            
+            // Refresh the view
+            this.populateContent();
+            
+        } catch (error) {
+            console.error('Failed to move item:', error);
+            alert(error.message);
+        }
     }
 
 // Update the tree creation methods
@@ -548,13 +743,17 @@ export class FileExplorer {
         // Add folders first
         contents.folders.forEach(folder => {
             const item = this.createFileListItem(folder.name, 'folder', folder);
-            this.elements.fileList.appendChild(item);
+            if (item) { // Only append if item is not null
+                this.elements.fileList.appendChild(item);
+            }
         });
     
         // Then add files
         contents.files.forEach(file => {
             const item = this.createFileListItem(file.name, file.type, file);
-            this.elements.fileList.appendChild(item);
+            if (item) { // Only append if item is not null
+                this.elements.fileList.appendChild(item);
+            }
         });
     }
 
@@ -575,8 +774,17 @@ export class FileExplorer {
         item.className = 'file-item';
         item.dataset.name = name;
         item.dataset.type = type;
+        item.dataset.path = this.fileSystem.joinPaths(this.currentPath, name);
+        
+        // Don't make items in Recycle Bin draggable
+        item.draggable = !this.recycleBinHandler.isInRecycleBin(this.currentPath);
     
-        // Determine correct icon category and type
+        // Skip if this is a metadata file in Recycle Bin
+        if (name.endsWith('.metadata') && this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
+            return null;
+        }
+    
+        // Create icon and label
         let iconCategory = type === 'folder' ? 'folder' : 
                           type === 'program' ? 'program' : 'file';
         
@@ -590,7 +798,12 @@ export class FileExplorer {
         item.appendChild(icon);
         item.appendChild(label);
     
-        // Add details view information
+        // Only set up drag and drop if not in Recycle Bin
+        if (!this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
+            this.setupDragAndDrop(item);
+        }
+    
+        // Add details view information if needed
         if (this.viewMode === 'details') {
             const modified = fileInfo?.modified ? 
                 new Date(fileInfo.modified).toLocaleString() : '';
@@ -618,7 +831,7 @@ export class FileExplorer {
         }
     
         return item;
-    }    
+    }  
     
     // Add this helper method for formatting file sizes
     formatFileSize(bytes) {
@@ -641,6 +854,11 @@ export class FileExplorer {
     handleItemDoubleClick(item) {
         const name = item.dataset.name;
         const type = item.dataset.type;
+    
+        // Prevent opening files in Recycle Bin
+        if (this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
+            return;
+        }
     
         if (type === 'folder') {
             this.navigateTo(this.fileSystem.joinPaths(this.currentPath, name));
@@ -698,57 +916,78 @@ export class FileExplorer {
     }
 
     showContextMenu(e, item) {
-        console.log('Showing context menu');
         e.preventDefault();
         e.stopPropagation();
         
         this.closeAllMenus();
         this.activeMenuType = 'context';
-
+    
         const menu = document.createElement('div');
         menu.className = 'context-menu';
         
-        // Get the full path and check if it's a system folder
         const fullPath = this.fileSystem.joinPaths(this.currentPath, item.dataset.name);
         const isSystemFolder = item.dataset.type === 'folder' && 
             this.fileSystem.getFolderInfo(fullPath)?.type === 'system';
-    
-        menu.innerHTML = `
-            <button data-action="open">Open</button>
-            <hr>
-            <button data-action="cut" ${isSystemFolder ? 'disabled' : ''}>Cut</button>
-            <button data-action="copy">Copy</button>
-            <button data-action="paste" ${!this.clipboard ? 'disabled' : ''}>Paste</button>
-            <button data-action="delete" ${isSystemFolder ? 'disabled' : ''}>Delete</button>
-            <hr>
-            <button data-action="rename" ${isSystemFolder ? 'disabled' : ''}>Rename</button>
-            <button data-action="properties">Properties</button>
-        `;
+        const isInRecycleBin = this.recycleBinHandler.isInRecycleBin(this.currentPath);
+        
+        if (isInRecycleBin) {
+            // Context menu for items in Recycle Bin
+            menu.innerHTML = `
+                <button data-action="restore">Restore</button>
+                <button data-action="delete">Delete Permanently</button>
+                <hr>
+                <button data-action="properties">Properties</button>
+            `;
+        } else {
+            // Normal context menu
+            menu.innerHTML = `
+                <button data-action="open">Open</button>
+                <hr>
+                <button data-action="cut" ${isSystemFolder ? 'disabled' : ''}>Cut</button>
+                <button data-action="copy">Copy</button>
+                <button data-action="paste" ${!this.clipboard ? 'disabled' : ''}>Paste</button>
+                <button data-action="delete" ${isSystemFolder ? 'disabled' : ''}>Delete</button>
+                <hr>
+                <button data-action="send-to-desktop">Send to Desktop</button>
+                <hr>
+                <button data-action="rename" ${isSystemFolder ? 'disabled' : ''}>Rename</button>
+                <button data-action="properties">Properties</button>
+            `;
+        }
     
         this.showMenu(menu, e);
         this.setupContextMenuHandlers(menu, item);
     }
 
-
     showFolderContextMenu(e) {
-        console.log('Showing folder context menu');
-        e.preventDefault();  // Prevent default context menu
-        e.stopPropagation(); // Stop event propagation
-        
+        e.preventDefault();
+        e.stopPropagation();
+
         // Remove any existing context menus
         document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
         
         const menu = document.createElement('div');
         menu.className = 'context-menu';
-        menu.innerHTML = `
-            <button data-action="paste" ${!this.clipboard ? 'disabled' : ''}>Paste</button>
-            <hr>
-            <button data-action="new-folder">New Folder</button>
-            <button data-action="new-file">New Text Document</button>
-            <hr>
-            <button data-action="refresh">Refresh</button>
-            <button data-action="properties">Properties</button>
-        `;
+        
+        if (this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
+            menu.innerHTML = `
+                <button data-action="empty-recycle-bin">Empty Recycle Bin</button>
+                <hr>
+                <button data-action="refresh">Refresh</button>
+                <button data-action="properties">Properties</button>
+            `;
+        } else {
+        
+            menu.innerHTML = `
+                <button data-action="paste" ${!this.clipboard ? 'disabled' : ''}>Paste</button>
+                <hr>
+                <button data-action="new-folder">New Folder</button>
+                <button data-action="new-file">New Text Document</button>
+                <hr>
+                <button data-action="refresh">Refresh</button>
+                <button data-action="properties">Properties</button>
+            `;
+        }
     
         // Position the menu
         menu.style.left = `${e.pageX}px`;
@@ -855,6 +1094,45 @@ export class FileExplorer {
             case 'open':
                 this.handleItemDoubleClick(item);
                 break;
+
+            case 'restore':
+                try {
+                    this.recycleBinHandler.restoreItem(name);
+                    this.populateContent(); // Refresh view
+                } catch (error) {
+                    alert('Failed to restore item: ' + error.message);
+                }
+                break;
+
+            case 'send-to-desktop':
+                console.log('WindowManager:', this.windowManager); // Debug log
+                console.log('Desktop instance:', this.windowManager.desktop); // Debug log
+                console.log('Global desktop:', window.elxaDesktop); // Debug log
+                
+                // Get the Desktop instance
+                const desktopInstance = this.windowManager.desktop || window.elxaDesktop;
+                
+                if (desktopInstance) {
+                    try {
+                        desktopInstance.createShortcut(
+                            fullPath,      // targetPath
+                            name,         // name
+                            type         // type
+                        );
+                        console.log('Desktop shortcut created for:', {
+                            path: fullPath,
+                            name: name,
+                            type: type
+                        });
+                    } catch (error) {
+                        console.error('Failed to create desktop shortcut:', error);
+                        alert('Unable to create desktop shortcut: ' + error.message);
+                    }
+                } else {
+                    console.error('Desktop instance not found. WindowManager:', this.windowManager);
+                    alert('Unable to create shortcut: Desktop not initialized');
+                }
+                break;
                 
             case 'cut':
                 try {
@@ -936,6 +1214,17 @@ export class FileExplorer {
                 console.log('Showing properties...');
                 this.showFolderProperties();
                 break;
+
+            case 'empty-recycle-bin':
+                if (confirm('Are you sure you want to permanently delete all items in the Recycle Bin?')) {
+                    try {
+                        this.recycleBinHandler.emptyRecycleBin();
+                        this.populateContent();
+                    } catch (error) {
+                        alert('Failed to empty Recycle Bin: ' + error.message);
+                    }
+                }
+                break;
         }
     }
 
@@ -991,6 +1280,7 @@ export class FileExplorer {
         const label = item.querySelector('.file-label');
         const originalName = label.textContent;
         const isFolder = item.dataset.type === 'folder';
+        let isFinishing = false; // Flag to prevent multiple finishRename calls
         
         console.log('Starting rename for:', {
             name: originalName,
@@ -1010,7 +1300,8 @@ export class FileExplorer {
         input.select();
         
         const finishRename = async (newName, abort = false) => {
-            let success = false;
+            if (isFinishing) return; // Prevent multiple executions
+            isFinishing = true;
             
             if (!abort && newName && newName !== originalName) {
                 try {
@@ -1029,51 +1320,66 @@ export class FileExplorer {
                         if (folderInfo && folderInfo.type === 'system') {
                             throw new Error('System folders cannot be renamed');
                         }
-                        const newPath = this.fileSystem.renameFolder(fullPath, newName);
-                        console.log('Folder renamed successfully to:', newPath);
+                        await this.fileSystem.renameFolder(fullPath, newName);
+                        console.log('Folder renamed successfully');
                     } else {
-                        const newPath = this.fileSystem.renameFile(fullPath, newName);
-                        console.log('File renamed successfully to:', newPath);
+                        await this.fileSystem.renameFile(fullPath, newName);
+                        console.log('File renamed successfully');
                     }
                     
-                    success = true;
+                    // Remove event listeners after successful rename
+                    input.removeEventListener('blur', handleBlur);
+                    input.removeEventListener('keydown', handleKeyDown);
+                    
+                    // Update the UI after successful rename
+                    if (input.parentNode) {
+                        const newLabel = document.createElement('div');
+                        newLabel.className = 'file-label';
+                        newLabel.textContent = newName;
+                        input.replaceWith(newLabel);
+                    }
+                    
+                    // Refresh the content view
+                    this.populateContent();
+                    
                 } catch (error) {
                     console.error('Failed to rename:', error);
                     alert('Unable to rename: ' + error.message);
+                    isFinishing = false; // Allow retry
+                    
+                    // Don't remove event listeners on error so user can try again
+                    return;
                 }
-            }
-            
-            // Create new label
-            const newLabel = document.createElement('div');
-            newLabel.className = 'file-label';
-            newLabel.textContent = success ? newName : originalName;
-            
-            // Update the item's data attribute if successful
-            if (success) {
-                item.dataset.name = newName;
-            }
-            
-            // Replace input with label
-            input.replaceWith(newLabel);
-            
-            // Only refresh content if rename was successful
-            if (success) {
-                // Give the file system a moment to update
-                setTimeout(() => {
-                    this.populateContent();
-                }, 50);
+            } else {
+                // Remove event listeners before restoring label
+                input.removeEventListener('blur', handleBlur);
+                input.removeEventListener('keydown', handleKeyDown);
+                
+                // Abort or no changes - restore original label
+                if (input.parentNode) {
+                    const originalLabel = document.createElement('div');
+                    originalLabel.className = 'file-label';
+                    originalLabel.textContent = originalName;
+                    input.replaceWith(originalLabel);
+                }
             }
         };
         
-        // Handle input events
-        input.addEventListener('blur', () => finishRename(input.value));
-        input.addEventListener('keydown', (e) => {
+        // Create event handler functions
+        const handleBlur = () => finishRename(input.value);
+        const handleKeyDown = (e) => {
             if (e.key === 'Enter') {
+                e.preventDefault();
                 finishRename(input.value);
             } else if (e.key === 'Escape') {
+                e.preventDefault();
                 finishRename(originalName, true);
             }
-        });
+        };
+        
+        // Add event listeners
+        input.addEventListener('blur', handleBlur);
+        input.addEventListener('keydown', handleKeyDown);
     }
 
     finishRename(item, newName, originalName) {
@@ -1129,35 +1435,30 @@ export class FileExplorer {
         
         const itemNames = selectedElements.map(el => el.dataset.name).join('", "');
         const confirmMessage = selectedElements.length === 1
-            ? `Are you sure you want to delete "${itemNames}"?`
-            : `Are you sure you want to delete these ${selectedElements.length} items?\n"${itemNames}"`;
+            ? `Are you sure you want to move "${itemNames}" to the Recycle Bin?`
+            : `Are you sure you want to move these ${selectedElements.length} items to the Recycle Bin?\n"${itemNames}"`;
         
         if (confirm(confirmMessage)) {
             let errorCount = 0;
             
             selectedElements.forEach(element => {
                 const name = element.dataset.name;
-                const isFolder = element.dataset.type === 'folder';
                 const fullPath = this.fileSystem.joinPaths(this.currentPath, name);
                 
                 try {
-                    if (isFolder) {
-                        // Check if this is a system folder
-                        const folderInfo = this.fileSystem.getFolderInfo(fullPath);
-                        if (folderInfo && folderInfo.type === 'system') {
-                            throw new Error('System folders cannot be deleted');
-                        }
-                        this.fileSystem.deleteFolder(fullPath);
-                    } else {
-                        this.fileSystem.deleteFile(fullPath);
+                    // Don't allow recycling items that are already in the Recycle Bin
+                    if (this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
+                        throw new Error("Cannot move Recycle Bin items to Recycle Bin");
                     }
+                    
+                    this.recycleBinHandler.moveToRecycleBin(fullPath);
                     
                     // Remove from view if successful
                     element.remove();
                     this.selectedItems.delete(name);
                     
                 } catch (error) {
-                    console.error(`Failed to delete ${name}:`, error);
+                    console.error(`Failed to move ${name} to Recycle Bin:`, error);
                     errorCount++;
                 }
             });
@@ -1167,7 +1468,7 @@ export class FileExplorer {
             
             // Show error message if any operations failed
             if (errorCount > 0) {
-                alert(`Failed to delete ${errorCount} item(s).\nSystem folders cannot be deleted.`);
+                alert(`Failed to move ${errorCount} item(s) to the Recycle Bin.\nSystem folders cannot be moved to the Recycle Bin.`);
             }
         }
     }
@@ -1574,7 +1875,24 @@ export class FileExplorer {
 
     setViewMode(mode) {
         this.viewMode = mode;
-        this.elements.fileList.className = `file-list view-${mode}`;
+        if (this.elements.fileList) {
+            // Clear existing view classes
+            this.elements.fileList.className = 'file-list';
+            // Add new view class
+            this.elements.fileList.classList.add(`view-${mode}`);
+        }
+        
+        // Save the view mode preference
+        try {
+            const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
+            const settings = this.fileSystem.getFile(settingsPath);
+            const settingsObj = settings ? JSON.parse(settings.content) : {};
+            settingsObj.display = settingsObj.display || {};
+            settingsObj.display.fileExplorerView = mode;
+            this.fileSystem.saveFile(settingsPath, 'user.config', JSON.stringify(settingsObj), 'json');
+        } catch (error) {
+            console.log('Could not save view mode preference');
+        }
         
         // Update radio buttons in view menu
         const viewModeButtons = this.elements.menubar

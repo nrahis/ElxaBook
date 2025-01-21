@@ -60,14 +60,19 @@ window._resetFileSystem()
     TO DO
 
     - Add more validation to the password change process (like minimum length, required characters)?
-    - drag and drop for folders and files
+    - make version numbers in About, Boot, and Options/Settings automatically update when the variable is updated
     - delete should sent to Recycle Bin; add ability to empty Recycle Bin, and restore apps
     - military time for clocks
-    - pretend battery beside clock Display
+    - pretend battery beside clock Display, pretend WiFi system
+        - pretend browser and webpages
+            I'm making a pretend OS. It's retro Window/vaporwave themed. I want to create a "browser" that, when opened, defaults to our custom "homepage", which would be a fictional search engine--Snoogle. The browser would need a similar UI, including File/Options/Help menus similar to our file explorer windows; it would need an address bar, back/forward/refresh/home buttons, and maybe "favorites" and "history". We would need to make it modular like our other apps within this OS; I also want the ability to type in "addresses" in the address bar that would load custom pretend webpages that we'd make separately. We'll also be making a pretend internet/wifi for our OS, and when it's "disconnected", the browser would need to show a no network error page. 
     - color themes
     - b-bomb app
     - EX Abbi Code - pretend coder, cat themed
     - math games
+    - redo Notepad, Paint, and Slideshow to be more Windows-like and complementary
+        - Spreadsheet, Word Processor
+        - file types - .txt for Notepad, .rtf for WP, .ods for Spreadsheet, .odp for slideshow 
     - custom alarm sounds; fix stopwatch
     - messenger - hook up to Gemini, generate messages
     - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options-Display preferences
@@ -75,6 +80,9 @@ window._resetFileSystem()
     - should put all games that arent "system games" in Games folder with custom icons
         - ability to "uninstall" non-system games, with installers kept in System/Installers folder
         - fix desktop grid; allow non-system files and programs to have desktop shortcuts
+        - all programs are .abbi file type
+    - when creating new folder, needs to let me rename by default
+    - run programs from DUCK
 
 
 

@@ -198,8 +198,13 @@ export class IconSet {
             </svg>`,
 
             solitaire: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
-                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <path d="M16 16h6v6h-6z" fill="#4a9bb0"/>
+                <path d="M26 16h6v6h-6z" fill="#4a9bb0"/>
+                <path d="M21 24h6v6h-6z" fill="#4a9bb0"/>
+                <path d="M16 26h6v6h-6z" fill="#4a9bb0"/>
+                <path d="M26 26h6v6h-6z" fill="#4a9bb0"/>
             </svg>`,
     
             duck: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -224,8 +229,13 @@ export class IconSet {
             </svg>`,
 
             scientificCalculator: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
-                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <rect x="14" y="14" width="20" height="6" fill="#4a9bb0"/>
+                <rect x="14" y="22" width="8" height="4" fill="#4a9bb0"/>
+                <rect x="24" y="22" width="8" height="4" fill="#4a9bb0"/>
+                <rect x="14" y="28" width="8" height="4" fill="#4a9bb0"/>
+                <rect x="24" y="28" width="8" height="4" fill="#4a9bb0"/>
             </svg>`,
     
             clock: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -242,9 +252,12 @@ export class IconSet {
                 <path d="M18 14V18M30 14V18" stroke="#4a9bb0" stroke-width="2"/>
                 <path d="M20 22H28M20 26H24" stroke="#4a9bb0" stroke-width="2"/>
             </svg>`,
+
             slideshow: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
-                <path d="M10 4C10 2.89543 10.8954 2 12 2H28L38 12V44C38 45.1046 37.1046 46 36 46H12C10.8954 46 10 45.1046 10 44V4Z" fill="#e6d4f2" stroke="#b89fc7" stroke-width="2"/>
-                <path d="M28 2L38 12H28V2Z" fill="#d5bde6" stroke="#b89fc7" stroke-width="2"/>
+                <rect x="6" y="6" width="36" height="36" rx="2" fill="#67c9dc" stroke="#4a9bb0" stroke-width="2"/>
+                <rect x="10" y="10" width="28" height="28" fill="#89d4e3" stroke="#67c9dc" stroke-width="2"/>
+                <rect x="14" y="14" width="20" height="16" fill="#4a9bb0"/>
+                <path d="M18 34h12M24 14l-6 8h12l-6-8z" stroke="#89d4e3" stroke-width="2"/>
             </svg>`,
         };       
     
