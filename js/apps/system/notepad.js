@@ -382,10 +382,10 @@ class Notepad {
 
     showAbout() {
         alert(
-            'Notepad for ElxaOS\n\n' +
-            'Version 1.0\n' +
-            'A simple text editor for ElxaOS\n\n' +
-            '© 2025 Elxa Corporation'
+            `'Notepad for ${CONFIG.system.name}\n\n' +
+            '${CONFIG.system.fullVersion()}0\n' +
+            'A simple text editor for ${CONFIG.system.name}\n\n' +
+            '${CONFIG.system.copyright()}'`
         );
     }
 

@@ -58,10 +58,8 @@ codes
 window._resetFileSystem()
 
     TO DO
-
-    - Add more validation to the password change process (like minimum length, required characters)?
+    - Snake Equation too hard, score not updating
     - make version numbers in About, Boot, and Options/Settings automatically update when the variable is updated
-    - delete should sent to Recycle Bin; add ability to empty Recycle Bin, and restore apps
     - military time for clocks
     - pretend battery beside clock Display, pretend WiFi system
         - pretend browser and webpages
@@ -70,13 +68,7 @@ window._resetFileSystem()
     - b-bomb app
     - EX Abbi Code - pretend coder, cat themed
     - math games
-    - redo Notepad, Paint, and Slideshow to be more Windows-like and complementary
-        - Spreadsheet, Word Processor
-        - file types - .txt for Notepad, .rtf for WP, .ods for Spreadsheet, .odp for slideshow 
-    - custom alarm sounds; fix stopwatch
     - messenger - hook up to Gemini, generate messages
-    - context menu on desktop (when not right clicking folders) should show "Personalize" and link to Options-Display preferences
-    - should have settings icon on desktop that also links to Options
     - should put all games that arent "system games" in Games folder with custom icons
         - ability to "uninstall" non-system games, with installers kept in System/Installers folder
         - fix desktop grid; allow non-system files and programs to have desktop shortcuts

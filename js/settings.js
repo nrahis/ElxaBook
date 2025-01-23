@@ -432,10 +432,10 @@ export class Settings {
         return `
             <div class="settings-panel">
                 <div class="system-info">
-                    <h3>About ElxaOS</h3>
+                    <h3>About ${CONFIG.system.name}</h3>
                     <div class="info-item">
                         <label>Version:</label>
-                        <span>ElxaOS 1.1</span>
+                        <span>${CONFIG.system.shortVersion()}</span>
                     </div>
                     <div class="info-item">
                         <label>Computer Name:</label>
@@ -608,19 +608,36 @@ export class Settings {
         }
     }
    
-    // In settings.js, saveSettings method
     saveSettings() {
         const settings = {
             display: {
                 background: this.contentArea.querySelector('#backgroundSelect').value,
                 customBackgrounds: JSON.parse(localStorage.getItem('customBackgrounds') || '[]'),
-                fileExplorerView: 'icons', // Add default view mode
+                fileExplorerView: 'icons',
                 desktopIcons: {}
             },
             personalization: {
                 primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
                 accentColor: this.contentArea.querySelector('#accentColor')?.value,
-                systemFont: this.contentArea.querySelector('#systemFont')?.value // Make sure this is included
+                systemFont: this.contentArea.querySelector('#systemFont')?.value
+            },
+            systemTray: {
+                clock: {
+                    format24Hour: localStorage.getItem('clock24Hour') === 'true',
+                    showSeconds: localStorage.getItem('showSeconds') === 'true',
+                    showDate: localStorage.getItem('showDate') === 'true',
+                    dateFormat: localStorage.getItem('dateFormat') || 'MM/DD/YYYY'
+                },
+                wifi: {
+                    customNetworks: window.elxaSystemTray.wifi.networks
+                        .filter(network => network.isCustom)
+                        .map(network => ({
+                            name: network.name,
+                            security: network.security,
+                            password: network.password,
+                            saved: network.saved
+                        }))
+                }
             }
         };
 
@@ -633,12 +650,6 @@ export class Settings {
                 console.error('Failed to create settings directory:', error);
                 return false;
             }
-        }
-
-        // When user changes view mode in File Explorer, update it:
-        const lastViewMode = localStorage.getItem('lastFileExplorerView');
-        if (lastViewMode) {
-            settings.display.fileExplorerView = lastViewMode;
         }
 
         // Save settings to file
@@ -663,6 +674,41 @@ export class Settings {
             if (settingsFile) {
                 const settings = JSON.parse(settingsFile.content);
                 this.applyLoadedSettings(settings);
+                
+                // Apply system tray settings
+                if (settings.systemTray) {
+                    // Apply clock settings
+                    if (settings.systemTray.clock) {
+                        const { format24Hour, showSeconds, showDate, dateFormat } = settings.systemTray.clock;
+                        localStorage.setItem('clock24Hour', format24Hour);
+                        localStorage.setItem('showSeconds', showSeconds);
+                        localStorage.setItem('showDate', showDate);
+                        localStorage.setItem('dateFormat', dateFormat);
+                    }
+                    
+                    // Apply WiFi settings
+                    if (settings.systemTray.wifi?.customNetworks) {
+                        const systemTray = window.elxaSystemTray;
+                        if (systemTray && systemTray.wifi) {
+                            // Filter out existing custom networks
+                            systemTray.wifi.networks = systemTray.wifi.networks
+                                .filter(network => !network.isCustom);
+                            
+                            // Add saved custom networks
+                            settings.systemTray.wifi.customNetworks.forEach(savedNetwork => {
+                                const network = new Network(
+                                    savedNetwork.name,
+                                    savedNetwork.security,
+                                    100, // Initial signal strength
+                                    true // isCustom flag
+                                );
+                                network.password = savedNetwork.password;
+                                network.saved = savedNetwork.saved;
+                                systemTray.wifi.networks.push(network);
+                            });
+                        }
+                    }
+                }
                 return true;
             }
         } catch (error) {

@@ -6,74 +6,97 @@ export class Clock {
         this.alarms = new Map();
         this.timerIdCounter = 0;
         this.alarmIdCounter = 0;
-        this.stopwatchInterval = null;
-        this.stopwatchTime = 0;
-        this.stopwatchStartTime = 0;  // Add this
+        this.stopwatchStartTime = null;
+        this.stopwatchElapsedTime = 0;
         this.isStopwatchRunning = false;
         this.laps = [];
+        
+        // Sound options
+        this.alarmSounds = {
+            'beep': { frequency: 440, type: 'sine' },
+            'birds': { frequency: 880, type: 'sine' },
+            'chime': { frequency: 523.25, type: 'triangle' },
+            'bells': { frequency: 698.46, type: 'square' },
+            'space': { frequency: 261.63, type: 'sawtooth' }
+        };
+        this.currentAlarmSound = 'beep';
     }
 
     initialize(contentArea) {
         this.contentArea = contentArea;
         this.render();
         this.setupEventListeners();
+        this.updateClock();
+        setInterval(() => this.updateClock(), 1000);
     }
 
     render() {
-        // Remove Calendar tab and update styling to match Windows theme
         this.contentArea.innerHTML = `
-            <div class="clock-app">
-                <div class="clock-tabs">
-                    <button class="tab-button active" data-tab="clock">Clock</button>
-                    <button class="tab-button" data-tab="timer">Timer</button>
-                    <button class="tab-button" data-tab="stopwatch">Stopwatch</button>
-                    <button class="tab-button" data-tab="alarm">Alarm</button>
+            <div class="clk-app">
+                <div class="clk-tabs">
+                    <button class="clk-tab-button active" data-tab="clock">Clock</button>
+                    <button class="clk-tab-button" data-tab="timer">Timer</button>
+                    <button class="clk-tab-button" data-tab="stopwatch">Stopwatch</button>
+                    <button class="clk-tab-button" data-tab="alarm">Alarm</button>
                 </div>
-    
-                <div class="tab-content">
+                
+                <div class="clk-content">
                     <!-- Clock Tab -->
-                    <div class="tab-pane active" id="clock-tab">
-                        <div class="digital-clock"></div>
-                        <div class="date-display"></div>
+                    <div class="clk-tab-pane active" id="clock-tab">
+                        <div class="clk-time-display">
+                            <div class="clk-digital-clock"></div>
+                            <div class="clk-date-display"></div>
+                        </div>
                     </div>
     
                     <!-- Timer Tab -->
-                    <div class="tab-pane" id="timer-tab">
-                        <div class="timer-controls">
-                            <div class="new-timer-form">
-                                <input type="number" min="0" class="timer-minutes" placeholder="Minutes">
-                                <input type="number" min="0" max="59" class="timer-seconds" placeholder="Seconds">
-                                <input type="text" class="timer-name" placeholder="Timer Name">
-                                <button class="new-timer-btn">Create Timer</button>
+                    <div class="clk-tab-pane" id="timer-tab">
+                        <div class="clk-timer-controls">
+                            <div class="clk-new-timer">
+                                <input type="number" min="0" class="clk-timer-minutes" placeholder="Minutes">
+                                <input type="number" min="0" max="59" class="clk-timer-seconds" placeholder="Seconds">
+                                <input type="text" class="clk-timer-name" placeholder="Timer Name">
+                                <button class="clk-new-timer-btn">Create Timer</button>
+                            </div>
+                            <div class="clk-timer-presets">
+                                <button data-preset="60" class="clk-preset-btn">1 Min Quick Timer</button>
+                                <button data-preset="300" class="clk-preset-btn">5 Min Cleanup</button>
+                                <button data-preset="600" class="clk-preset-btn">10 Min Reading</button>
+                                <button data-preset="120" class="clk-preset-btn">2 Min Tooth Brushing</button>
                             </div>
                         </div>
-                        <div class="active-timers"></div>
-                        <div class="timer-presets">
-                            <button data-preset="300">5 Minute Cleanup</button>
-                            <button data-preset="600">10 Minute Reading</button>
-                            <button data-preset="120">2 Minute Tooth Brushing</button>
-                        </div>
+                        <div class="clk-active-timers"></div>
                     </div>
     
                     <!-- Stopwatch Tab -->
-                    <div class="tab-pane" id="stopwatch-tab">
-                        <div class="stopwatch-display">00:00:00</div>
-                        <div class="stopwatch-controls">
-                            <button class="start-btn">Start</button>
-                            <button class="lap-btn" disabled>Lap</button>
-                            <button class="reset-btn" disabled>Reset</button>
+                    <div class="clk-tab-pane" id="stopwatch-tab">
+                        <div class="clk-stopwatch">
+                            <div class="clk-stopwatch-display">00:00.00</div>
+                            <div class="clk-stopwatch-controls">
+                                <button class="clk-start-btn">Start</button>
+                                <button class="clk-lap-btn" disabled>Lap</button>
+                                <button class="clk-reset-btn" disabled>Reset</button>
+                            </div>
+                            <div class="clk-lap-times"></div>
                         </div>
-                        <div class="lap-times"></div>
                     </div>
     
                     <!-- Alarm Tab -->
-                    <div class="tab-pane" id="alarm-tab">
-                        <div class="new-alarm-form">
-                            <input type="time" class="alarm-time">
-                            <input type="text" class="alarm-name" placeholder="Alarm Name">
-                            <button class="new-alarm-btn">Create Alarm</button>
+                    <div class="clk-tab-pane" id="alarm-tab">
+                        <div class="clk-new-alarm">
+                            <input type="time" class="clk-alarm-time">
+                            <input type="text" class="clk-alarm-name" placeholder="Alarm Name">
+                            <input type="text" class="clk-alarm-message" placeholder="Wake Up!" maxlength="20">
+                            <select class="clk-alarm-sound">
+                                <option value="beep">Beep</option>
+                                <option value="birds">Birds</option>
+                                <option value="chime">Chime</option>
+                                <option value="bells">Bells</option>
+                                <option value="space">Space</option>
+                            </select>
+                            <button class="clk-new-alarm-btn">Create Alarm</button>
                         </div>
-                        <div class="active-alarms"></div>
+                        <div class="clk-active-alarms"></div>
                     </div>
                 </div>
             </div>
@@ -81,15 +104,13 @@ export class Clock {
     }
 
     switchTab(tabName) {
-        const tabs = this.contentArea.querySelectorAll('.tab-button');
-        const panes = this.contentArea.querySelectorAll('.tab-pane');
+        const tabs = this.contentArea.querySelectorAll('.clk-tab-button');
+        const panes = this.contentArea.querySelectorAll('.clk-tab-pane');
         
-        // Remove active class from all tabs and panes
         tabs.forEach(tab => tab.classList.remove('active'));
         panes.forEach(pane => pane.classList.remove('active'));
-
-        // Add active class to selected tab and pane
-        const selectedTab = this.contentArea.querySelector(`.tab-button[data-tab="${tabName}"]`);
+        
+        const selectedTab = this.contentArea.querySelector(`.clk-tab-button[data-tab="${tabName}"]`);
         const selectedPane = this.contentArea.querySelector(`#${tabName}-tab`);
         
         if (selectedTab && selectedPane) {
@@ -98,169 +119,128 @@ export class Clock {
         }
     }
 
-    setupEventListeners() {
-        // Tab switching
-        const tabs = this.contentArea.querySelectorAll('.tab-button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
-        });
-
-        // Timer controls
-        const newTimerBtn = this.contentArea.querySelector('.new-timer-btn');
-        newTimerBtn?.addEventListener('click', () => {
-            const minutesInput = this.contentArea.querySelector('.timer-minutes');
-            const secondsInput = this.contentArea.querySelector('.timer-seconds');
-            const nameInput = this.contentArea.querySelector('.timer-name');
-            
-            const minutes = parseInt(minutesInput.value) || 0;
-            const seconds = parseInt(secondsInput.value) || 0;
-            const name = nameInput.value || 'Timer';
-            
-            if (minutes > 0 || seconds > 0) {
-                this.createNewTimer(minutes * 60 + seconds, name);
-            }
-            
-            // Reset inputs
-            minutesInput.value = '';
-            secondsInput.value = '';
-            nameInput.value = '';
-        });
-
-        // Timer presets
-        const presetBtns = this.contentArea.querySelectorAll('.timer-presets button');
-        presetBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const seconds = parseInt(btn.dataset.preset);
-                this.createNewTimer(seconds, this.getPresetName(seconds));
-            });
-        });
-
-        // Stopwatch controls
-        const startBtn = this.contentArea.querySelector('.stopwatch-tab .start-btn');
-        const lapBtn = this.contentArea.querySelector('.stopwatch-tab .lap-btn');
-        const resetBtn = this.contentArea.querySelector('.stopwatch-tab .reset-btn');
-
-        startBtn?.addEventListener('click', () => this.toggleStopwatch());
-        lapBtn?.addEventListener('click', () => this.recordLap());
-        resetBtn?.addEventListener('click', () => this.resetStopwatch());
-
-        // Alarm controls
-        const newAlarmBtn = this.contentArea.querySelector('.new-alarm-btn');
-        newAlarmBtn?.addEventListener('click', () => this.createNewAlarm());
-
-        // Clock update
-        this.updateClock();
-        setInterval(() => this.updateClock(), 1000);
-    }
-
-    // Stopwatch functions
+    // Stopwatch Methods
     toggleStopwatch() {
-        const startBtn = this.contentArea.querySelector('.stopwatch-tab .start-btn');
-        const lapBtn = this.contentArea.querySelector('.stopwatch-tab .lap-btn');
-        const resetBtn = this.contentArea.querySelector('.stopwatch-tab .reset-btn');
-    
+        const startBtn = this.contentArea.querySelector('.clk-start-btn');
+        const lapBtn = this.contentArea.querySelector('.clk-lap-btn');
+        const resetBtn = this.contentArea.querySelector('.clk-reset-btn');
+        
         if (!this.isStopwatchRunning) {
-            // Start the stopwatch
-            this.stopwatchStartTime = Date.now() - this.stopwatchTime;
-            this.stopwatchInterval = setInterval(() => {
-                this.stopwatchTime = Date.now() - this.stopwatchStartTime;
-                this.updateStopwatchDisplay();
-            }, 10);
+            this.stopwatchStartTime = Date.now() - this.stopwatchElapsedTime;
+            this.stopwatchInterval = requestAnimationFrame(this.updateStopwatch.bind(this));
             startBtn.textContent = 'Stop';
+            startBtn.classList.add('active');
             lapBtn.disabled = false;
             resetBtn.disabled = true;
             this.isStopwatchRunning = true;
         } else {
-            // Stop the stopwatch
-            clearInterval(this.stopwatchInterval);
+            cancelAnimationFrame(this.stopwatchInterval);
+            this.stopwatchElapsedTime = Date.now() - this.stopwatchStartTime;
             startBtn.textContent = 'Start';
+            startBtn.classList.remove('active');
             lapBtn.disabled = true;
             resetBtn.disabled = false;
             this.isStopwatchRunning = false;
         }
     }
-    
-    updateStopwatchDisplay() {
-        const display = this.contentArea.querySelector('.stopwatch-display');
-        if (!display) return;
-    
-        const totalMs = this.stopwatchTime;
-        const minutes = Math.floor(totalMs / 60000);
-        const seconds = Math.floor((totalMs % 60000) / 1000);
-        const ms = Math.floor((totalMs % 1000) / 10);
-    
-        display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+
+    updateStopwatch() {
+        if (!this.isStopwatchRunning) return;
+        
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - this.stopwatchStartTime;
+        this.updateStopwatchDisplay(elapsedTime);
+        this.stopwatchInterval = requestAnimationFrame(this.updateStopwatch.bind(this));
     }
-    
+
+    updateStopwatchDisplay(elapsedTime) {
+        const display = this.contentArea.querySelector('.clk-stopwatch-display');
+        if (!display) return;
+
+        const minutes = Math.floor(elapsedTime / 60000);
+        const seconds = Math.floor((elapsedTime % 60000) / 1000);
+        const centiseconds = Math.floor((elapsedTime % 1000) / 10);
+
+        display.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+    }
+
     recordLap() {
-        const lapTimesDiv = this.contentArea.querySelector('.lap-times');
+        const lapTimesDiv = this.contentArea.querySelector('.clk-lap-times');
         const lapNumber = this.laps.length + 1;
-        const lapTime = this.stopwatchTime;
+        const currentTime = Date.now();
+        const lapTime = currentTime - this.stopwatchStartTime;
         
         this.laps.push(lapTime);
         
-        // Show lap times container
-        lapTimesDiv.classList.add('has-laps');
-        
         const lapDisplay = document.createElement('div');
-        lapDisplay.className = 'lap-time';
-        lapDisplay.textContent = `Lap ${lapNumber}: ${this.formatTime(lapTime)}`;
+        lapDisplay.className = 'clk-lap-time';
+        
+        // Calculate split time from previous lap
+        let splitTime = lapTime;
+        if (this.laps.length > 1) {
+            splitTime = lapTime - this.laps[this.laps.length - 2];
+        }
+        
+        lapDisplay.innerHTML = `
+            <span class="clk-lap-number">Lap ${lapNumber}</span>
+            <span class="clk-lap-split">${this.formatTime(splitTime)}</span>
+            <span class="clk-lap-total">${this.formatTime(lapTime)}</span>
+        `;
+        
         lapTimesDiv.insertBefore(lapDisplay, lapTimesDiv.firstChild);
+        lapTimesDiv.classList.add('has-laps');
     }
-    
+
     resetStopwatch() {
-        clearInterval(this.stopwatchInterval);
+        cancelAnimationFrame(this.stopwatchInterval);
         this.stopwatchTime = 0;
+        this.stopwatchElapsedTime = 0;
         this.laps = [];
         this.isStopwatchRunning = false;
         
-        const startBtn = this.contentArea.querySelector('.stopwatch-tab .start-btn');
-        const lapBtn = this.contentArea.querySelector('.stopwatch-tab .lap-btn');
-        const resetBtn = this.contentArea.querySelector('.stopwatch-tab .reset-btn');
-        const lapTimesDiv = this.contentArea.querySelector('.lap-times');
+        const startBtn = this.contentArea.querySelector('.clk-start-btn');
+        const lapBtn = this.contentArea.querySelector('.clk-lap-btn');
+        const resetBtn = this.contentArea.querySelector('.clk-reset-btn');
+        const lapTimesDiv = this.contentArea.querySelector('.clk-lap-times');
+        const display = this.contentArea.querySelector('.clk-stopwatch-display');
         
         startBtn.textContent = 'Start';
+        startBtn.classList.remove('active');
         lapBtn.disabled = true;
         resetBtn.disabled = true;
         lapTimesDiv.innerHTML = '';
-        lapTimesDiv.classList.remove('has-laps'); // Hide lap times container
-        
-        this.updateStopwatchDisplay();
-    }
-    
-    formatTime(ms) {
-        const minutes = Math.floor(ms / 60000);
-        const seconds = Math.floor((ms % 60000) / 1000);
-        const milliseconds = Math.floor((ms % 1000) / 10);
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(2, '0')}`;
+        lapTimesDiv.classList.remove('has-laps');
+        display.textContent = '00:00.00';
     }
 
-    // Additional methods for Clock class
-
-    // Timer methods
+    // Timer Methods
     createNewTimer(totalSeconds, name) {
         const id = this.timerIdCounter++;
         const timerContainer = document.createElement('div');
-        timerContainer.className = 'timer-container';
+        timerContainer.className = 'clk-timer-container';
+        
+        const progressCircle = this.createProgressCircle();
+        const timeDisplay = this.formatTime(totalSeconds * 1000);
+        
         timerContainer.innerHTML = `
-            <div class="timer-header">
-                <span class="timer-name">${name}</span>
+            <div class="clk-timer-header">
+                <span class="clk-timer-name">${name}</span>
+                <div class="clk-timer-display">${timeDisplay}</div>
             </div>
-            <div class="timer-display">
-                ${Math.floor(totalSeconds / 60)}:${(totalSeconds % 60).toString().padStart(2, '0')}
+            <div class="clk-timer-progress">
+                ${progressCircle}
             </div>
-            <div class="timer-controls">
-                <button class="start-timer">Start</button>
-                <button class="delete-timer">Delete</button>
+            <div class="clk-timer-controls">
+                <button class="clk-start-timer">Start</button>
+                <button class="clk-delete-timer">Delete</button>
             </div>
         `;
 
-        const activeTimers = this.contentArea.querySelector('.active-timers');
+        const activeTimers = this.contentArea.querySelector('.clk-active-timers');
         activeTimers.appendChild(timerContainer);
 
-        // Add event listeners
-        const startBtn = timerContainer.querySelector('.start-timer');
-        const deleteBtn = timerContainer.querySelector('.delete-timer');
+        const startBtn = timerContainer.querySelector('.clk-start-timer');
+        const deleteBtn = timerContainer.querySelector('.clk-delete-timer');
         
         startBtn.addEventListener('click', () => this.startTimer(id, timerContainer, totalSeconds));
         deleteBtn.addEventListener('click', () => {
@@ -269,34 +249,65 @@ export class Clock {
         });
     }
 
+    createProgressCircle() {
+        return `
+            <svg class="clk-progress-ring" width="120" height="120">
+                <circle class="clk-progress-ring-bg" cx="60" cy="60" r="54" />
+                <circle class="clk-progress-ring-circle" cx="60" cy="60" r="54" />
+            </svg>
+        `;
+    }
+
     startTimer(id, container, totalSeconds) {
-        if (this.timers.has(id)) {
-            return; // Timer already running
-        }
+        if (this.timers.has(id)) return;
 
-        const display = container.querySelector('.timer-display');
-        const startBtn = container.querySelector('.start-timer');
+        const display = container.querySelector('.clk-timer-display');
+        const startBtn = container.querySelector('.clk-start-timer');
+        const progressCircle = container.querySelector('.clk-progress-ring-circle');
+        const circumference = 2 * Math.PI * 54; // r=54 from SVG
+        
         startBtn.textContent = 'Stop';
-
         let timeLeft = totalSeconds;
-        this.updateTimerDisplay(display, timeLeft);
+        let startTime = Date.now();
+        const endTime = startTime + (totalSeconds * 1000);
 
-        const timer = setInterval(() => {
-            timeLeft--;
-            this.updateTimerDisplay(display, timeLeft);
-
+        const updateTimer = () => {
+            const now = Date.now();
+            timeLeft = Math.ceil((endTime - now) / 1000);
+            
             if (timeLeft <= 0) {
                 this.stopTimer(id);
                 startBtn.textContent = 'Start';
                 this.timerComplete(container);
+                return;
             }
-        }, 1000);
 
+            // Update display
+            display.textContent = this.formatTime(timeLeft * 1000);
+            
+            // Update progress circle
+            const progress = 1 - (timeLeft / totalSeconds);
+            const dashOffset = circumference * (1 - progress);
+            progressCircle.style.strokeDashoffset = dashOffset;
+
+            // Add pulse animation when near completion
+            if (timeLeft <= 5) {
+                container.classList.add('clk-timer-ending');
+            }
+        };
+
+        // Initial setup
+        progressCircle.style.strokeDasharray = circumference;
+        progressCircle.style.strokeDashoffset = circumference;
+        
+        // Start animation
+        const timer = setInterval(updateTimer, 50); // Smoother updates
         this.timers.set(id, timer);
 
         startBtn.onclick = () => {
             this.stopTimer(id);
             startBtn.textContent = 'Start';
+            container.classList.remove('clk-timer-ending');
             startBtn.onclick = () => this.startTimer(id, container, totalSeconds);
         };
     }
@@ -309,164 +320,300 @@ export class Clock {
         }
     }
 
-    updateTimerDisplay(display, timeLeft) {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        display.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-
     timerComplete(container) {
-        container.classList.add('timer-complete');
+        container.classList.add('clk-timer-complete');
+        this.playSound('timer');
         
-        // Play a beep sound using Web Audio API
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.value = 440; // A4 note
-        gainNode.gain.value = 0.1;
-        
-        oscillator.start();
-        setTimeout(() => oscillator.stop(), 500); // Beep for 500ms
-        
-        // Show completion message
+        // Show completion message with animation
         const message = document.createElement('div');
-        message.className = 'timer-complete-message';
-        message.textContent = 'Timer Complete!';
+        message.className = 'clk-timer-complete-message';
+        message.textContent = 'Time\'s Up!';
         container.appendChild(message);
 
         // Remove message and animation after 5 seconds
         setTimeout(() => {
-            container.classList.remove('timer-complete');
+            container.classList.remove('clk-timer-complete', 'clk-timer-ending');
             message.remove();
         }, 5000);
     }
 
-    getPresetName(seconds) {
-        switch(seconds) {
-            case 300: return "5 Minute Cleanup";
-            case 600: return "10 Minute Reading";
-            case 120: return "2 Minute Tooth Brushing";
-            default: return "Custom Timer";
-        }
-    }
+    // Alarm Methods
+// Sound system and alarm methods fixes
 
-    // Alarm methods
     createNewAlarm() {
-        const timeInput = this.contentArea.querySelector('.alarm-time');
-        const nameInput = this.contentArea.querySelector('.alarm-name');
+        const timeInput = this.contentArea.querySelector('.clk-alarm-time');
+        const nameInput = this.contentArea.querySelector('.clk-alarm-name');
+        const messageInput = this.contentArea.querySelector('.clk-alarm-message');
+        const soundSelect = this.contentArea.querySelector('.clk-alarm-sound');
         
         if (!timeInput.value) return;
-    
+
         const id = this.alarmIdCounter++;
         const alarmContainer = document.createElement('div');
-        alarmContainer.className = 'alarm-container';
+        alarmContainer.className = 'clk-alarm-container';
+        
+        // Get message or use default
+        const message = messageInput.value.trim() || 'Wake Up!';
+        
         alarmContainer.innerHTML = `
-            <div class="alarm-info">
-                <span class="alarm-name">${nameInput.value || 'Alarm'}</span>
-                <span class="alarm-time">${timeInput.value}</span>
+            <div class="clk-alarm-info">
+                <span class="clk-alarm-name">${nameInput.value || 'Alarm'}</span>
+                <span class="clk-alarm-time">${timeInput.value}</span>
+                <span class="clk-alarm-message-display">${message}</span>
+                <span class="clk-alarm-sound-type">${soundSelect.value}</span>
             </div>
-            <div class="alarm-controls">
-                <button class="toggle-alarm">Enable</button>
-                <button class="delete-alarm">Delete</button>
+            <div class="clk-alarm-controls">
+                <button class="clk-toggle-alarm">Enable</button>
+                <button class="clk-delete-alarm">Delete</button>
             </div>
         `;
-    
-        const activeAlarms = this.contentArea.querySelector('.active-alarms');
-        activeAlarms.classList.add('has-alarms'); // Show the container
+
+        const activeAlarms = this.contentArea.querySelector('.clk-active-alarms');
         activeAlarms.appendChild(alarmContainer);
-    
-        const toggleBtn = alarmContainer.querySelector('.toggle-alarm');
-        const deleteBtn = alarmContainer.querySelector('.delete-alarm');
+
+        // Store the alarm data
+        const alarmData = {
+            id,
+            time: timeInput.value,
+            name: nameInput.value || 'Alarm',
+            message: message,
+            sound: soundSelect.value,
+            container: alarmContainer,
+            interval: null
+        };
+
+        // Bind the event listeners
+        const toggleBtn = alarmContainer.querySelector('.clk-toggle-alarm');
+        const deleteBtn = alarmContainer.querySelector('.clk-delete-alarm');
         
-        toggleBtn.addEventListener('click', () => this.toggleAlarm(id, alarmContainer));
-        deleteBtn.addEventListener('click', () => {
-            this.stopAlarm(id);
-            alarmContainer.remove();
-            // Hide container if no alarms left
-            if (!activeAlarms.querySelector('.alarm-container')) {
-                activeAlarms.classList.remove('has-alarms');
-            }
+        toggleBtn.addEventListener('click', () => {
+            this.toggleAlarm(alarmData);
         });
-    
+
+        deleteBtn.addEventListener('click', () => {
+            this.deleteAlarm(alarmData);
+        });
+
         // Reset inputs
         timeInput.value = '';
         nameInput.value = '';
+        messageInput.value = '';
     }
 
-    toggleAlarm(id, container) {
-        const toggleBtn = container.querySelector('.toggle-alarm');
-        const timeDisplay = container.querySelector('.alarm-time').textContent;
+    toggleAlarm(alarmData) {
+        const toggleBtn = alarmData.container.querySelector('.clk-toggle-alarm');
         
-        if (this.alarms.has(id)) {
-            this.stopAlarm(id);
+        if (this.alarms.has(alarmData.id)) {
+            // Disable alarm
+            this.stopAlarm(alarmData.id);
             toggleBtn.textContent = 'Enable';
-            container.classList.remove('alarm-active');
+            alarmData.container.classList.remove('clk-alarm-active');
         } else {
-            const [hours, minutes] = timeDisplay.split(':');
+            // Enable alarm
+            const [hours, minutes] = alarmData.time.split(':');
             const alarmCheck = setInterval(() => {
                 const now = new Date();
                 if (now.getHours() === parseInt(hours) && now.getMinutes() === parseInt(minutes)) {
-                    this.alarmTriggered(container);
-                    this.stopAlarm(id);
-                    toggleBtn.textContent = 'Enable';
-                    container.classList.remove('alarm-active');
+                    this.alarmTriggered(alarmData);
                 }
             }, 1000);
 
-            this.alarms.set(id, alarmCheck);
+            alarmData.interval = alarmCheck;
+            this.alarms.set(alarmData.id, alarmData);
             toggleBtn.textContent = 'Disable';
-            container.classList.add('alarm-active');
+            alarmData.container.classList.add('clk-alarm-active');
         }
     }
 
+    deleteAlarm(alarmData) {
+        this.stopAlarm(alarmData.id);
+        alarmData.container.remove();
+    }
+
     stopAlarm(id) {
-        const alarm = this.alarms.get(id);
-        if (alarm) {
-            clearInterval(alarm);
+        const alarmData = this.alarms.get(id);
+        if (alarmData) {
+            clearInterval(alarmData.interval);
             this.alarms.delete(id);
         }
     }
 
-    alarmTriggered(container) {
-        container.classList.add('alarm-triggered');
+    alarmTriggered(alarmData) {
+        alarmData.container.classList.add('clk-alarm-triggered');
+        this.playSound(alarmData.sound);
         
-        // Play alarm sound
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        oscillator.type = 'square';
-        oscillator.frequency.value = 880; // A5 note
-        gainNode.gain.value = 0.1;
-        
-        oscillator.start();
-        setTimeout(() => oscillator.stop(), 1000); // Alarm sound for 1 second
-        
-        // Show alarm message
         const message = document.createElement('div');
-        message.className = 'alarm-triggered-message';
-        message.textContent = 'Alarm!';
-        container.appendChild(message);
-
-        // Remove message and animation after 5 seconds
+        message.className = 'clk-alarm-triggered-message';
+        message.textContent = alarmData.message;
+        alarmData.container.appendChild(message);
+    
         setTimeout(() => {
-            container.classList.remove('alarm-triggered');
+            alarmData.container.classList.remove('clk-alarm-triggered');
             message.remove();
         }, 5000);
     }
 
-    // Clock update method (already included in main class but adding here for completeness)
+    // Fixed sound system with more distinct sounds
+    playSound(type = 'beep') {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        switch(type) {
+            case 'birds':
+                this.playBirdSound(audioContext);
+                break;
+            case 'chime':
+                this.playChimeSound(audioContext);
+                break;
+            case 'bells':
+                this.playBellSound(audioContext);
+                break;
+            case 'space':
+                this.playSpaceSound(audioContext);
+                break;
+            default:
+                this.playBeepSound(audioContext);
+        }
+    }
+
+    playBeepSound(audioContext) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        
+        osc.start();
+        setTimeout(() => osc.stop(), 500);
+    }
+
+    playBirdSound(audioContext) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.type = 'sine';
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        
+        // Bird chirp pattern
+        for (let i = 0; i < 3; i++) {
+            const time = audioContext.currentTime + (i * 0.2);
+            osc.frequency.setValueAtTime(1200, time);
+            osc.frequency.exponentialRampToValueAtTime(900, time + 0.1);
+        }
+        
+        osc.start();
+        setTimeout(() => osc.stop(), 1000);
+    }
+
+    playChimeSound(audioContext) {
+        const notes = [523.25, 659.25, 783.99, 987.77];
+        const duration = 200;
+        
+        notes.forEach((note, index) => {
+            setTimeout(() => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(note, audioContext.currentTime);
+                gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                
+                osc.start();
+                setTimeout(() => osc.stop(), duration);
+            }, index * duration);
+        });
+    }
+
+    playBellSound(audioContext) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(440, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+        
+        osc.start();
+        setTimeout(() => osc.stop(), 1000);
+    }
+
+    playSpaceSound(audioContext) {
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(110, audioContext.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+        
+        osc.start();
+        setTimeout(() => osc.stop(), 500);
+    }
+
+    createBirdSound(oscillator, gainNode) {
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+        oscillator.frequency.linearRampToValueAtTime(440, audioContext.currentTime + 0.2);
+        oscillator.frequency.linearRampToValueAtTime(880, audioContext.currentTime + 0.4);
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 500);
+    }
+
+    createChimeSound(oscillator, gainNode) {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        let time = audioContext.currentTime;
+        notes.forEach((note, index) => {
+            oscillator.frequency.setValueAtTime(note, time + index * 0.2);
+        });
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), notes.length * 200);
+    }
+
+    createBellSound(oscillator, gainNode) {
+        oscillator.frequency.setValueAtTime(698.46, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 1000);
+    }
+
+    createSpaceSound(oscillator, gainNode) {
+        oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(20, audioContext.currentTime + 2);
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        oscillator.start();
+        setTimeout(() => oscillator.stop(), 2000);
+    }
+
+    // Utility Methods
+    formatTime(ms) {
+        if (ms < 0) ms = 0;
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        const centiseconds = Math.floor((ms % 1000) / 10);
+        
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+    }
+
     updateClock() {
-        const clockDisplay = this.contentArea.querySelector('.digital-clock');
-        const dateDisplay = this.contentArea.querySelector('.date-display');
+        const clockDisplay = this.contentArea.querySelector('.clk-digital-clock');
+        const dateDisplay = this.contentArea.querySelector('.clk-date-display');
         
         if (clockDisplay && dateDisplay) {
             const now = new Date();
@@ -478,5 +625,55 @@ export class Clock {
                 day: 'numeric' 
             });
         }
+    }
+
+    setupEventListeners() {
+        // Tab switching
+        const tabs = this.contentArea.querySelectorAll('.clk-tab-button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => this.switchTab(tab.dataset.tab));
+        });
+
+        // Timer controls
+        const newTimerBtn = this.contentArea.querySelector('.clk-new-timer-btn');
+        newTimerBtn?.addEventListener('click', () => {
+            const minutesInput = this.contentArea.querySelector('.clk-timer-minutes');
+            const secondsInput = this.contentArea.querySelector('.clk-timer-seconds');
+            const nameInput = this.contentArea.querySelector('.clk-timer-name');
+            
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            const name = nameInput.value || 'Timer';
+            
+            if (minutes > 0 || seconds > 0) {
+                this.createNewTimer(minutes * 60 + seconds, name);
+            }
+            
+            minutesInput.value = '';
+            secondsInput.value = '';
+            nameInput.value = '';
+        });
+
+        // Timer presets
+        const presetBtns = this.contentArea.querySelectorAll('.clk-timer-presets button');
+        presetBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const seconds = parseInt(btn.dataset.preset);
+                this.createNewTimer(seconds, btn.textContent);
+            });
+        });
+
+        // Stopwatch controls
+        const startBtn = this.contentArea.querySelector('.clk-start-btn');
+        const lapBtn = this.contentArea.querySelector('.clk-lap-btn');
+        const resetBtn = this.contentArea.querySelector('.clk-reset-btn');
+
+        startBtn?.addEventListener('click', () => this.toggleStopwatch());
+        lapBtn?.addEventListener('click', () => this.recordLap());
+        resetBtn?.addEventListener('click', () => this.resetStopwatch());
+
+        // Alarm controls
+        const newAlarmBtn = this.contentArea.querySelector('.clk-new-alarm-btn');
+        newAlarmBtn?.addEventListener('click', () => this.createNewAlarm());
     }
 }

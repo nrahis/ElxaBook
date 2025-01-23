@@ -781,16 +781,27 @@ class Paint {
         if (!this.currentDocument.path) {
             return this.saveDocumentAs();
         }
-
+    
         try {
             const imageData = this.elements.canvas.toDataURL('image/png');
-            await fileSystem.saveFile(
-                this.currentDocument.path,
-                this.currentDocument.name,
-                imageData,
-                'image'
+            const parentPath = this.getDirectoryPath(this.currentDocument.path);
+            // Get clean name without any extensions
+            const baseName = this.currentDocument.name.replace(/\.(png|txt|jpg|jpeg)$/g, '');
+            
+            const finalPath = await fileSystem.saveFile(
+                parentPath,  // Save directly to the parent path
+                baseName,    // Base name without extension
+                imageData,   // The image data
+                'image'      // Explicitly specify image type
             );
-
+    
+            // Update current document info with the new path
+            this.currentDocument = {
+                name: `${baseName}.png`,
+                path: finalPath,
+                content: imageData
+            };
+    
             this.modified = false;
             this.updateModifiedStatus();
             this.showSaveNotification();
@@ -799,39 +810,40 @@ class Paint {
             alert('Failed to save file: ' + error.message);
         }
     }
-
+    
     async saveDocumentAs() {
         try {
             const imageData = this.elements.canvas.toDataURL('image/png');
-            const defaultName = this.currentDocument.name || 'Untitled.png';
+            // Clean the default name
+            const defaultName = this.currentDocument.name.replace(/\.(png|txt|jpg|jpeg)$/g, '');
             
-            // Remove any existing extension before adding .png
-            const baseName = defaultName.replace(/\.[^/.]+$/, "");
-            const nameWithExt = baseName + '.png';
-    
             const saveDialog = new FileSaveDialog(
                 fileSystem,
                 imageData,
-                nameWithExt,
-                'image'
+                defaultName,
+                { type: 'image' }  // Pass type through options object
             );
     
             const result = await saveDialog.show({
                 defaultPath: this.defaultPath,
                 defaultExtension: '.png',
-                filters: ['.png'] // Add this to restrict to PNG files
+                filters: ['.png']
             });
     
             if (result) {
-                // Ensure the filename ends with .png
-                let finalFilename = result.filename;
-                if (!finalFilename.toLowerCase().endsWith('.png')) {
-                    finalFilename = finalFilename + '.png';
-                }
+                // Clean result filename
+                const baseName = result.filename.replace(/\.(png|txt|jpg|jpeg)$/g, '');
+                
+                const finalPath = await fileSystem.saveFile(
+                    result.path,     // The directory path
+                    baseName,        // Base name without extension
+                    imageData,       // The image data
+                    'image'         // Specify image type
+                );
     
                 this.currentDocument = {
-                    name: finalFilename,
-                    path: result.path,
+                    name: `${baseName}.png`,
+                    path: finalPath,
                     content: imageData
                 };
     
@@ -846,6 +858,11 @@ class Paint {
                 alert('Failed to save file: ' + error.message);
             }
         }
+    }
+    
+    // Helper method to get directory path
+    getDirectoryPath(fullPath) {
+        return fullPath.substring(0, fullPath.lastIndexOf('/'));
     }
 
     // UI Updates
@@ -898,10 +915,10 @@ class Paint {
 
     showAbout() {
         alert(
-            'Paint for ElxaOS\n\n' +
-            'Version 1.0\n' +
-            'A simple painting program for ElxaOS\n\n' +
-            '© 2025 Elxa Corporation'
+            `'Notepad for ${CONFIG.system.name}\n\n' +
+            '${CONFIG.system.fullVersion()}0\n' +
+            'A simple text editor for ${CONFIG.system.name}\n\n' +
+            '${CONFIG.system.copyright()}'`
         );
     }
 

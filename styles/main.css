@@ -306,6 +306,30 @@ body {
     height: 16px;
 }
 
+/* Clock stuff */
+.clock-context-menu {
+    font-family: var(--system-font);
+    font-size: 0.9em;
+}
+
+.clock-context-menu .menu-item {
+    padding: 6px 12px;
+    color: #441d57;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.clock-context-menu .menu-item:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.clock-context-menu .menu-separator {
+    height: 1px;
+    background-color: #b89fc7;
+    margin: 4px 6px;
+}
+
 .program-window,
 .window-content,
 .settings-container,
@@ -316,3 +340,138 @@ body {
 .start-menu-item {
     font-family: var(--system-font);
 }
+
+/* System tray */
+.system-tray {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 0 8px;
+    height: 100%;
+}
+
+.tray-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    color: #441d57;
+}
+
+.tray-icon:hover {
+    color: #2a1136;
+}
+
+/* Update the clock styling to work with system tray */
+#clock {
+    margin-left: 0; /* Remove auto margin since system-tray now handles spacing */
+}
+
+/* Battery */
+.battery-popup {
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    padding: 12px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.battery-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.big-battery-icon {
+    transform: scale(1.5);
+}
+
+.battery-percentage {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #441d57;
+}
+
+.battery-state {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.time-remaining {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.charge-button {
+    width: 100%;
+    padding: 6px;
+    background-color: #67c9dc;
+    border: 2px outset #8cd9e6;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.charge-button:hover {
+    background-color: #89d7e6;
+}
+
+.charge-button:active {
+    border-style: inset;
+}
+
+.battery-warning {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+}
+
+.battery-warning.critical {
+    background-color: #ffcccc;
+    border-color: #ff9999;
+}
+
+.warning-content {
+    text-align: center;
+}
+
+.warning-content h3 {
+    margin: 0 0 10px 0;
+    color: #441d57;
+}
+
+.warning-content p {
+    margin: 0 0 15px 0;
+    color: #666;
+}
+
+.warning-content button {
+    padding: 6px 20px;
+    background-color: #67c9dc;
+    border: 2px outset #8cd9e6;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.warning-content button:hover {
+    background-color: #89d7e6;
+}
+
+.warning-content button:active {
+    border-style: inset;
+}
+

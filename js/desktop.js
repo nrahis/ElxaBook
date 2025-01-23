@@ -208,10 +208,14 @@ export class Desktop {
             e.stopPropagation();
             this.handleIconContextMenu(e, icon);
         });
-    
+
         // Add to desktop
         iconsContainer.appendChild(icon);
         this.desktopIcons.set(name, icon);
+        
+        // Make the icon draggable - Add this line
+        this.makeIconDraggable(icon);
+        
         console.log(`Icon ${name} created and added to desktop`);
         return icon;
     }

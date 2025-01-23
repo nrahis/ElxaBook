@@ -4,6 +4,68 @@ export class FileOpenDialog {
         this.currentPath = `/ElxaOS/Users/${fileSystem.currentUsername}/Documents`;
         this.dialog = null;
         this.selectedFile = null;
+        this.allowedTypes = null; // Add this to store allowed file types
+    }
+
+    setFileTypes(types) {
+        this.allowedTypes = types;
+    }
+
+    populateFiles() {
+        const fileList = this.dialog.querySelector('.file-list');
+        fileList.innerHTML = '';
+        
+        const contents = this.fileSystem.getFolderContents(this.currentPath);
+        
+        // Add folders first
+        contents.folders.forEach(folder => {
+            const folderElement = document.createElement('div');
+            folderElement.className = 'file-item folder';
+            folderElement.innerHTML = `<span class="folder-icon">📁</span> ${folder.name}`;
+            folderElement.addEventListener('click', () => this.navigateTo(folder.fullPath));
+            fileList.appendChild(folderElement);
+        });
+
+        // Then add files that match the allowed types
+        contents.files.forEach(file => {
+            // If allowedTypes is set, check if file matches any allowed type
+            // If no allowedTypes set, show all files (original behavior)
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const shouldShow = !this.allowedTypes || 
+                             this.allowedTypes.includes(fileExtension) ||
+                             this.allowedTypes.includes(file.type);
+
+            if (shouldShow) {
+                const fileElement = document.createElement('div');
+                fileElement.className = 'file-item file';
+                fileElement.innerHTML = `<span class="file-icon">📄</span> ${file.name}`;
+                
+                // Handle file selection
+                fileElement.addEventListener('click', (event) => {
+                    // Deselect any previously selected file
+                    fileList.querySelectorAll('.file-item.selected').forEach(el => 
+                        el.classList.remove('selected'));
+                    
+                    // Select this file
+                    fileElement.classList.add('selected');
+                    this.selectedFile = file;
+                    
+                    // Enable open button
+                    this.dialog.querySelector('.open-button').disabled = false;
+                });
+
+                // Handle double-click to open
+                fileElement.addEventListener('dblclick', () => {
+                    this.selectedFile = file;
+                    this.handleOpen(
+                        this.currentResolve, 
+                        this.currentReject
+                    );
+                });
+
+                fileList.appendChild(fileElement);
+            }
+        });
     }
 
     show() {
@@ -73,10 +135,17 @@ export class FileOpenDialog {
             folderElement.addEventListener('click', () => this.navigateTo(folder.fullPath));
             fileList.appendChild(folderElement);
         });
-
-        // Then add text files
+    
+        // Then add files
         contents.files.forEach(file => {
-            if (file.type === 'text') {  // Only show text files
+            // If allowedTypes is set, check if file matches any allowed type
+            // If no allowedTypes set, show all files
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            const shouldShow = !this.allowedTypes || 
+                             this.allowedTypes.includes(fileExtension) ||
+                             this.allowedTypes.includes(file.type);
+    
+            if (shouldShow) {
                 const fileElement = document.createElement('div');
                 fileElement.className = 'file-item file';
                 fileElement.innerHTML = `<span class="file-icon">📄</span> ${file.name}`;
@@ -94,7 +163,7 @@ export class FileOpenDialog {
                     // Enable open button
                     this.dialog.querySelector('.open-button').disabled = false;
                 });
-
+    
                 // Handle double-click to open
                 fileElement.addEventListener('dblclick', () => {
                     this.selectedFile = file;
@@ -103,7 +172,7 @@ export class FileOpenDialog {
                         this.currentReject
                     );
                 });
-
+    
                 fileList.appendChild(fileElement);
             }
         });

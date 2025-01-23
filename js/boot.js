@@ -1,6 +1,7 @@
 import { UserManager } from './user_manager.js';
 import { FileSystem } from './storage.js';
 import { AvatarManager } from './avatar_manager.js'; // Add this import
+import { CONFIG } from './config.js';
 
 class BootSequence {
     constructor() {
@@ -27,15 +28,15 @@ class BootSequence {
         this.selectedUser = 'kitkat'; // Default user
 
         this.bootMessages = [
-            "Initializing core systems...",
-            "Loading ElxaOS kernel...",
+            `Initializing ${CONFIG.system.name} core systems...`,
+            `Loading ${CONFIG.system.name} kernel...`,
             "Activating quantum processors...",
             "Charging rainbow crystals...",
             "Synchronizing dream modules...",
             "Calibrating vaporwave frequencies...",
             "Loading cute protocols...",
             "Preparing digital happiness...",
-            "Starting ElxaOS services..."
+            `Starting ${CONFIG.system.name} services...`
         ];
 
         this.wrongPasswordMessages = [

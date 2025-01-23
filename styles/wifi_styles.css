@@ -1,0 +1,254 @@
+/* wifi_styles.css */
+
+.wifi-popup {
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    padding: 12px;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    min-width: 300px;
+    font-family: var(--system-font);
+}
+
+.wifi-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #b89fc7;
+    font-weight: bold;
+    color: #441d57;
+}
+
+/* Toggle switch styles */
+.wifi-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.wifi-toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #b89fc7;
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.wifi-toggle input:checked + .toggle-slider {
+    background-color: #67c9dc;
+}
+
+.wifi-toggle input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+}
+
+/* Networks list styles */
+.networks-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.network-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-bottom: 4px;
+}
+
+.network-item:hover {
+    background-color: #b89fc7;
+    color: white;
+}
+
+.network-item.connected {
+    background-color: #67c9dc;
+    color: white;
+}
+
+.network-info {
+    flex-grow: 1;
+}
+
+.network-name {
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.network-status {
+    font-size: 0.8em;
+    opacity: 0.8;
+}
+
+.signal-strength {
+    margin: 0 8px;
+    font-size: 0.8em;
+    letter-spacing: -1px;
+}
+
+.lock-icon {
+    font-size: 0.9em;
+    margin-left: 4px;
+}
+
+.network-action {
+    width: 100%;
+    padding: 8px;
+    background-color: #67c9dc;
+    border: 2px outset #8cd9e6;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.network-action:hover {
+    background-color: #89d7e6;
+}
+
+.network-action:active {
+    border-style: inset;
+}
+
+/* Password prompt styles */
+.wifi-password-prompt {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #d5bde6;
+    border: 2px outset #f0d9ff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    z-index: 1001;
+    text-align: center;
+    min-width: 300px; /* Add this line */
+    width: 90%;       /* Add this line */
+    max-width: 400px; /* Add this line */
+}
+
+.wifi-password-prompt h3 {
+    margin: 0 0 15px 0;
+    color: #441d57;
+}
+
+.network-password-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #b89fc7;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.password-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.password-buttons button {
+    padding: 6px 20px;
+    background-color: #67c9dc;
+    border: 2px outset #8cd9e6;
+    color: white;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.password-buttons button:hover {
+    background-color: #89d7e6;
+}
+
+.password-buttons button:active {
+    border-style: inset;
+}
+
+.password-buttons .cancel-btn {
+    background-color: #b89fc7;
+    border-color: #d5bde6;
+}
+
+.password-buttons .cancel-btn:hover {
+    background-color: #c7b3d6;
+}
+
+/* Network status */
+.network-item .network-status {
+    font-size: 0.8em;
+    opacity: 0.8;
+    transition: all 0.3s;
+}
+
+.network-item.connecting {
+    background-color: #e0d0f0;
+}
+
+.network-item.connecting .network-status {
+    color: #67c9dc;
+    font-style: italic;
+}
+
+/* Add to wifi_styles.css */
+.custom-tag {
+    font-size: 0.8em;
+    color: #67c9dc;
+    margin-left: 4px;
+}
+
+.delete-network {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 4px;
+    border-radius: 4px;
+}
+
+.delete-network:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #ff4444;
+}
+
+.security-toggle {
+    margin: 10px 0;
+    text-align: left;
+}
+
+.network-name-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #b89fc7;
+    border-radius: 4px;
+    font-family: inherit;
+}

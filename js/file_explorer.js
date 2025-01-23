@@ -773,6 +773,17 @@ export class FileExplorer {
         const item = document.createElement('div');
         item.className = 'file-item';
         item.dataset.name = name;
+        
+        // Determine the correct type for files
+        if (type !== 'folder' && type !== 'program') {
+            // Check file extension
+            if (name.toLowerCase().endsWith('.png') || 
+                name.toLowerCase().endsWith('.jpg') || 
+                name.toLowerCase().endsWith('.jpeg')) {
+                type = 'image';
+            }
+        }
+        
         item.dataset.type = type;
         item.dataset.path = this.fileSystem.joinPaths(this.currentPath, name);
         
@@ -911,7 +922,9 @@ export class FileExplorer {
             case 'paint':
                 this.windowManager.createWindow('paint', { file });
                 break;
-            // Add more file type handlers as needed
+            case 'image':  // Add this new case for image files
+                this.windowManager.createWindow('paint', { file });
+                break;
         }
     }
 

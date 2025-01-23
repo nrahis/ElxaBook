@@ -1,21 +1,23 @@
-/* clock.css */
-.clock-app {
+/* Base Layout & Theme */
+.clk-app {
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #d5bde6;
+    background-color: #f0d9ff;
     font-family: var(--system-font);
+    color: #441d57;
 }
 
 /* Tabs */
-.clock-tabs {
+.clk-tabs {
     display: flex;
-    background-color: #d5bde6;
-    padding: 4px 4px 0;
-    border-bottom: 1px solid #441d57;
+    background: linear-gradient(to right, #e6d4f2, #d5bde6);
+    border-bottom: 1px solid #b89fc7;
+    padding: 2px;
+    gap: 4px;
 }
 
-.tab-button {
+.clk-tab-button {
     padding: 4px 12px;
     margin-right: 2px;
     background-color: #e6d4f2;
@@ -24,190 +26,389 @@
     cursor: pointer;
     color: #441d57;
     font-size: 12px;
+    transition: all 0.2s ease;
 }
 
-.tab-button:hover {
+.clk-tab-button:hover {
     background-color: #f0d9ff;
+    transform: translateY(-1px);
 }
 
-.tab-button.active {
-    background-color: #d5bde6;
+.clk-tab-button.active {
+    background-color: #f0d9ff;
     position: relative;
     z-index: 1;
     margin-bottom: -1px;
-    border-bottom: 1px solid #d5bde6;
+    border-bottom: 1px solid #f0d9ff;
 }
 
-.tab-content {
+/* Content Area */
+.clk-content {
     flex: 1;
     padding: 15px;
-    background-color: #d5bde6;
+    background-color: #f0d9ff;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-.tab-pane {
+.clk-tab-pane {
     display: none;
-    background-color: #d5bde6;
+    flex: 1;
+    background-color: #f0d9ff;
     padding: 10px;
 }
 
-.tab-pane.active {
-    display: block;
+.clk-tab-pane.active {
+    display: flex;
+    flex-direction: column;
+    animation: fadeIn 0.3s ease-out;
 }
 
 /* Clock Display */
-.digital-clock {
-    font-size: 48px;
-    font-weight: bold;
-    text-align: center;
-    color: #441d57;
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
-    font-family: "Courier New", monospace;
+.clk-time-display {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
-.date-display {
-    text-align: center;
-    font-size: 16px;
+.clk-digital-clock {
+    font-size: 72px;
+    font-weight: bold;
     color: #441d57;
-    margin-bottom: 20px;
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border: 2px solid #b89fc7;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.clk-digital-clock:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.clk-date-display {
+    font-size: 24px;
+    color: #441d57;
+    text-align: center;
     padding: 10px;
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
+    background-color: white;
+    border: 2px solid #b89fc7;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 /* Timer Styles */
-.new-timer-form {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 15px;
-}
-
-.new-timer-form input {
-    padding: 4px;
-    border: 2px inset #b89fc7;
-    width: 100px;
+.clk-timer-container {
     background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
-.timer-container {
-    background-color: #f0d9ff;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 2px outset #b89fc7;
+.clk-timer-progress {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 10px 0;
 }
 
-.timer-presets button,
-.new-timer-btn,
-.timer-container button {
-    padding: 4px 8px;
-    background-color: #d5bde6;
-    border: 2px outset #b89fc7;
-    color: #441d57;
-    cursor: pointer;
+.clk-progress-ring {
+    transform: rotate(-90deg);
+    transition: all 0.3s ease;
 }
 
-.timer-presets button:active,
-.new-timer-btn:active,
-.timer-container button:active {
-    border-style: inset;
+.clk-progress-ring-bg {
+    fill: none;
+    stroke: #e6d4f2;
+    stroke-width: 8;
+}
+
+.clk-progress-ring-circle {
+    fill: none;
+    stroke: #441d57;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.1s ease;
+}
+
+.clk-timer-display {
+    font-size: 36px;
+    font-family: "Courier New", monospace;
+    text-align: center;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+/* Timer Animation States */
+.clk-timer-ending {
+    animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+.clk-timer-complete {
+    animation: celebrate 0.5s ease-in-out;
+}
+
+.clk-timer-complete-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #441d57;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 24px;
+    animation: popIn 0.3s ease-out;
 }
 
 /* Stopwatch Styles */
-.stopwatch-display {
-    font-size: 40px;
-    font-weight: bold;
-    text-align: center;
-    color: #441d57;
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
-    font-family: "Courier New", monospace;
-}
-
-.stopwatch-controls {
+.clk-stopwatch {
+    flex: 1;
     display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
-.stopwatch-controls button {
-    padding: 6px 12px;
+.clk-stopwatch-display {
+    font-size: 64px;
+    font-weight: bold;
+    color: #441d57;
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border: 2px solid #b89fc7;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    min-width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.clk-stopwatch-controls button {
+    padding: 10px 20px;
+    font-size: 16px;
     background-color: #d5bde6;
-    border: 2px outset #b89fc7;
+    border: 2px solid #b89fc7;
+    border-radius: 4px;
     color: #441d57;
     cursor: pointer;
     min-width: 80px;
+    transition: all 0.2s ease;
 }
 
-.stopwatch-controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+.clk-stopwatch-controls button:hover:not(:disabled) {
+    background-color: #441d57;
+    color: white;
+    transform: translateY(-2px);
 }
 
-.stopwatch-controls button:active:not(:disabled) {
-    border-style: inset;
+.clk-stopwatch-controls button.active {
+    background-color: #441d57;
+    color: white;
+    animation: buttonPulse 2s infinite;
 }
 
-.lap-times {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
+/* Lap Times */
+.clk-lap-times {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    border-radius: 8px;
     padding: 10px;
-    max-height: 200px;
-    overflow-y: auto;
+    margin-top: 20px;
 }
 
-.lap-time {
-    padding: 4px;
-    border-bottom: 1px solid #b89fc7;
+.clk-lap-time {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    border-bottom: 1px solid #e6d4f2;
     font-family: "Courier New", monospace;
+    animation: slideIn 0.3s ease-out;
 }
 
 /* Alarm Styles */
-.new-alarm-form {
-    display: flex;
-    gap: 5px;
-    margin-bottom: 15px;
-}
-
-.new-alarm-form input {
-    padding: 4px;
-    border: 2px inset #b89fc7;
+.clk-alarm-container {
     background-color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-.active-alarms {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
-    padding: 10px;
+.clk-alarm-container.clk-alarm-triggered {
+    animation: shake 0.5s ease-in-out;
+    background-color: #441d57;
+    color: white;
 }
 
-/* Hide lap times container by default */
-.lap-times {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
-    padding: 10px;
-    max-height: 200px;
-    overflow-y: auto;
-    display: none; /* Hide by default */
+.clk-alarm-message {
+    width: 150px;
 }
 
-.lap-times.has-laps {
-    display: block; /* Show when has-laps class is added */
+.clk-alarm-message-display {
+    font-style: italic;
+    color: #67378f;
+    margin-left: 10px;
 }
 
-/* Hide alarm container by default */
-.active-alarms {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
-    padding: 10px;
-    display: none; /* Hide by default */
+.clk-alarm-triggered-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #441d57;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 25px;
+    font-size: 24px;
+    animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.active-alarms.has-alarms {
-    display: block; /* Show when has-alarms class is added */
+@keyframes bounceIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.02); }
+}
+
+@keyframes celebrate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0); }
+    50% { transform: translate(-50%, -50%) scale(1.2); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes buttonPulse {
+    0% { box-shadow: 0 0 0 0 rgba(68, 29, 87, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(68, 29, 87, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(68, 29, 87, 0); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Input Styles */
+.clk-app input {
+    padding: 8px;
+    border: 2px solid #b89fc7;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.clk-app input:focus {
+    border-color: #441d57;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(68, 29, 87, 0.2);
+}
+
+/* Button Styles */
+.clk-app button:not(.clk-tab-button) {
+    padding: 8px 16px;
+    background-color: #d5bde6;
+    border: 2px solid #b89fc7;
+    border-radius: 4px;
+    color: #441d57;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clk-app button:not(.clk-tab-button):hover:not(:disabled) {
+    background-color: #441d57;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.clk-app button:not(.clk-tab-button):active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Presets Section */
+.clk-timer-presets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.clk-preset-btn {
+    font-size: 14px;
+    height: 40px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 500px) {
+    .clk-digital-clock {
+        font-size: 48px;
+    }
+    
+    .clk-stopwatch-display {
+        font-size: 40px;
+    }
+    
+    .clk-timer-presets {
+        grid-template-columns: 1fr;
+    }
 }

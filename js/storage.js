@@ -585,31 +585,47 @@ export class FileSystem {
 
     // File operations
     saveFile(path, name, content, type = 'text', additionalProps = {}) {
-        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        const fullPath = this.joinPaths(path, name);
+        console.log('=== SaveFile Debug ===');
+        console.log('Input parameters:', { path, name, type });
+        console.log('Content type:', typeof content);
+        console.log('Content starts with:', content.substring(0, 50) + '...');
         
-        // Determine file extension based on type
-        let finalName = name;
-        if (type === 'text' && !name.toLowerCase().endsWith('.txt')) {
-            finalName = name + '.txt';
-        } else if (type === 'image' && !name.toLowerCase().endsWith('.png')) {
-            finalName = name + '.png';
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        
+        // Clean the name first
+        const cleanName = name.replace(/\.(png|txt|jpg|jpeg|odp)$/g, '');
+        
+        // Determine the final type and extension
+        let finalType = type;
+        let finalName;
+        
+        if (type === 'image' || content.startsWith('data:image')) {
+            finalType = 'image';
+            finalName = `${cleanName}.png`;
+        } else if (type === 'slideshow') {
+            finalType = 'slideshow';
+            finalName = `${cleanName}.odp`;
+        } else {
+            finalType = 'text';
+            finalName = `${cleanName}.txt`;
         }
         
-        const fullPathWithExt = this.joinPaths(path, finalName);
+        // Create full path
+        const fullPath = this.joinPaths(path, finalName);
+        console.log('Full path:', fullPath);
         
-        files[fullPathWithExt] = {
+        files[fullPath] = {
             name: finalName,
             content,
-            type,
+            type: finalType,
             path,
-            created: files[fullPathWithExt]?.created || new Date().toISOString(),
+            created: files[fullPath]?.created || new Date().toISOString(),
             modified: new Date().toISOString(),
             ...additionalProps
         };
     
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
-        return fullPathWithExt;
+        return fullPath;
     }
 
     getFile(path) {

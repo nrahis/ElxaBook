@@ -2,6 +2,8 @@
 import { FileExplorer } from './file_explorer.js';
 import { WindowManager } from './windows.js';
 import { TaskBar } from './taskbar.js';
+import { SystemTray } from './system_tray.js';
+import { WiFiSystem } from './wifi_system.js';
 import { Desktop } from './desktop.js';
 import { fileSystem } from './storage.js';
 import { Paint } from './apps/system/paint.js';
@@ -25,15 +27,6 @@ import { FileSaveDialog } from './dialogs/file_save_dialog.js';
 // Declare these in module scope so they can be exported
 let windowManager;
 let taskbar;
-
-// Initialize clock
-function updateClock() {
-    const clockDisplay = document.getElementById('clock');
-    const now = new Date();
-    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const date = now.toLocaleDateString();
-    clockDisplay.textContent = `${time} ${date}`;
-}
 
 // Wait for DOM to be ready before doing anything
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize core systems
     windowManager.initialize();
     taskbar.initialize();
+    const systemTray = new SystemTray();
+    systemTray.initialize();
+    window.elxaWifiSystem = systemTray.wifi
 
     // Create file explorer instance with shared file system
     const fileExplorer = new FileExplorer(window.elxaFileSystem, windowManager);
@@ -203,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('slideshow', {
         title: 'Slideshow',
         initialize: (contentArea) => slideshow.initialize(contentArea),
-        defaultSize: { width: 750, height: 600 }
+        defaultSize: { width: 1000, height: 600 }
     });
 
     windowManager.registerApp('settings', {
@@ -221,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('duck', {
         title: 'DUCK Terminal',
         initialize: (contentArea) => {
-            const duck = new Duck();
+            const duck = new Duck(window.elxaWifiSystem);  // Pass the WiFi system
             duck.initialize(contentArea);
         },
         defaultSize: { width: 700, height: 500 }
@@ -250,10 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
     }
-
-    // Start clock updates
-    updateClock();
-    setInterval(updateClock, 1000);
 
     // Close start menu when clicking outside
     document.addEventListener('click', (e) => {

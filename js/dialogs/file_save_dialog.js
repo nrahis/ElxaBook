@@ -1,10 +1,11 @@
 export class FileSaveDialog {
-    constructor(fileSystem, initialContent, defaultFileName = '') {
+    constructor(fileSystem, initialContent, defaultFileName = '', options = {}) {
         this.fileSystem = fileSystem;
         this.content = initialContent;
         this.currentPath = `/ElxaOS/Users/${fileSystem.currentUsername}/Documents`;
         this.dialog = null;
         this.defaultFileName = defaultFileName;
+        this.type = options.type || 'text'; // Use options object and provide default
     }
 
     show() {
@@ -125,27 +126,16 @@ export class FileSaveDialog {
             return;
         }
 
-        // Add .txt extension if not present
-        const finalFilename = filename.endsWith('.txt') ? filename : `${filename}.txt`;
-        
         try {
-            // Check if file already exists
-            const fullPath = this.fileSystem.joinPaths(this.currentPath, finalFilename);
-            if (this.fileSystem.fileExists(fullPath)) {
-                if (!confirm(`"${finalFilename}" already exists. Do you want to replace it?`)) {
-                    return;
-                }
-            }
-            
             const savedPath = this.fileSystem.saveFile(
                 this.currentPath,
-                finalFilename,
+                filename,  // Pass the raw filename
                 this.content,
-                'text'
+                this.type  // Use the stored type
             );
             
             this.dialog.remove();
-            resolve({ path: savedPath, filename: finalFilename });
+            resolve({ path: savedPath, filename: filename });
         } catch (error) {
             alert(`Error saving file: ${error.message}`);
             reject(error);
