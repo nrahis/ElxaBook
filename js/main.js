@@ -23,6 +23,7 @@ import { Settings } from './settings.js';
 import { RecycleBinHandler } from './recycle-bin-handler.js';
 import { FileOpenDialog } from './dialogs/file_open_dialog.js';
 import { FileSaveDialog } from './dialogs/file_save_dialog.js';
+import { CONFIG } from './apps/system/config.js'
 
 // Declare these in module scope so they can be exported
 let windowManager;

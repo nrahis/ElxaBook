@@ -1,6 +1,7 @@
 import { fileSystem } from '../../storage.js';
 import { FileOpenDialog } from '../../dialogs/file_open_dialog.js';
 import { FileSaveDialog } from '../../dialogs/file_save_dialog.js';
+import { CONFIG } from './config.js'
 
 class Notepad {
     constructor(fileSystem) {

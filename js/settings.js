@@ -1,6 +1,7 @@
 // settings.js
 import { UserManager } from './user_manager.js';
 import { AvatarManager } from './avatar_manager.js';
+import { CONFIG } from './apps/system/config.js'
 
 export class Settings {
     constructor(fileSystem) {

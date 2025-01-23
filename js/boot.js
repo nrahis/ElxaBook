@@ -1,7 +1,7 @@
 import { UserManager } from './user_manager.js';
 import { FileSystem } from './storage.js';
 import { AvatarManager } from './avatar_manager.js'; // Add this import
-import { CONFIG } from './config.js';
+import { CONFIG } from './apps/system/config.js';
 
 class BootSequence {
     constructor() {
