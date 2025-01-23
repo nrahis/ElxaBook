@@ -6,6 +6,8 @@ import { CONFIG } from './apps/system/config.js'
 export class Settings {
     constructor(fileSystem) {
         this.fileSystem = fileSystem;
+        this.themes = {};
+        this.loadThemes();
         this.avatarManager = new AvatarManager();
         this.currentTab = 'display'; // Default tab
         
@@ -113,33 +115,45 @@ export class Settings {
     }
 
     renderPersonalizationPanel() {
-        // Log available fonts for debugging
-        console.log('Available fonts:', this.systemFonts);
         return `
             <div class="settings-panel">
                 <div class="settings-group">
-                    <h3>Theme Colors</h3>
-                    <label>Primary Color:</label>
-                    <input type="color" id="primaryColor" value="#a267ac">
+                    <h3>Theme</h3>
+                    <select id="themeSelect" class="settings-select">
+                        ${Object.values(this.themes).map(theme => 
+                            `<option value="${theme.id}">${theme.name}</option>`
+                        ).join('')}
+                    </select>
                     
-                    <label>Accent Color:</label>
-                    <input type="color" id="accentColor" value="#67c9dc">
+                    <div class="theme-preview">
+                        <div class="preview-window">
+                            <div class="preview-titlebar" style="background: var(--titlebar-gradient)">
+                                Theme Preview
+                            </div>
+                            <div class="preview-content" style="background: var(--bg-light)">
+                                <button class="preview-button" style="background: var(--button-gradient)">
+                                    Sample Button
+                                </button>
+                                <div class="preview-text" style="color: var(--purple-dark)">
+                                    Sample Text
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
+
                 <div class="settings-group">
                     <h3>System Font</h3>
                     <select id="systemFont">
-                        ${this.systemFonts.map(font => {
-                            console.log('Creating option for font:', font.name, font.value); // Debug log
-                            return `<option value='${font.value}'>${font.name}</option>`;
-                        }).join('')}
+                        ${this.systemFonts.map(font => 
+                            `<option value='${font.value}'>${font.name}</option>`
+                        ).join('')}
                     </select>
-                    <div id="fontPreview" style="margin-top: 10px; padding: 10px; border: 1px solid #b89fc7;">
+                    <div id="fontPreview">
                         The quick brown fox jumps over the lazy dog
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     }
 
     renderUsersPanel() {
@@ -505,6 +519,20 @@ export class Settings {
             });
         }
 
+        // Add theme selection handler
+        const themeSelect = this.contentArea.querySelector('#themeSelect');
+        if (themeSelect) {
+            themeSelect.addEventListener('change', (e) => {
+                this.applyTheme(e.target.value);
+                
+                // Update the preview immediately
+                const preview = this.contentArea.querySelector('.theme-preview');
+                if (preview) {
+                    preview.style.setProperty('--theme-preview-scale', '1');
+                }
+            });
+        }
+
         // Footer buttons
         const applyButton = this.contentArea.querySelector('#settings-apply');
         const okButton = this.contentArea.querySelector('#settings-ok');
@@ -540,6 +568,74 @@ export class Settings {
             selectedTab.classList.add('active');
             selectedPanel.classList.add('active');
         }
+    }
+
+    async loadThemes() {
+        try {
+            // First load the list of themes
+            const themesList = await fetch('/assets/themes/themes.json')
+                .then(response => response.json())
+                .then(data => data.themeFiles);
+            
+            this.themes = {};
+    
+            // Load each theme file
+            for (const themeFile of themesList) {
+                try {
+                    const theme = await fetch(`/assets/themes/${themeFile}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Failed to load theme: ${themeFile}`);
+                            }
+                            return response.json();
+                        });
+                    
+                    const themeKey = themeFile.replace('.json', '');
+                    this.themes[themeKey] = theme;
+                } catch (error) {
+                    console.error(`Error loading theme ${themeFile}:`, error);
+                }
+            }
+    
+            console.log('Loaded themes:', this.themes); // Debug log
+    
+            // Update the theme select if it exists
+            const themeSelect = this.contentArea?.querySelector('#themeSelect');
+            if (themeSelect) {
+                themeSelect.innerHTML = Object.values(this.themes)
+                    .map(theme => `<option value="${theme.id}">${theme.name}</option>`)
+                    .join('');
+                    
+                // Select the default theme
+                themeSelect.value = 'default';
+                this.applyTheme('default');
+            }
+        } catch (error) {
+            console.error('Failed to load themes:', error);
+            this.themes = {};
+        }
+    }
+
+    applyTheme(themeId) {
+        const theme = this.themes[themeId];
+        if (!theme) return;
+
+        const root = document.documentElement;
+        
+        // Apply all color variables
+        Object.entries(theme.colors).forEach(([variable, value]) => {
+            root.style.setProperty(variable, value);
+        });
+
+        // Apply gradients
+        Object.entries(theme.gradients).forEach(([variable, value]) => {
+            root.style.setProperty(variable, value);
+        });
+
+        // Apply transparent colors
+        Object.entries(theme.transparentColors).forEach(([variable, value]) => {
+            root.style.setProperty(variable, value);
+        });
     }
 
     updateBackgroundPreview(value) {

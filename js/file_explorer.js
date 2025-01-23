@@ -289,8 +289,13 @@ export class FileExplorer {
         
         item.classList.add('dragging');
         
-        // Store the original path
-        e.dataTransfer.setData('text/plain', item.dataset.path);
+        // Set the full path as the drag data
+        const fullPath = this.fileSystem.joinPaths(this.currentPath, item.dataset.name);
+        console.log('Setting drag data path:', fullPath);
+        e.dataTransfer.setData('text/plain', fullPath);
+        
+        // Also set the type and other relevant data
+        e.dataTransfer.setData('application/x-file-type', item.dataset.type);
     }
     
     handleDragEnd(e, item) {
@@ -773,43 +778,114 @@ export class FileExplorer {
         const item = document.createElement('div');
         item.className = 'file-item';
         item.dataset.name = name;
+        item.dataset.type = type;
         
-        // Determine the correct type for files
-        if (type !== 'folder' && type !== 'program') {
-            // Check file extension
-            if (name.toLowerCase().endsWith('.png') || 
-                name.toLowerCase().endsWith('.jpg') || 
-                name.toLowerCase().endsWith('.jpeg')) {
-                type = 'image';
+        let iconCategory = 'file';
+        let iconType = 'default';
+    
+        // Determine the correct icon category and type
+        if (type === 'folder') {
+            iconCategory = 'folder';
+            
+            // Check for special system folders
+            if (fileInfo?.type === 'system') {
+                if (name === 'System') iconType = 'system';
+                else if (name === 'Documents') iconType = 'documents';
+                else if (name === 'Pictures') iconType = 'pictures';
+                else if (name === 'Music') iconType = 'music';
+                else if (name === 'Downloads') iconType = 'downloads';
+                else if (name === 'Recycle Bin') iconType = 'recycle';
+                else iconType = 'default';
+            } else {
+                // Check for user folders
+                if (name === 'Documents') iconType = 'documents';
+                else if (name === 'Pictures') iconType = 'pictures';
+                else if (name === 'Music') iconType = 'music';
+                else if (name === 'Downloads') iconType = 'downloads';
+                else iconType = 'default';
+            }
+        } else {
+            // File type determination
+            const lowerName = name.toLowerCase();
+            
+            if (type === 'program' || fileInfo?.type === 'program') {
+                iconCategory = 'program';
+                iconType = fileInfo; // Pass the entire fileInfo for program icons
+            } else if (lowerName.endsWith('.txt')) {
+                iconCategory = 'file';
+                iconType = 'txt';
+            } else if (lowerName.endsWith('.png') || lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg')) {
+                iconCategory = 'file';
+                iconType = 'image';
+            } else if (lowerName.endsWith('.odp')) {
+                iconCategory = 'file';
+                iconType = 'slideshow';
+            } else if (lowerName.endsWith('.lnk')) {
+                try {
+                    if (fileInfo && fileInfo.content) {
+                        const shortcutData = JSON.parse(fileInfo.content);
+                        
+                        // First check if this is a default item with explicit icon information
+                        if (shortcutData.iconType && shortcutData.iconCategory) {
+                            iconCategory = shortcutData.iconCategory;
+                            iconType = shortcutData.iconType;
+                        } else {
+                            // Fall back to target resolution
+                            const targetInfo = shortcutData.type === 'folder' ?
+                                this.fileSystem.getFolderInfo(shortcutData.targetPath) :
+                                this.fileSystem.getFile(shortcutData.targetPath);
+                            
+                            if (targetInfo) {
+                                if (targetInfo.type === 'program') {
+                                    iconCategory = 'program';
+                                    iconType = targetInfo;
+                                } else {
+                                    iconCategory = targetInfo.type === 'folder' ? 'folder' : 'file';
+                                    iconType = shortcutData.type || targetInfo.type;
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Error determining shortcut icon:', error);
+                }
             }
         }
-        
-        item.dataset.type = type;
-        item.dataset.path = this.fileSystem.joinPaths(this.currentPath, name);
-        
+    
+        // Create icon with determined category and type
+        const icon = IconSet.getIcon(iconCategory, iconType);
+        icon.className = 'file-icon';
+    
         // Don't make items in Recycle Bin draggable
         item.draggable = !this.recycleBinHandler.isInRecycleBin(this.currentPath);
     
-        // Skip if this is a metadata file in Recycle Bin
+        // Skip metadata files in Recycle Bin
         if (name.endsWith('.metadata') && this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
             return null;
         }
     
-        // Create icon and label
-        let iconCategory = type === 'folder' ? 'folder' : 
-                          type === 'program' ? 'program' : 'file';
-        
-        const icon = IconSet.getIcon(iconCategory, fileInfo);
-        icon.className = 'file-icon';
-    
+        // Create label
         const label = document.createElement('div');
         label.className = 'file-label';
-        label.textContent = name;
+        
+        // Hide .lnk extension in display
+        let displayName = name;
+        if (name.toLowerCase().endsWith('.lnk')) {
+            displayName = name.slice(0, -4);
+            
+            // Add shortcut overlay to icon
+            const shortcutOverlay = document.createElement('div');
+            shortcutOverlay.className = 'shortcut-overlay';
+            shortcutOverlay.innerHTML = '↗';
+            icon.appendChild(shortcutOverlay);
+        }
+        
+        label.textContent = displayName;
     
         item.appendChild(icon);
         item.appendChild(label);
     
-        // Only set up drag and drop if not in Recycle Bin
+        // Setup drag and drop if not in Recycle Bin
         if (!this.recycleBinHandler.isInRecycleBin(this.currentPath)) {
             this.setupDragAndDrop(item);
         }
@@ -818,9 +894,7 @@ export class FileExplorer {
         if (this.viewMode === 'details') {
             const modified = fileInfo?.modified ? 
                 new Date(fileInfo.modified).toLocaleString() : '';
-            const typeLabel = type === 'folder' ? 'File Folder' : 
-                             type === 'program' ? 'Application' :
-                             fileInfo?.type?.toUpperCase() + ' File' || 'File';
+            const typeLabel = this.getTypeLabel(type, name, fileInfo);
             const size = type === 'folder' ? '' : 
                         fileInfo?.size ? this.formatFileSize(fileInfo.size) : '';
     
@@ -842,7 +916,17 @@ export class FileExplorer {
         }
     
         return item;
-    }  
+    }
+    
+    // Helper method for getting type labels
+    getTypeLabel(type, name, fileInfo) {
+        if (type === 'folder') return 'File Folder';
+        if (type === 'program' || fileInfo?.type === 'program') return 'Application';
+        if (name.endsWith('.lnk')) return 'Shortcut';
+        if (name.endsWith('.txt')) return 'Text Document';
+        if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg')) return 'Image';
+        return fileInfo?.type?.toUpperCase() + ' File' || 'File';
+    }
     
     // Add this helper method for formatting file sizes
     formatFileSize(bytes) {
@@ -871,8 +955,40 @@ export class FileExplorer {
             return;
         }
     
+        // If it's a shortcut, handle it differently
+        if (name.endsWith('.lnk')) {
+            const fullPath = this.fileSystem.joinPaths(this.currentPath, name);
+            const shortcutFile = this.fileSystem.getFile(fullPath);
+            if (shortcutFile && shortcutFile.content) {
+                try {
+                    const shortcutData = JSON.parse(shortcutFile.content);
+                    const targetPath = shortcutData.targetPath;
+                    const targetType = shortcutData.type;
+    
+                    if (targetType === 'folder') {
+                        this.navigateTo(targetPath);
+                    } else if (targetType === 'program') {
+                        const targetInfo = this.fileSystem.getFile(targetPath);
+                        if (targetInfo && targetInfo.program) {
+                            this.windowManager.createWindow(targetInfo.program);
+                        }
+                    } else {
+                        const targetFile = this.fileSystem.getFile(targetPath);
+                        if (targetFile) {
+                            this.openFile(targetFile.name, targetFile.type);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error opening shortcut:', error);
+                }
+            }
+            return;
+        }
+    
+        // Handle regular files and folders
         if (type === 'folder') {
-            this.navigateTo(this.fileSystem.joinPaths(this.currentPath, name));
+            const newPath = this.fileSystem.joinPaths(this.currentPath, name);
+            this.navigateTo(newPath);
         } else {
             this.openFile(name, type);
         }
@@ -910,21 +1026,41 @@ export class FileExplorer {
         const path = this.fileSystem.joinPaths(this.currentPath, name);
         const file = this.fileSystem.getFile(path);
     
-        switch (type) {
-            case 'program':
-                if (file && file.program) {
-                    this.windowManager.createWindow(file.program);
-                }
-                break;
-            case 'text':
+        // Extract file extension
+        const extension = name.toLowerCase().split('.').pop();
+    
+        switch (extension) {
+            case 'txt':
+            case 'rtf':
                 this.windowManager.createWindow('notepad', { file });
                 break;
-            case 'paint':
+            case 'png':
+            case 'jpg':
+            case 'jpeg':
                 this.windowManager.createWindow('paint', { file });
                 break;
-            case 'image':  // Add this new case for image files
-                this.windowManager.createWindow('paint', { file });
+            case 'odp':
+                this.windowManager.createWindow('slideshow', { file });
                 break;
+            default:
+                // Handle based on type for backwards compatibility
+                switch (type) {
+                    case 'program':
+                        if (file && file.program) {
+                            this.windowManager.createWindow(file.program);
+                        }
+                        break;
+                    case 'text':
+                        this.windowManager.createWindow('notepad', { file });
+                        break;
+                    case 'paint':
+                    case 'image':
+                        this.windowManager.createWindow('paint', { file });
+                        break;
+                    case 'slideshow':
+                        this.windowManager.createWindow('slideshow', { file });
+                        break;
+                }
         }
     }
 

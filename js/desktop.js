@@ -55,6 +55,9 @@ export class Desktop {
     initialize() {
         console.log('Initializing desktop...');
         
+        // First, sync default items with Desktop folder
+        this.syncDefaultDesktopItems();
+        
         // First, remove any existing desktop-icons containers
         const existingContainers = this.desktopArea.querySelectorAll('#desktop-icons');
         existingContainers.forEach(container => container.remove());
@@ -62,6 +65,10 @@ export class Desktop {
         // Create fresh desktop icons container
         const iconsContainer = document.createElement('div');
         iconsContainer.id = 'desktop-icons';
+        iconsContainer.style.display = 'grid';
+        iconsContainer.style.gridTemplateColumns = 'repeat(auto-fill, 100px)';
+        iconsContainer.style.gridGap = '10px';
+        iconsContainer.style.padding = '10px';
         this.desktopArea.appendChild(iconsContainer);
     
         // Wait for WindowManager to be ready
@@ -125,9 +132,288 @@ export class Desktop {
             }
         });
     
+        // Get current user's desktop contents
+        const currentUser = this.fileSystem.currentUsername;
+        const desktopPath = `/ElxaOS/Users/${currentUser}/Desktop`;
+        const desktopContents = this.fileSystem.getFolderContents(desktopPath);
+    
+        // Restore ALL shortcuts from the Desktop folder
+        desktopContents.files.forEach(file => {
+            if (file.name.endsWith('.lnk')) {
+                try {
+                    const shortcutData = JSON.parse(file.content);
+                    const baseName = file.name.replace('.lnk', '');
+                    
+                    // Skip if we already created this icon
+                    if (!this.desktopIcons.has(baseName)) {
+                        const position = savedPositions[baseName] || this.findNextAvailablePosition();
+                        
+                        const icon = this.createDesktopIcon(
+                            baseName,
+                            shortcutData.iconCategory || (shortcutData.type === 'folder' ? 'folder' : 'file'),
+                            shortcutData.iconType || shortcutData.type,
+                            position
+                        );
+
+                        if (icon) {
+                            icon.dataset.targetPath = shortcutData.targetPath;
+                            
+                            // Add shortcut overlay if it's not a default icon
+                            if (!shortcutData.isDefault) {
+                                const iconElement = icon.querySelector('.file-icon');
+                                if (iconElement) {
+                                    const shortcutOverlay = document.createElement('div');
+                                    shortcutOverlay.className = 'shortcut-overlay';
+                                    shortcutOverlay.innerHTML = '↗';
+                                    iconElement.appendChild(shortcutOverlay);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Failed to restore shortcut: ${file.name}`, error);
+                }
+            }
+        });
+    
+        // Set up event listeners and drop target
         this.setupEventListeners();
+        this.setupDesktopDropTarget();
+    
         console.log('Desktop initialization complete with WindowManager:', 
             { apps: Array.from(this.windowManager.apps.keys()) });
+    }
+    
+    // Add helper method to find next available position
+    findNextAvailablePosition() {
+        const occupiedPositions = new Set();
+        
+        // Collect all current positions
+        this.desktopIcons.forEach(icon => {
+            const column = parseInt(window.getComputedStyle(icon).gridColumnStart) || 1;
+            const row = parseInt(window.getComputedStyle(icon).gridRowStart) || 1;
+            occupiedPositions.add(`${column},${row}`);
+        });
+    
+        // Calculate maximum rows based on desktop height
+        const desktopRect = this.desktopArea.getBoundingClientRect();
+        const maxRows = Math.floor((desktopRect.height - 40) / this.gridSize);
+    
+        // Find first available position
+        let column = 1;
+        let row = 1;
+        
+        while (occupiedPositions.has(`${column},${row}`)) {
+            row++;
+            if (row > maxRows) {
+                row = 1;
+                column++;
+            }
+        }
+    
+        return { column, row };
+    }
+
+    syncDefaultDesktopItems() {
+        // Get current user's desktop path
+        const currentUser = this.fileSystem.currentUsername;
+        const desktopPath = `/ElxaOS/Users/${currentUser}/Desktop`;
+        
+        // Create Map to store existing shortcuts
+        const existingShortcuts = new Map();
+        
+        // Get all existing shortcuts from the Desktop folder
+        const contents = this.fileSystem.getFolderContents(desktopPath);
+        if (contents && contents.files) {
+            contents.files.forEach(file => {
+                if (file.name.endsWith('.lnk')) {
+                    try {
+                        const shortcutData = JSON.parse(file.content);
+                        existingShortcuts.set(file.name, shortcutData);
+                    } catch (error) {
+                        console.error('Error parsing shortcut:', error);
+                    }
+                }
+            });
+        }
+        
+        // Default items with their target paths, icon types and categories
+        const defaultItems = [
+            { 
+                name: 'Computer', 
+                targetPath: '/ElxaOS', 
+                type: 'computer', 
+                category: 'system',
+                position: { column: 1, row: 1 }
+            },
+            { 
+                name: 'Recycle Bin', 
+                targetPath: '/ElxaOS/Recycle Bin', 
+                type: 'recycle', 
+                category: 'folder',
+                position: { column: 1, row: 2 }
+            },
+            { 
+                name: 'Documents', 
+                targetPath: `/ElxaOS/Users/${currentUser}/Documents`, 
+                type: 'documents', 
+                category: 'folder',
+                position: { column: 1, row: 3 }
+            },
+            { 
+                name: 'Pictures', 
+                targetPath: `/ElxaOS/Users/${currentUser}/Pictures`, 
+                type: 'pictures', 
+                category: 'folder',
+                position: { column: 1, row: 4 }
+            },
+            { 
+                name: 'Music', 
+                targetPath: `/ElxaOS/Users/${currentUser}/Music`, 
+                type: 'music', 
+                category: 'folder',
+                position: { column: 1, row: 5 }
+            },
+            { 
+                name: 'Downloads', 
+                targetPath: `/ElxaOS/Users/${currentUser}/Downloads`, 
+                type: 'downloads', 
+                category: 'folder',
+                position: { column: 2, row: 1 }
+            }
+        ];
+        
+        // Create shortcuts in Desktop folder for default items
+        defaultItems.forEach(item => {
+            const shortcutPath = this.fileSystem.joinPaths(desktopPath, `${item.name}.lnk`);
+            const shortcutContent = JSON.stringify({
+                targetPath: item.targetPath,
+                type: item.type,
+                category: item.category,
+                isDefault: true,
+                position: item.position,
+                iconType: item.type,
+                iconCategory: item.category
+            });
+    
+            // Create or update default shortcuts
+            this.fileSystem.saveFile(
+                desktopPath,
+                `${item.name}.lnk`,
+                shortcutContent,
+                'shortcut',
+                {
+                    isDefault: true,
+                    iconType: item.type,
+                    iconCategory: item.category
+                }
+            );
+        });
+        
+        // Preserve all non-default shortcuts
+        existingShortcuts.forEach((shortcutData, fileName) => {
+            if (!shortcutData.isDefault) {
+                const shortcutPath = this.fileSystem.joinPaths(desktopPath, fileName);
+                // Only recreate if it doesn't exist
+                if (!this.fileSystem.fileExists(shortcutPath)) {
+                    this.fileSystem.saveFile(
+                        desktopPath,
+                        fileName,
+                        JSON.stringify({
+                            ...shortcutData,
+                            isDefault: false
+                        }),
+                        'shortcut'
+                    );
+                }
+            }
+        });
+    }
+
+    setupDesktopDropTarget() {
+        const desktopArea = document.getElementById('desktop-area');
+        
+        desktopArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Add visual feedback
+            if (!e.target.closest('.desktop-icon')) {
+                desktopArea.classList.add('drag-over');
+            }
+        });
+    
+        desktopArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!e.target.closest('.desktop-icon')) {
+                desktopArea.classList.remove('drag-over');
+            }
+        });
+    
+        desktopArea.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            desktopArea.classList.remove('drag-over');
+            
+            // Get the dragged path from the data transfer
+            const sourcePath = e.dataTransfer.getData('text/plain');
+            console.log('Drop received with source path:', sourcePath);
+            
+            if (!sourcePath) {
+                console.error('No source path provided in drag data');
+                return;
+            }
+    
+            // Get file/folder information
+            let sourceInfo = this.fileSystem.getFile(sourcePath);
+            if (!sourceInfo) {
+                sourceInfo = this.fileSystem.getFolderInfo(sourcePath);
+            }
+            
+            if (!sourceInfo) {
+                console.error('Source info not found for path:', sourcePath);
+                console.log('Current file system state:', {
+                    path: sourcePath,
+                    files: JSON.parse(localStorage.getItem('elxaos_files')),
+                    folders: JSON.parse(localStorage.getItem('elxaos_folders'))
+                });
+                return;
+            }
+    
+            console.log('Drop source info:', sourceInfo);
+    
+            // Don't allow dropping protected items
+            if (sourceInfo.isProtected) {
+                alert('Protected items cannot be moved to the desktop');
+                return;
+            }
+    
+            try {
+                // Create shortcut on desktop
+                const name = sourcePath.split('/').pop();
+                const type = sourceInfo.type === 'folder' ? 'folder' : 
+                            sourceInfo.type === 'program' ? 'program' : 'file';
+                
+                await this.createShortcut(sourcePath, name, type);
+                console.log('Shortcut created successfully');
+            } catch (error) {
+                console.error('Failed to create desktop shortcut:', error);
+                alert('Unable to create desktop shortcut: ' + error.message);
+            }
+        });
+    }
+    
+    // Also add a helper method to validate paths
+    validatePath(path) {
+        if (!path) return false;
+        
+        // Check if path exists in either files or folders
+        const fileExists = this.fileSystem.getFile(path) !== null;
+        const folderExists = this.fileSystem.getFolderInfo(path) !== null;
+        
+        return fileExists || folderExists;
     }
 
     setupEventListeners() {
@@ -156,20 +442,59 @@ export class Desktop {
             this.desktopArea.appendChild(iconsContainer);
         }
         
+        // In createDesktopIcon method in Desktop.js
+        let iconCategory = category;
+        let iconType = type;
+
+        // Create the basic icon element
         const icon = document.createElement('div');
         icon.className = 'desktop-icon';
         icon.dataset.name = name;
         icon.dataset.type = type;
+
+        // If it's a shortcut, determine the proper icon type
+        if (name.endsWith('.lnk')) {
+            try {
+                const fullPath = this.fileSystem.joinPaths(this.currentPath, name);
+                const shortcutFile = this.fileSystem.getFile(fullPath);
+                if (shortcutFile && shortcutFile.content) {
+                    const shortcutData = JSON.parse(shortcutFile.content);
+                    const targetInfo = shortcutData.type === 'folder' ?
+                        this.fileSystem.getFolderInfo(shortcutData.targetPath) :
+                        this.fileSystem.getFile(shortcutData.targetPath);
+                    
+                    if (targetInfo) {
+                        if (targetInfo.type === 'program') {
+                            iconCategory = 'program';
+                            iconType = targetInfo;  // Pass the whole file info for program icons
+                        } else {
+                            iconCategory = targetInfo.type === 'folder' ? 'folder' : 'file';
+                            iconType = targetInfo.type;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn('Error determining shortcut icon:', error);
+            }
+        }
+
+        // Create icon image with determined category and type
+        const iconElement = IconSet.getIcon(iconCategory, iconType);
+        iconElement.style.pointerEvents = 'none';
         
-        // Create icon image
-        const iconElement = IconSet.getIcon(category, type);
-        iconElement.style.pointerEvents = 'none';  // Ensure clicks go to parent
-        
-        // Create label
+        // Create label - strip .lnk extension for display
         const label = document.createElement('div');
         label.className = 'icon-label';
-        label.textContent = name;
-        label.style.pointerEvents = 'none';  // Ensure clicks go to parent
+        label.textContent = name.replace(/\.lnk$/, '');
+        label.style.pointerEvents = 'none';
+        
+        // Add shortcut overlay if it's a shortcut
+        if (name.endsWith('.lnk')) {
+            const shortcutOverlay = document.createElement('div');
+            shortcutOverlay.className = 'shortcut-overlay';
+            shortcutOverlay.innerHTML = '↗';
+            iconElement.appendChild(shortcutOverlay);
+        }
         
         // Assemble icon
         icon.appendChild(iconElement);
@@ -182,7 +507,7 @@ export class Desktop {
         icon.style.gridColumn = position.column;
         icon.style.gridRow = position.row;
     
-        // Explicitly handle double-click
+        // Add event listeners (rest of the method remains the same...)
         let clickTimeout = null;
         let clickCount = 0;
     
@@ -198,7 +523,7 @@ export class Desktop {
             } else if (clickCount === 2) {
                 clearTimeout(clickTimeout);
                 clickCount = 0;
-                this.handleIconDoubleClick(name);
+                this.handleIconDoubleClick(name.replace(/\.lnk$/, ''));
             }
         });
     
@@ -208,15 +533,12 @@ export class Desktop {
             e.stopPropagation();
             this.handleIconContextMenu(e, icon);
         });
-
+    
         // Add to desktop
         iconsContainer.appendChild(icon);
-        this.desktopIcons.set(name, icon);
-        
-        // Make the icon draggable - Add this line
-        this.makeIconDraggable(icon);
-        
+        this.desktopIcons.set(name.replace(/\.lnk$/, ''), icon);
         console.log(`Icon ${name} created and added to desktop`);
+        this.makeIconDraggable(icon);
         return icon;
     }
     
@@ -454,77 +776,60 @@ export class Desktop {
         }
     }
 
-// In the Desktop class, update the createShortcut method:
-
     createShortcut(targetPath, name, type) {
         console.log('Creating desktop shortcut for:', {targetPath, name, type});
         
-        // Ensure we have the desktop area
-        if (!this.desktopArea) {
-            console.error('Desktop area not found');
-            throw new Error('Desktop area not initialized');
-        }
+        // Get the target's file/folder info
+        const targetInfo = this.fileSystem.getFile(targetPath) || 
+                          this.fileSystem.getFolderInfo(targetPath);
         
-        // Ensure we have a container for icons
-        let iconsContainer = document.getElementById('desktop-icons');
-        if (!iconsContainer) {
-            console.log('Creating new desktop-icons container');
-            iconsContainer = document.createElement('div');
-            iconsContainer.id = 'desktop-icons';
-            this.desktopArea.appendChild(iconsContainer);
+        if (!targetInfo) {
+            console.error('Target info not found for:', targetPath);
+            console.log('Attempted path:', targetPath);
+            console.log('File system state:', {
+                files: JSON.parse(localStorage.getItem('elxaos_files')),
+                folders: JSON.parse(localStorage.getItem('elxaos_folders'))
+            });
+            throw new Error('Target not found');
         }
-        
-        // Generate a unique shortcut name
+    
+        // Rest of the createShortcut method remains the same...
         let shortcutName = `${name} - Shortcut`;
         let counter = 1;
         while (this.desktopIcons.has(shortcutName)) {
             shortcutName = `${name} - Shortcut (${counter})`;
             counter++;
         }
-        
-        // Calculate maximum available rows based on desktop area height
-        const desktopRect = this.desktopArea.getBoundingClientRect();
-        const maxRows = Math.floor((desktopRect.height - 40) / this.gridSize); // Subtract some padding and account for taskbar
+    
+        // Determine proper icon category and type
+        let iconCategory, iconType;
+    
+        if (targetInfo.type === 'program') {
+            iconCategory = 'program';
+            iconType = targetInfo;  // Pass the whole program info
+        } else if (type === 'folder' || targetInfo.type === 'folder') {
+            iconCategory = 'folder';
+            // Check for special system folders
+            if (targetInfo.name === 'Documents') iconType = 'documents';
+            else if (targetInfo.name === 'Pictures') iconType = 'pictures';
+            else if (targetInfo.name === 'Music') iconType = 'music';
+            else if (targetInfo.name === 'Downloads') iconType = 'downloads';
+            else if (targetInfo.name === 'Recycle Bin') iconType = 'recycle';
+            else iconType = 'default';
+        } else {
+            iconCategory = 'file';
+            iconType = targetInfo.type || 'default';
+        }
         
         // Find first available position
-        let position = { column: 1, row: 1 };
-        const occupiedPositions = new Set();
-        
-        this.desktopIcons.forEach((icon) => {
-            if (icon && icon.style) {
-                const col = parseInt(window.getComputedStyle(icon).gridColumnStart) || 1;
-                const row = parseInt(window.getComputedStyle(icon).gridRowStart) || 1;
-                occupiedPositions.add(`${col},${row}`);
-            }
-        });
-        
-        // Find next available position within grid boundaries
-        let foundPosition = false;
-        while (!foundPosition) {
-            if (!occupiedPositions.has(`${position.column},${position.row}`)) {
-                if (position.row <= maxRows) {
-                    foundPosition = true;
-                } else {
-                    // Move to next column if we exceed maximum rows
-                    position.column++;
-                    position.row = 1;
-                }
-            } else {
-                position.row++;
-                if (position.row > maxRows) {
-                    position.row = 1;
-                    position.column++;
-                }
-            }
-        }
-
-        // Rest of the createShortcut method remains the same...
+        const position = this.findNextAvailablePosition();
+    
         try {
-            // Create shortcut icon
+            // Create desktop icon
             const shortcutIcon = this.createDesktopIcon(
                 shortcutName,
-                type === 'folder' ? 'folder' : 'file',
-                type,
+                iconCategory,
+                iconType,
                 position
             );
             
@@ -553,26 +858,30 @@ export class Desktop {
                 `${shortcutName}.lnk`,
                 JSON.stringify({
                     targetPath: targetPath,
-                    type: type
+                    type: targetInfo.type,
+                    category: iconCategory,
+                    program: targetInfo.program, // Include program info
+                    iconType: iconType,
+                    iconCategory: iconCategory
                 }),
                 'shortcut'
             );
-
+    
             // Add to desktop icons map
             this.desktopIcons.set(shortcutName, shortcutIcon);
             
-            console.log('Successfully created shortcut:', shortcutName);
-
+            // Save icon position
             const iconPositions = this.loadIconPositions();
             iconPositions[shortcutName] = {
                 column: position.column,
                 row: position.row,
                 isShortcut: true,
                 targetPath: targetPath,
-                iconType: type
+                iconType: iconType,
+                category: iconCategory
             };
             this.saveIconPositions(iconPositions);
-
+    
             return shortcutIcon;
         } catch (error) {
             console.error('Error in createShortcut:', error);
@@ -590,6 +899,31 @@ export class Desktop {
     
         console.log('Available apps:', Array.from(this.windowManager.apps.keys()));
         
+        // First check if this is a shortcut by looking for the target path in the icon's dataset
+        const icon = this.desktopIcons.get(name);
+        if (icon && icon.dataset.targetPath) {
+            console.log('Opening shortcut with target path:', icon.dataset.targetPath);
+            
+            // Get the file info to determine the type
+            const fileInfo = this.fileSystem.getFile(icon.dataset.targetPath) || 
+                            this.fileSystem.getFolderInfo(icon.dataset.targetPath);
+            
+            if (fileInfo) {
+                if (fileInfo.type === 'program') {
+                    // For program shortcuts
+                    this.windowManager.createWindow(fileInfo.program);
+                } else if (fileInfo.type === 'folder' || icon.dataset.type === 'folder') {
+                    // For folder shortcuts
+                    this.windowManager.createWindow('folder', { path: icon.dataset.targetPath });
+                } else {
+                    // For file shortcuts
+                    this.windowManager.createWindow('notepad', { file: fileInfo });
+                }
+            }
+            return;
+        }
+        
+        // Handle default system folders as before
         const currentUser = this.fileSystem.currentUsername;
         const paths = {
             'Computer': '/ElxaOS',
@@ -874,12 +1208,39 @@ export class Desktop {
             case 'open':
                 this.handleIconDoubleClick(iconName);
                 break;
+                
+            case 'delete':
+                // Get current user's desktop path
+                const currentUser = this.fileSystem.currentUsername;
+                const desktopPath = `/ElxaOS/Users/${currentUser}/Desktop`;
+                const shortcutPath = `${desktopPath}/${iconName}.lnk`;
+                
+                try {
+                    // Move the shortcut file to Recycle Bin
+                    this.recycleBinHandler.moveToRecycleBin(shortcutPath);
+                    
+                    // Remove the icon from desktop
+                    const icon = this.desktopIcons.get(iconName);
+                    if (icon) {
+                        icon.remove();
+                        this.desktopIcons.delete(iconName);
+                    }
+                    
+                    // Update saved icon positions
+                    const iconPositions = this.loadIconPositions();
+                    delete iconPositions[iconName];
+                    this.saveIconPositions(iconPositions);
+                    
+                } catch (error) {
+                    console.error('Failed to delete shortcut:', error);
+                    alert('Failed to delete shortcut: ' + error.message);
+                }
+                break;
+                
             case 'rename':
                 // TODO: Implement rename
                 break;
-            case 'delete':
-                // TODO: Implement delete
-                break;
+                
             // Add other actions as needed
         }
     }

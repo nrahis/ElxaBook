@@ -2,8 +2,8 @@
 
 /* Users List */
 .users-list {
-    background: white;
-    border: 1px solid #b89fc7;
+    background: var(--text-light);
+    border: 1px solid var(--border-light);
     margin-bottom: 20px;
     max-height: 400px;
     overflow-y: auto;
@@ -13,8 +13,8 @@
     display: flex;
     align-items: center;
     padding: 12px;
-    border-bottom: 1px solid #b89fc7;
-    background: white;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--text-light);
     transition: background-color 0.2s;
 }
 
@@ -23,11 +23,11 @@
 }
 
 .user-item:hover {
-    background-color: rgba(213, 189, 230, 0.2);
+    background-color: var(--bg-dark-transparent);
 }
 
 .user-item.current {
-    background-color: rgba(213, 189, 230, 0.3);
+    background-color: var(--bg-mid-transparent);
 }
 
 .user-avatar {
@@ -35,7 +35,7 @@
     height: 48px;
     border-radius: 50%;
     margin-right: 16px;
-    border: 2px solid #b89fc7;
+    border: 2px solid var(--border-light);
     padding: 2px;
 }
 
@@ -47,13 +47,13 @@
 }
 
 .user-name {
-    color: #441d57;
+    color: var(--start-menu-text);
     font-weight: bold;
     font-size: 14px;
 }
 
 .user-type {
-    color: #8b6b9c;
+    color: var(--start-menu-text);
     font-size: 12px;
 }
 
@@ -65,9 +65,9 @@
 
 .user-action-btn {
     padding: 4px 12px;
-    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
-    border: 1px solid #b89fc7;
-    color: #441d57;
+    background: linear-gradient(to bottom, var(--bg-lightest), var(--bg-light));
+    border: 1px solid var(--border-light);
+    color: var(--start-menu-text);
     cursor: pointer;
     font-size: 12px;
     border-radius: 2px;
@@ -75,11 +75,11 @@
 }
 
 .user-action-btn:hover {
-    background: linear-gradient(to bottom, #e6d4f2, #d5bde6);
+    background: linear-gradient(to bottom, var(--bg-light), var(--bg-mid));
 }
 
 .user-action-btn:active {
-    background: #d5bde6;
+    background: var(--bg-mid);
     border-style: inset;
 }
 
@@ -98,15 +98,15 @@
 }
 
 .dialog-content {
-    background: #e6d4f2;
-    border: 2px solid #b89fc7;
+    background: var(--bg-light);
+    border: 2px solid var(--border-light);
     padding: 20px;
     min-width: 300px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .dialog-content h3 {
-    color: #441d57;
+    color: var(--accent-text);
     margin: 0 0 20px 0;
     font-size: 16px;
     text-align: center;
@@ -120,23 +120,23 @@
 }
 
 .dialog-form label {
-    color: #441d57;
+    color: var(--accent-text);
     font-size: 12px;
     margin-bottom: 4px;
 }
 
 .dialog-input {
     padding: 6px 8px;
-    border: 2px inset #f0d9ff;
-    background: white;
-    color: #441d57;
+    border: 2px inset var(--bg-lightest);
+    background: var(--text-light);
+    color: var(--accent-text);
     font-size: 14px;
     width: 100%;
 }
 
 .dialog-input:focus {
     outline: none;
-    border-color: #a267ac;
+    border-color: var(--purple-main);
 }
 
 .dialog-buttons {
@@ -147,21 +147,21 @@
 
 .dialog-buttons button {
     padding: 6px 16px;
-    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
-    border: 2px outset #f0d9ff;
-    color: #441d57;
+    background: linear-gradient(to bottom, var(--bg-lightest), var(--bg-light));
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-menu-text);
     cursor: pointer;
     min-width: 80px;
     font-size: 12px;
 }
 
 .dialog-buttons button:hover {
-    background: linear-gradient(to bottom, #e6d4f2, #d5bde6);
+    background: linear-gradient(to bottom, var(--bg-light), var(--bg-mid));
 }
 
 .dialog-buttons button:active {
     border-style: inset;
-    background: #d5bde6;
+    background: var(--bg-mid);
 }
 
 /* Add some animation */
@@ -186,34 +186,34 @@
 }
 
 .users-list::-webkit-scrollbar-track {
-    background: #f0d9ff;
-    border-left: 1px solid #b89fc7;
+    background: var(--bg-lightest);
+    border-left: 1px solid var(--border-light);
 }
 
 .users-list::-webkit-scrollbar-thumb {
-    background-color: #b89fc7;
-    border: 3px solid #f0d9ff;
+    background-color: var(--border-light);
+    border: 3px solid var(--bg-lightest);
     border-radius: 8px;
 }
 
 .users-list::-webkit-scrollbar-thumb:hover {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
 }
 
 /* Firefox scrollbar */
 .users-list {
     scrollbar-width: thin;
-    scrollbar-color: #b89fc7 #f0d9ff;
+    scrollbar-color: var(--border-light) var(--bg-lightest);
 }
 
 /* Error States */
 .dialog-input.error {
-    border-color: #ff71ce;
+    border-color: var(--accent-pink);
     background-color: rgba(255, 113, 206, 0.1);
 }
 
 .error-message {
-    color: #ff71ce;
+    color: var(--accent-pink);
     font-size: 12px;
     margin-top: 4px;
 }

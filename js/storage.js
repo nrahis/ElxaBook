@@ -1,4 +1,5 @@
 // storage.js - Enhanced file system with hierarchical structure
+import { StorageManager } from './storage/storage_manager.js'; 
 
 export class FileSystem {
     constructor() {
@@ -7,8 +8,15 @@ export class FileSystem {
         this.FOLDERS_KEY = 'elxaos_folders';
         this.currentUsername = 'kitkat'; // Set initial user
         
+        // Initialize StorageManager
+        this.storageManager = new StorageManager();
+        
         // Initialize the file system if it doesn't exist
         this.initializeFileSystem();
+    }
+
+    exists(path) {
+        return this.fileExists(path) || this.folderExists(path);
     }
 
     setCurrentUser(username) {
@@ -95,6 +103,15 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
+                '/ElxaOS/Users/kitkat/Desktop': {
+                    name: 'Desktop',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'user',
+                    isProtected: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
                 '/ElxaOS/Users/kitkat/Documents': {
                     name: 'Documents',
                     path: '/ElxaOS/Users/kitkat',
@@ -153,8 +170,8 @@ export class FileSystem {
     
             // Update the system files to be protected
             const defaultFiles = {
-                '/ElxaOS/System/Paint.abbi': {
-                    name: 'Paint.abbi',
+                '/ElxaOS/System/Paint': {
+                    name: 'Paint',
                     type: 'program',
                     program: 'paint',
                     path: '/ElxaOS/System',
@@ -162,8 +179,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Notepad.abbi': {
-                    name: 'Notepad.abbi',
+                '/ElxaOS/System/Notepad': {
+                    name: 'Notepad',
                     type: 'program',
                     program: 'notepad',
                     path: '/ElxaOS/System',
@@ -171,8 +188,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Kittysweeper.abbi': {
-                    name: 'Kittysweeper.abbi',
+                '/ElxaOS/System/Kittysweeper': {
+                    name: 'Kittysweeper',
                     type: 'program',
                     program: 'minesweeper',
                     path: '/ElxaOS/System',
@@ -180,8 +197,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Solitaire.abbi': {
-                    name: 'Solitaire.abbi',
+                '/ElxaOS/System/Solitaire': {
+                    name: 'Solitaire',
                     type: 'program',
                     program: 'solitaire',
                     path: '/ElxaOS/System',
@@ -189,8 +206,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/DUCK.abbi': {
-                    name: 'DUCK.abbi',
+                '/ElxaOS/System/DUCK.abby': {
+                    name: 'DUCK.abby',
                     type: 'program',
                     program: 'duck',
                     path: '/ElxaOS/System',
@@ -198,8 +215,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Settings.abbi': {
-                    name: 'Settings.abbi',
+                '/ElxaOS/System/Settings': {
+                    name: 'Settings',
                     type: 'program',
                     program: 'settings',
                     path: '/ElxaOS/System',
@@ -207,8 +224,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/About.abbi': {
-                    name: 'About.abbi',
+                '/ElxaOS/System/About': {
+                    name: 'About',
                     type: 'program',
                     program: 'about',
                     path: '/ElxaOS/System',
@@ -216,8 +233,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Calculator.abbi': {
-                    name: 'Calculator.abbi',
+                '/ElxaOS/System/Calculator': {
+                    name: 'Calculator',
                     type: 'program',
                     program: 'scientificCalculator',
                     path: '/ElxaOS/System',
@@ -225,8 +242,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Clock.abbi': {
-                    name: 'Clock.abbi',
+                '/ElxaOS/System/Clock': {
+                    name: 'Clock',
                     type: 'program',
                     program: 'clock',
                     path: '/ElxaOS/System',
@@ -234,8 +251,8 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Calendar.abbi': {
-                    name: 'Calendar.abbi',
+                '/ElxaOS/System/Calendar': {
+                    name: 'Calendar',
                     type: 'program',
                     program: 'calendar',
                     path: '/ElxaOS/System',
@@ -243,12 +260,39 @@ export class FileSystem {
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
-                '/ElxaOS/System/Slideshow.abbi': {
-                    name: 'Slideshow.abbi',
+                '/ElxaOS/System/Slideshow': {
+                    name: 'Slideshow',
                     type: 'program',
                     program: 'slideshow',
                     path: '/ElxaOS/System',
                     isProtected: true,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Games/Math Match': {
+                    name: 'Math Match',
+                    type: 'program',
+                    program: 'mathMatch',
+                    path: '/ElxaOS/Users/kitkat/Games',
+                    isProtected: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Games/Time Crunch': {
+                    name: 'Time Crunch',
+                    type: 'program',
+                    program: 'timeCrunch',
+                    path: '/ElxaOS/Users/kitkat/Games',
+                    isProtected: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/Games/Snake Equation': {
+                    name: 'Snake Equation',
+                    type: 'program',
+                    program: 'snakeEquation',
+                    path: '/ElxaOS/Users/kitkat/Games',
+                    isProtected: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 }
@@ -584,22 +628,41 @@ export class FileSystem {
     }
 
     // File operations
-    saveFile(path, name, content, type = 'text', additionalProps = {}) {
+
+    async saveFile(path, name, content, type = 'text', additionalProps = {}) {
         console.log('=== SaveFile Debug ===');
         console.log('Input parameters:', { path, name, type });
         console.log('Content type:', typeof content);
-        console.log('Content starts with:', content.substring(0, 50) + '...');
+        console.log('Content starts with:', content?.substring?.(0, 50) + '...');
         
-        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY) || '{}');
         
-        // Clean the name first
-        const cleanName = name.replace(/\.(png|txt|jpg|jpeg|odp)$/g, '');
+        // Handle shortcuts exactly as before
+        if (type === 'shortcut') {
+            const finalName = name.endsWith('.lnk') ? name : `${name}.lnk`;
+            const fullPath = this.joinPaths(path, finalName);
+            
+            files[fullPath] = {
+                name: finalName,
+                content, // Keep shortcut content in localStorage
+                type: 'shortcut',
+                path,
+                created: files[fullPath]?.created || new Date().toISOString(),
+                modified: new Date().toISOString(),
+                ...additionalProps
+            };
+            
+            localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+            return fullPath;
+        }
         
-        // Determine the final type and extension
+        // Regular file handling
+        const cleanName = name.replace(/\.(png|txt|jpg|jpeg|odp|lnk)$/g, '');
         let finalType = type;
         let finalName;
         
-        if (type === 'image' || content.startsWith('data:image')) {
+        // Determine file type and name as before
+        if (type === 'image' || content?.startsWith?.('data:image')) {
             finalType = 'image';
             finalName = `${cleanName}.png`;
         } else if (type === 'slideshow') {
@@ -610,10 +673,34 @@ export class FileSystem {
             finalName = `${cleanName}.txt`;
         }
         
-        // Create full path
         const fullPath = this.joinPaths(path, finalName);
         console.log('Full path:', fullPath);
+    
+        // Try external storage first if available
+        if (this.storageManager?.initialized) {
+            try {
+                const success = await this.storageManager.saveFile(fullPath, content);
+                if (success) {
+                    // Store only metadata in localStorage
+                    files[fullPath] = {
+                        name: finalName,
+                        type: finalType,
+                        path,
+                        externallyStored: true, // Flag to indicate content is stored externally
+                        created: files[fullPath]?.created || new Date().toISOString(),
+                        modified: new Date().toISOString(),
+                        ...additionalProps
+                    };
+                    
+                    localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
+                    return fullPath;
+                }
+            } catch (error) {
+                console.warn('External storage save failed, falling back to localStorage:', error);
+            }
+        }
         
+        // Fall back to localStorage (original behavior)
         files[fullPath] = {
             name: finalName,
             content,
@@ -628,12 +715,42 @@ export class FileSystem {
         return fullPath;
     }
 
-    getFile(path) {
+    async getFile(path) {
         console.log('Getting file at path:', path);
-        const files = JSON.parse(localStorage.getItem(this.FILES_KEY));
-        const file = files[path];
-        console.log('Found file:', file);
-        return file;
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY) || '{}');
+        const fileMetadata = files[path];
+        
+        if (!fileMetadata) {
+            console.log('File not found');
+            return null;
+        }
+    
+        // If it's a shortcut or the file is not externally stored,
+        // return the full file data from localStorage
+        if (fileMetadata.type === 'shortcut' || !fileMetadata.externallyStored) {
+            console.log('Found file in localStorage:', fileMetadata);
+            return fileMetadata;
+        }
+    
+        // If file is externally stored, try to load its content
+        if (this.storageManager?.initialized) {
+            try {
+                const content = await this.storageManager.loadFile(path);
+                if (content !== null) {
+                    // Return combined metadata and content
+                    return {
+                        ...fileMetadata,
+                        content
+                    };
+                }
+            } catch (error) {
+                console.error('Failed to load external file:', error);
+            }
+        }
+    
+        // If external load fails or isn't available, return metadata only
+        console.log('Returning metadata only:', fileMetadata);
+        return fileMetadata;
     }
 
     deleteFile(path) {
@@ -1009,6 +1126,7 @@ export class FileSystem {
     
         // Create standard user folders inside the user's directory
         const userFolders = [
+            'Desktop',
             'Documents',
             'Pictures',
             'Music',

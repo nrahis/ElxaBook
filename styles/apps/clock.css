@@ -3,16 +3,16 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: #f0d9ff;
+    background-color: var(--taskbar-bg);
     font-family: var(--system-font);
-    color: #441d57;
+    color: var(--start-menu-text);
 }
 
 /* Tabs */
 .clk-tabs {
     display: flex;
-    background: linear-gradient(to right, #e6d4f2, #d5bde6);
-    border-bottom: 1px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
     padding: 2px;
     gap: 4px;
 }
@@ -20,33 +20,33 @@
 .clk-tab-button {
     padding: 4px 12px;
     margin-right: 2px;
-    background-color: #e6d4f2;
-    border: 1px solid #441d57;
+    background-color: var(--bg-light);
+    border: 1px solid var(--purple-dark);
     border-bottom: none;
     cursor: pointer;
-    color: #441d57;
+    color: var(--start-menu-text);
     font-size: 12px;
     transition: all 0.2s ease;
 }
 
 .clk-tab-button:hover {
-    background-color: #f0d9ff;
+    background-color: var(--bg-lightest);
     transform: translateY(-1px);
 }
 
 .clk-tab-button.active {
-    background-color: #f0d9ff;
+    background-color: var(--bg-lightest);
     position: relative;
     z-index: 1;
     margin-bottom: -1px;
-    border-bottom: 1px solid #f0d9ff;
+    border-bottom: 1px solid var(--bg-lightest);
 }
 
 /* Content Area */
 .clk-content {
     flex: 1;
     padding: 15px;
-    background-color: #f0d9ff;
+    background-color: var(--bg-lightest);
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -55,7 +55,7 @@
 .clk-tab-pane {
     display: none;
     flex: 1;
-    background-color: #f0d9ff;
+    background-color: var(--bg-lightest);
     padding: 10px;
 }
 
@@ -78,40 +78,40 @@
 .clk-digital-clock {
     font-size: 72px;
     font-weight: bold;
-    color: #441d57;
+    color: var(--start-menu-text);
     text-align: center;
     padding: 20px;
-    background-color: white;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-explorer-window);  
+    border: 2px solid var(--border-light);
     border-radius: 8px;
     font-family: "Courier New", monospace;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-light);
     transition: all 0.3s ease;
 }
 
 .clk-digital-clock:hover {
     transform: scale(1.02);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 12px var(--shadow-medium);
 }
 
 .clk-date-display {
     font-size: 24px;
-    color: #441d57;
+    color: var(--start-menu-text);
     text-align: center;
     padding: 10px;
-    background-color: white;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-explorer-window);
+    border: 2px solid var(--border-light);
     border-radius: 8px;
     transition: all 0.3s ease;
 }
 
 /* Timer Styles */
 .clk-timer-container {
-    background-color: white;
+    background-color: var(--bg-explorer-window);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 15px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px var(--shadow-light);
     transition: all 0.3s ease;
 }
 
@@ -129,13 +129,13 @@
 
 .clk-progress-ring-bg {
     fill: none;
-    stroke: #e6d4f2;
+    stroke: var(--bg-light);
     stroke-width: 8;
 }
 
 .clk-progress-ring-circle {
     fill: none;
-    stroke: #441d57;
+    stroke: var(--accent-text);
     stroke-width: 8;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.1s ease;
@@ -144,6 +144,7 @@
 .clk-timer-display {
     font-size: 36px;
     font-family: "Courier New", monospace;
+    color: var(--start-menu-text);
     text-align: center;
     margin: 10px 0;
     font-weight: bold;
@@ -163,8 +164,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #441d57;
-    color: white;
+    background-color: var(--parple-dark);
+    color: var(--accent-text);
     padding: 10px 20px;
     border-radius: 20px;
     font-size: 24px;
@@ -183,39 +184,39 @@
 .clk-stopwatch-display {
     font-size: 64px;
     font-weight: bold;
-    color: #441d57;
+    color: var(--start-menu-text);
     text-align: center;
     padding: 20px;
-    background-color: white;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-explorer-window);
+    border: 2px solid var(--border-light);
     border-radius: 8px;
     font-family: "Courier New", monospace;
     min-width: 300px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px var(--shadow-light);
     transition: all 0.3s ease;
 }
 
 .clk-stopwatch-controls button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #d5bde6;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-mid);
+    border: 2px solid var(--border-light);
     border-radius: 4px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: pointer;
     min-width: 80px;
     transition: all 0.2s ease;
 }
 
 .clk-stopwatch-controls button:hover:not(:disabled) {
-    background-color: #441d57;
-    color: white;
+    background-color: var(--purple-dark);
+    color: var(--accent-text);
     transform: translateY(-2px);
 }
 
 .clk-stopwatch-controls button.active {
-    background-color: #441d57;
-    color: white;
+    background-color: var(--purple-dark);
+    color: var(--start-menu-text);
     animation: buttonPulse 2s infinite;
 }
 
@@ -223,7 +224,7 @@
 .clk-lap-times {
     width: 100%;
     max-width: 400px;
-    background-color: white;
+    background-color: var(--bg-explorer-window);
     border-radius: 8px;
     padding: 10px;
     margin-top: 20px;
@@ -233,14 +234,14 @@
     display: flex;
     justify-content: space-between;
     padding: 8px;
-    border-bottom: 1px solid #e6d4f2;
+    border-bottom: 1px solid var(--bg-light);
     font-family: "Courier New", monospace;
     animation: slideIn 0.3s ease-out;
 }
 
 /* Alarm Styles */
 .clk-alarm-container {
-    background-color: white;
+    background-color: var(--bg-explorer-window);
     border-radius: 8px;
     padding: 15px;
     margin-bottom: 15px;
@@ -252,8 +253,8 @@
 
 .clk-alarm-container.clk-alarm-triggered {
     animation: shake 0.5s ease-in-out;
-    background-color: #441d57;
-    color: white;
+    background-color: var(--purple-dark);
+    color: var(--text-light);
 }
 
 .clk-alarm-message {
@@ -262,7 +263,7 @@
 
 .clk-alarm-message-display {
     font-style: italic;
-    color: #67378f;
+    color: var(--accent-text);
     margin-left: 10px;
 }
 
@@ -271,14 +272,14 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #441d57;
+    background-color: var(--purple-dark);
     color: white;
     padding: 15px 25px;
     border-radius: 25px;
     font-size: 24px;
     animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     white-space: nowrap;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
 @keyframes bounceIn {
@@ -347,34 +348,35 @@
 /* Input Styles */
 .clk-app input {
     padding: 8px;
-    border: 2px solid #b89fc7;
+    border: 2px solid var(--border-light);
+    background-color: var(--bg-lightest);
     border-radius: 4px;
     font-size: 14px;
     transition: all 0.2s ease;
 }
 
 .clk-app input:focus {
-    border-color: #441d57;
+    border-color: var(--purple-dark);
     outline: none;
-    box-shadow: 0 0 0 2px rgba(68, 29, 87, 0.2);
+    box-shadow: 0 0 0 2px var(--purple-medium-alpha);
 }
 
 /* Button Styles */
 .clk-app button:not(.clk-tab-button) {
     padding: 8px 16px;
-    background-color: #d5bde6;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-mid);
+    border: 2px solid var(--border-light);
     border-radius: 4px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .clk-app button:not(.clk-tab-button):hover:not(:disabled) {
-    background-color: #441d57;
-    color: white;
+    background-color: var(--purple-dark);
+    color: var(--accent-text);
     transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px var(--shadow-light);
 }
 
 .clk-app button:not(.clk-tab-button):active:not(:disabled) {

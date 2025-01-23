@@ -4,14 +4,14 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: white;
+    background-color: var(--taskbar-bg);
 }
 
 /* Menu Bar */
 .ex-notepad-menubar {
     display: flex;
-    background: linear-gradient(to right, #e6d4f2, #d5bde6);
-    border-bottom: 1px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
     padding: 2px;
     gap: 4px;
     user-select: none;
@@ -19,7 +19,7 @@
 
 .ex-notepad-menu-item {
     padding: 2px 8px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: pointer;
     font-size: 12px;
     border: 1px solid transparent;
@@ -28,8 +28,8 @@
 
 .ex-notepad-menu-item:hover,
 .ex-notepad-menu-item.active {
-    background-color: #d5bde6;
-    border: 1px solid #8b6b9c;
+    background-color: var(--bg-mid);
+    border: 1px solid var(--border-dark);
 }
 
 /* Dropdown Menus */
@@ -37,8 +37,8 @@
     position: absolute;
     top: 100%;
     left: -1px;
-    background-color: #f0d9ff;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-mid);
+    border: 1px solid var(--border-light);
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     min-width: 200px;
@@ -51,19 +51,19 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 16px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
 }
 
 .ex-notepad-menu-entry:hover {
-    background-color: #d5bde6;
-    color: #441d57;
+    background-color: var(--start-menu-hover);
+    color: var(--start-menu-hover-text);
 }
 
 .ex-notepad-menu-entry.disabled {
-    color: #999;
+    color: var(--text-disabled);
     cursor: default;
 }
 
@@ -81,15 +81,15 @@
     position: absolute;
     right: 8px;
     font-size: 10px;
-    color: #8b6b9c;
+    color: var(--border-dark);
 }
 
 .ex-notepad-submenu {
     position: absolute;
     left: 100%;
     top: -1px;
-    background-color: #f0d9ff;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-lightest);
+    border: 1px solid var(--border-light);
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     display: none;
     min-width: 180px;
@@ -114,8 +114,8 @@
     transform: translateY(-50%);
     width: 12px;
     height: 12px;
-    border: 1px solid #b89fc7;
-    background-color: white;
+    border: 1px solid var(--border-light);
+    background-color: var(--bg-white);
 }
 
 .ex-notepad-menu-entry.checkbox.checked::after {
@@ -124,7 +124,7 @@
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #441d57;
+    color: var(--purple-dark);
     font-size: 10px;
 }
 
@@ -132,13 +132,13 @@
 .ex-notepad-menu-dropdown hr {
     margin: 4px 0;
     border: none;
-    border-top: 1px solid #b89fc7;
+    border-top: 1px solid var(--border-light);
 }
 
 /* Keyboard Shortcuts */
 .ex-notepad-shortcut {
     margin-left: 32px;
-    color: #666;
+    color: var(--text-muted);
     font-size: 11px;
 }
 
@@ -147,14 +147,14 @@
     flex-grow: 1;
     resize: none;
     border: none;
-    padding: 8px;
+    padding: 8px; 
     font-family: "Courier New", monospace;
     font-size: 16px;
-    background-color: white;
-    color: #441d57;
+    background-color: var(--bg-lightest);
+    color: var(--purple-dark);
     outline: none;
-    border-left: 1px solid #b89fc7;
-    border-right: 1px solid #b89fc7;
+    border-left: 1px solid var(--border-light);
+    border-right: 1px solid var(--border-light);
 }
 
 /* Status Bar */
@@ -162,21 +162,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to right, #e6d4f2, #d5bde6);
-    border-top: 1px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-top: 1px solid var(--border-light);
     padding: 2px 8px;
     font-size: 11px;
-    color: #441d57;
+    color: var(--purple-dark);
     height: 20px;
 }
 
 .ex-notepad-status-modified {
-    color: #a267ac;
+    color: var(--start-menu-text);
     font-size: 14px;
     width: 20px;
 }
 
 .ex-notepad-status-info {
+    color: var(--start-menu-text);
     display: flex;
     gap: 16px;
 }
@@ -184,7 +185,7 @@
 .ex-notepad-char-count,
 .ex-notepad-cursor-position {
     padding: 2px 8px;
-    border-left: 1px solid #b89fc7;
+    border-left: 1px solid var(--border-light);
 }
 
 /* Scrollbar Styling */
@@ -194,30 +195,30 @@
 }
 
 .ex-notepad-textarea::-webkit-scrollbar-track {
-    background: #f0d9ff;
-    border-left: 1px solid #b89fc7;
+    background: var(--bg-lightest);
+    border-left: 1px solid var(--border-light);
 }
 
 .ex-notepad-textarea::-webkit-scrollbar-thumb {
-    background-color: #b89fc7;
-    border: 3px solid #f0d9ff;
+    background-color: var(--border-light);
+    border: 3px solid var(--bg-lightest);
     border-radius: 8px;
 }
 
 .ex-notepad-textarea::-webkit-scrollbar-thumb:hover {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
 }
 
 /* Firefox scrollbar */
 .ex-notepad-textarea {
     scrollbar-width: thin;
-    scrollbar-color: #b89fc7 #f0d9ff;
+    scrollbar-color: var(--border-light) var(--bg-lightest);
 }
 
 /* Selection Color */
 .ex-notepad-textarea::selection {
-    background-color: #d5bde6;
-    color: #441d57;
+    background-color: var(--bg-mid);
+    color: var(--purple-dark);
 }
 
 /* Focus States */

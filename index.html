@@ -26,62 +26,11 @@
         <link rel="stylesheet" href="styles/settings.css">
         <link rel="stylesheet" href="styles/user_management.css">
         <link rel="stylesheet" href="styles/file_save_dialog.css">
+        <link rel="stylesheet" href="styles/system_cleaner.css">
     </head>
 <body>
-    <div id="boot-sequence" class="fullscreen">
-        <!-- Initial boot screen -->
-        <div id="boot-screen" class="boot-phase">
-            <div class="boot-content">
-                <div class="elxa-logo">ELXA</div>
-                <div class="boot-message">Starting ElxaOS...</div>
-                <div class="loading-bar">
-                    <div class="loading-progress"></div>
-                </div>
-                <div id="boot-status">Initializing core systems...</div>
-            </div>
-        </div>
 
-        <!-- Welcome screen -->
-        <div id="welcome-screen" class="boot-phase hidden">
-            <div class="welcome-content">
-                <div class="welcome-logo">ElxaOS</div>
-                <div class="welcome-message">Welcome to the future of computing</div>
-                <div class="welcome-version">Chocolate Mist Edition v1.1</div>
-                <button id="start-button">Start ElxaOS</button>
-            </div>
-        </div>
-        <!-- Log in -->
-        <div id="login-screen" class="boot-phase hidden">
-            <div class="login-container">
-                <div class="user-profile">
-                    <div class="user-avatar">
-                        <svg viewBox="0 0 100 100" class="snake-icon">
-                            <path d="M75,50 Q60,35 50,50 T25,50" 
-                                    fill="none" 
-                                    stroke="#00ff9d" 
-                                    stroke-width="8" 
-                                    class="snake-body"/>
-                            <circle cx="80" cy="50" r="5" fill="#ff71ce" class="snake-eye"/>
-                            <path d="M85,50 L90,45 L90,55 Z" 
-                                    fill="#ff71ce" 
-                                    class="snake-tongue"/>
-                        </svg>
-                    </div>
-                    <div class="user-name">kitkat</div>
-                </div>
-                
-                <div class="password-container">
-                    <input type="password" 
-                            id="password-input" 
-                            placeholder="Enter password"
-                            autocomplete="off">
-                    <button id="login-button">Log In</button>
-                </div>
-                
-                <div id="login-message" class="login-message"></div>
-            </div>
-        </div>
-    </div> 
+
   
 
     <div id="desktop">
@@ -131,6 +80,7 @@
                     <div class="submenu">
                         <a href="#" data-app="about">About ElxaOS</a>
                         <a href="#" data-app="settings">Options</a>
+                        <a href="#" data-app="systemCleaner">Storage Cleaner</a>
                     </div>
                 </div>
                 
@@ -175,20 +125,18 @@
                         <button class="window-button close">×</button>
                     </div>
                 </div>
-                <div class="window-content">
-                    <div id="about-content">
-                        <h2>Welcome to ElxaOS!</h2>
-                        <p>The latest and greatest operating system from Elxa, designed with cutting-edge technology and a focus on user experience.</p>
-                        <p>ElxaOS offers a seamless and intuitive interface, powerful features, and a unique vaporwave aesthetic that sets it apart.</p>
-                        <p>Explore the possibilities with ElxaOS and unleash your creativity!</p>
-                        <p>Version: 1.0 Vapor Edition</p>
-                        <p>Copyright © <span id="currentYear"></span> Elxa Corporation. All rights reserved.</p>
-                    </div>
+                <div id="about-content">
+                    <h2>Welcome to ElxaOS!</h2>
+                    <p>The latest and greatest operating system from Elxa, designed with cutting-edge technology and a focus on user experience.</p>
+                    <p>ElxaOS offers a seamless and intuitive interface, powerful features, and a unique vaporwave aesthetic that sets it apart.</p>
+                    <p>Explore the possibilities with ElxaOS and unleash your creativity!</p>
+                    <p>Version: <span id="osVersion"></span></p>
+                    <p id="osCopyright"></p>
                 </div>
             </div>
         </div>
     </div>
-    <script type="module" src="js/boot.js"></script> 
+    <!-- <script type="module" src="js/boot.js"></script> -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>

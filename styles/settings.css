@@ -4,38 +4,38 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: #e6d4f2;
-    font-family: "Segoe UI", "MS Sans Serif", "Arial", sans-serif;
+    background: var(--taskbar-bg);
+    font-family: var(--system-font);
 }
 
 /* Tabs */
 .settings-tabs {
     display: flex;
-    background: #d5bde6;
-    border-bottom: 2px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
     padding: 4px 4px 0 4px;
 }
 
 .tab-button {
     padding: 6px 16px;
-    background: #f0d9ff;
-    border: 2px solid #b89fc7;
+    background-color: var(--bg-light);
+    border: 1px solid var(--purple-dark);
     border-bottom: none;
     margin-right: 2px;
     cursor: pointer;
-    color: #441d57;
+    color: var(--start-menu-text);
     font-size: 12px;
     position: relative;
     top: 2px;
 }
 
 .tab-button:hover {
-    background: #e6d4f2;
+    background-color: var(--bg-lightest);
 }
 
 .tab-button.active {
-    background: #e6d4f2;
-    border-bottom: 2px solid #e6d4f2;
+    background: var(--bg-lightest);
+    border-bottom: 1px solid var(--bg-lightest);
     margin-bottom: -2px;
 }
 
@@ -59,13 +59,13 @@
 .settings-group {
     margin-bottom: 20px;
     padding: 10px;
-    border: 1px solid #b89fc7;
-    background: white;
+    border: 1px solid var(--border-light);
+    background: var(--bg-explorer-window);
 }
 
 .settings-group h3 {
     margin: 0 0 10px 0;
-    color: #441d57;
+    color: var(--accent-text);
     font-size: 14px;
 }
 
@@ -77,14 +77,15 @@
 .preview-box {
     width: 320px;
     height: 180px;
-    border: 2px inset #f0d9ff;
+    border: 2px inset var(--bg-lightest);
     margin-bottom: 8px;
-    background: linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc);
+    background: var(--bg-gradient);
+    margin-bottom: 8px;
     background-size: cover;
 }
 
 .preview-label {
-    color: #441d57;
+    color: var(--accent-text);
     font-size: 12px;
 }
 
@@ -92,9 +93,9 @@
 select, input[type="text"] {
     width: 200px;
     padding: 4px;
-    border: 2px inset #f0d9ff;
-    background: white;
-    color: #441d57;
+    border: 2px inset var(--bg-lightest);
+    background: var(--bg-explorer-window);
+    color: var(--accent-text);
     margin-bottom: 8px;
 }
 
@@ -107,16 +108,16 @@ select, input[type="text"] {
     max-height: 400px;
     overflow-y: auto;
     padding: 8px;
-    background: white;
-    border: 1px solid #b89fc7;
+    background: var(--bg-explorer-window);
+    border: 1px solid var(--border-light);
 }
 
 .user-item {
     display: flex;
     align-items: center;
     padding: 12px;
-    border: 1px solid #b89fc7;
-    background: white;
+    border: 1px solid var(--border-light);
+    background: var(--bg-explorer-window);
     margin-bottom: 4px;
     width: 100%;
     box-sizing: border-box;
@@ -143,24 +144,24 @@ select, input[type="text"] {
 }
 
 .users-list::-webkit-scrollbar-track {
-    background: #f0d9ff;
-    border-left: 1px solid #b89fc7;
+    background: var(--bg-lightest);
+    border-left: 1px solid var(--border-light);
 }
 
 .users-list::-webkit-scrollbar-thumb {
-    background-color: #b89fc7;
-    border: 3px solid #f0d9ff;
+    background-color: var(--border-light);
+    border: 3px solid var(--bg-lightest);
     border-radius: 8px;
 }
 
 .users-list::-webkit-scrollbar-thumb:hover {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
 }
 
 /* Firefox scrollbar */
 .users-list {
     scrollbar-width: thin;
-    scrollbar-color: #b89fc7 #f0d9ff;
+    scrollbar-color: var(--border-light) var(--bg-lightest);
 }
 
 /* Avatars */
@@ -177,11 +178,11 @@ select, input[type="text"] {
     height: 64px;
     border-radius: 50%;
     overflow: hidden;
-    border: 2px solid #b89fc7;
+    border: 2px solid var(--border-light);
+    background: var(--bg-explorer-window);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
     position: relative; /* Added for absolute positioning of images */
 }
 
@@ -198,8 +199,9 @@ select, input[type="text"] {
 .avatar-change-btn {
     font-size: 12px;
     padding: 4px 8px;
-    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
-    border: 1px solid #b89fc7;
+    background: var(--button-gradient);
+    border: 1px solid var(--border-light);
+    color: var(--start-menu-text);
     border-radius: 4px;
     cursor: pointer;
 }
@@ -224,8 +226,8 @@ select, input[type="text"] {
 }
 
 .avatar-option:hover {
-    border-color: #b89fc7;
-    background: rgba(176, 159, 199, 0.1);
+    border-color: var(--border-light);
+    background: var(--bg-mid-transparent);
 }
 
 /* Preview styles in the avatar selection dialog */
@@ -237,8 +239,8 @@ select, input[type="text"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: white;
-    border: 2px solid #b89fc7;
+    background: var(--bg-explorer-window);
+    border: 2px solid var(--border-light);
     position: relative;
 }
 
@@ -262,7 +264,7 @@ select, input[type="text"] {
 
 .avatar-name {
     font-size: 12px;
-    color: #441d57;
+    color: var(--accent-text);
     text-align: center;
 }
 
@@ -272,18 +274,18 @@ select, input[type="text"] {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f0d9ff;
+    background: var(--bg-lightest);
     cursor: pointer;
     text-align: center;
     font-size: 12px;
-    color: #441d57;
+    color: var(--accent-text);
 }
 
 /* Footer */
 .settings-footer {
     padding: 10px;
-    background: #d5bde6;
-    border-top: 1px solid #b89fc7;
+    background: var(--bg-mid);
+    border-top: 1px solid var(--border-light);
     text-align: right;
     gap: 8px;
     display: flex;
@@ -292,27 +294,27 @@ select, input[type="text"] {
 
 .settings-button {
     padding: 6px 16px;
-    background: linear-gradient(to bottom, #f0d9ff, #e6d4f2);
-    border: 2px outset #f0d9ff;
-    color: #441d57;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-menu-text);
     cursor: pointer;
     min-width: 80px;
 }
 
 .settings-button:hover {
-    background: linear-gradient(to bottom, #e6d4f2, #d5bde6);
+    background: var(--button-hover-gradient);
 }
 
 .settings-button:active {
     border-style: inset;
-    background: #d5bde6;
+    background: var(--bg-mid);
 }
 
 /* System Info Panel */
 .system-info {
-    background: white;
+    background: var(--bg-explorer-window);
     padding: 15px;
-    border: 1px solid #b89fc7;
+    border: 1px solid var(--border-light);
 }
 
 .info-item {
@@ -322,10 +324,124 @@ select, input[type="text"] {
 
 .info-item label {
     width: 120px;
-    color: #441d57;
+    color: var(--start-menu-text);
     font-weight: bold;
 }
 
 .info-item span {
-    color: #441d57;
+    color: var(--accent-text);
+}
+
+
+/* Theme Preview Section */
+.theme-preview {
+    margin: 20px 0;
+    padding: 15px;
+    background: var(--bg-explorer-window);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+}
+
+.preview-window {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    border: 2px solid var(--border-dark);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow-medium);
+}
+
+.preview-titlebar {
+    background: var(--titlebar-gradient);
+    color: var(--start-menu-text);
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 1px var(--purple-dark);
+}
+
+.preview-content {
+    background: var(--bg-light);
+    padding: 15px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-button {
+    padding: 6px 16px;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-menu-textt);
+    cursor: pointer;
+    font-family: var(--system-font);
+    font-size: 12px;
+    min-width: 120px;
+    text-align: center;
+}
+
+.preview-button:hover {
+    background: var(--button-hover-gradient);
+}
+
+.preview-button:active {
+    border-style: inset;
+    background: var(--bg-mid);
+}
+
+.preview-text {
+    color: var(--start-menu-text);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Theme Select Styling */
+.settings-select {
+    width: 100%;
+    padding: 6px;
+    margin-bottom: 10px;
+    background: var(--bg-explorer-window);
+    border: 2px inset var(--bg-lightest);
+    color: var(--start-menu-text);
+    font-family: var(--system-font);
+    font-size: 12px;
+    cursor: pointer;
+    /* Reset any appearance overrides */
+    -webkit-appearance: menulist;
+    -moz-appearance: menulist;
+    appearance: menulist;
+}
+
+/* Ensure the container doesn't clip the dropdown */
+.settings-group {
+    position: relative;
+}
+
+/* Make sure the select is above other elements */
+.settings-panel {
+    position: relative;
+}
+
+/* Style for the options */
+.settings-select option {
+    padding: 8px;
+    background-color: var(--bg-explorer-window);
+    color: var(--accent-text);
+}
+
+.settings-select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+}
+
+/* Make the preview responsive */
+@media (max-width: 400px) {
+    .preview-window {
+        max-width: 100%;
+    }
 }

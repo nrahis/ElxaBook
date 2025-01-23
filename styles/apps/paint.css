@@ -4,14 +4,14 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: white;
+    background-color: var(--taskbar-bg);
 }
 
 /* Menu Bar */
 .ex-paint-menubar {
     display: flex;
-    background: linear-gradient(to right, #e6d4f2, #d5bde6);
-    border-bottom: 1px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
     padding: 2px;
     gap: 4px;
     user-select: none;
@@ -19,7 +19,7 @@
 
 .ex-paint-menu-item {
     padding: 2px 8px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: pointer;
     font-size: 12px;
     border: 1px solid transparent;
@@ -28,8 +28,8 @@
 
 .ex-paint-menu-item:hover,
 .ex-paint-menu-item.active {
-    background-color: #d5bde6;
-    border: 1px solid #8b6b9c;
+    background-color: var(--bg-mid);
+    border: 1px solid var(--border-dark);
 }
 
 /* Dropdown Menus */
@@ -37,8 +37,8 @@
     position: absolute;
     top: 100%;
     left: -1px;
-    background-color: #f0d9ff;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-mid);
+    border: 1px solid var(--border-light);
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     min-width: 200px;
@@ -50,18 +50,19 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 16px;
-    color: #441d57;
+    color: var(--star-menu-text);
     cursor: pointer;
     font-size: 12px;
     white-space: nowrap;
 }
 
 .ex-paint-menu-entry:hover {
-    background-color: #d5bde6;
+    background-color: var(--start-menu-hover);
+    color: var(--start-menu-hover-text);
 }
 
 .ex-paint-menu-entry.disabled {
-    color: #999;
+    color: var(--text-disabled);
     cursor: default;
 }
 
@@ -72,7 +73,7 @@
 /* Menu Shortcuts */
 .ex-paint-shortcut {
     margin-left: 32px;
-    color: #666;
+    color: var(--text-muted);
     font-size: 11px;
 }
 
@@ -81,8 +82,8 @@
     display: flex;
     gap: 10px;
     padding: 8px;
-    background-color: #f0d9ff;
-    border-bottom: 1px solid #b89fc7;
+    background-color: var(--taskbar-bg);
+    border-bottom: 1px solid var(--border-light);
     align-items: center;
 }
 
@@ -95,8 +96,8 @@
 .ex-paint-tool {
     width: 32px;
     height: 32px;
-    border: 2px outset #d5bde6;
-    background-color: #f0d9ff;
+    border: 2px outset var(--bg-mid);
+    background-color: var(--bg-lightest);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -106,17 +107,17 @@
 }
 
 .ex-paint-tool:hover {
-    background-color: #e6d4f2;
+    background-color: var(--bg-light);
 }
 
 .ex-paint-tool.active {
     border-style: inset;
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
 }
 
 .ex-paint-tool-separator {
     width: 1px;
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     margin: 0 4px;
 }
 
@@ -137,15 +138,15 @@
     width: 32px;
     height: 32px;
     padding: 2px;
-    border: 2px solid #b89fc7;
+    border: 2px solid var(--border-light);
     cursor: pointer;
 }
 
 #ex-paint-brush-size {
     padding: 4px;
-    border: 2px solid #b89fc7;
-    background-color: #f0d9ff;
-    color: #441d57;
+    border: 2px solid var(--border-light);
+    background-color: var(--bg-lightest);
+    color: var(--purple-dark);
     cursor: pointer;
 }
 
@@ -154,8 +155,8 @@
     flex-grow: 1;
     position: relative;
     overflow: auto;
-    background: #f0f0f0;
-    border: 1px solid #b89fc7;
+    background: var(--ui-disabled-bg);
+    border: 1px solid var(--border-light);
 }
 
 #ex-paint-canvas,
@@ -176,24 +177,25 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(to right, #e6d4f2, #d5bde6);
-    border-top: 1px solid #b89fc7;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-top: 1px solid var(--border-light);
+    color: var(--start-menu-text);
     padding: 2px 8px;
     font-size: 11px;
-    color: #441d57;
     height: 20px;
 }
 
 .ex-paint-status-modified {
-    color: #a267ac;
+    color: var(--start-menu-text);
     font-size: 14px;
     width: 20px;
 }
 
 #ex-paint-coordinates,
 #ex-paint-current-tool {
+    color: var(--start-menu-text);
     padding: 2px 8px;
-    border-left: 1px solid #b89fc7;
+    border-left: 1px solid var(--border-light);
 }
 
 /* Save Notification */
@@ -201,12 +203,12 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #f0d9ff;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-lightest);
+    border: 1px solid var(--border-light);
+    color: var(--purple-dark);
     padding: 10px 20px;
     border-radius: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    color: #441d57;
     font-size: 12px;
     opacity: 1;
     transition: opacity 0.3s ease;
@@ -220,7 +222,7 @@
 .ex-paint-menu-dropdown hr {
     margin: 4px 0;
     border: none;
-    border-top: 1px solid #b89fc7;
+    border-top: 1px solid var(--border-light);
 }
 
 /* Scrollbars */
@@ -230,24 +232,24 @@
 }
 
 .ex-paint-canvas-container::-webkit-scrollbar-track {
-    background: #f0d9ff;
-    border: 1px solid #b89fc7;
+    background: var(--bg-lightest);
+    border: 1px solid var(--border-light);
 }
 
 .ex-paint-canvas-container::-webkit-scrollbar-thumb {
-    background-color: #b89fc7;
-    border: 3px solid #f0d9ff;
+    background-color: var(--border-light);
+    border: 3px solid var(--bg-lightest);
     border-radius: 8px;
 }
 
 .ex-paint-canvas-container::-webkit-scrollbar-thumb:hover {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
 }
 
 /* Firefox scrollbar */
 .ex-paint-canvas-container {
     scrollbar-width: thin;
-    scrollbar-color: #b89fc7 #f0d9ff;
+    scrollbar-color: var(--border-light) var(--bg-lightest);
 }
 
 /* Focus States */
@@ -255,7 +257,7 @@
 .ex-paint-color-picker:focus,
 #ex-paint-brush-size:focus {
     outline: none;
-    border-color: #a267ac;
+    border-color: var(--purple-main);
 }
 
 /* Disabled States */
@@ -268,6 +270,6 @@
 
 /* Selection Color */
 ::selection {
-    background-color: #d5bde6;
-    color: #441d57;
+    background-color: var(--bg-mid);
+    color: var(--purple-dark);
 }

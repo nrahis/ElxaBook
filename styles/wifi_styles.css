@@ -1,8 +1,8 @@
 /* wifi_styles.css */
 
 .wifi-popup {
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--bg-lightest);
     padding: 12px;
     border-radius: 4px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
@@ -17,9 +17,9 @@
     align-items: center;
     margin-bottom: 12px;
     padding-bottom: 8px;
-    border-bottom: 1px solid #b89fc7;
+    border-bottom: 1px solid var(--border-light);
     font-weight: bold;
-    color: #441d57;
+    color: var(--header-text);
 }
 
 /* Toggle switch styles */
@@ -43,7 +43,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     transition: .4s;
     border-radius: 20px;
 }
@@ -55,13 +55,13 @@
     width: 16px;
     left: 2px;
     bottom: 2px;
-    background-color: white;
+    background-color: var(--text-light);
     transition: .4s;
     border-radius: 50%;
 }
 
 .wifi-toggle input:checked + .toggle-slider {
-    background-color: #67c9dc;
+    background-color: var(--accent-blue);
 }
 
 .wifi-toggle input:checked + .toggle-slider:before {
@@ -85,13 +85,13 @@
 }
 
 .network-item:hover {
-    background-color: #b89fc7;
-    color: white;
+    background-color: var(--border-light);
+    color: var(--text-light);
 }
 
 .network-item.connected {
-    background-color: #67c9dc;
-    color: white;
+    background-color: var(--accent-blue);
+    color: var(--text-light);
 }
 
 .network-info {
@@ -122,15 +122,15 @@
 .network-action {
     width: 100%;
     padding: 8px;
-    background-color: #67c9dc;
-    border: 2px outset #8cd9e6;
-    color: white;
+    background-color: var(--accent-blue);
+    border: 2px outset var(--accent-blue-light);
+    color: var(--text-light);
     cursor: pointer;
     font-family: inherit;
 }
 
 .network-action:hover {
-    background-color: #89d7e6;
+    background-color: var(--accent-blue-light);
 }
 
 .network-action:active {
@@ -143,8 +143,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--bg-lightest);
     padding: 20px;
     border-radius: 4px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
@@ -157,14 +157,14 @@
 
 .wifi-password-prompt h3 {
     margin: 0 0 15px 0;
-    color: #441d57;
+    color: var(--purple-dark);
 }
 
 .network-password-input {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;
-    border: 1px solid #b89fc7;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     font-family: inherit;
 }
@@ -177,15 +177,15 @@
 
 .password-buttons button {
     padding: 6px 20px;
-    background-color: #67c9dc;
-    border: 2px outset #8cd9e6;
-    color: white;
+    background-color: var(--accent-blue);
+    border: 2px outset var(--accent-blue-light);
+    color: var(--text-light);
     cursor: pointer;
     font-family: inherit;
 }
 
 .password-buttons button:hover {
-    background-color: #89d7e6;
+    background-color: var(--accent-blue-light);
 }
 
 .password-buttons button:active {
@@ -193,12 +193,12 @@
 }
 
 .password-buttons .cancel-btn {
-    background-color: #b89fc7;
-    border-color: #d5bde6;
+    background-color: var(--border-light);
+    border-color: var(--bg-mid);
 }
 
 .password-buttons .cancel-btn:hover {
-    background-color: #c7b3d6;
+    background-color: var(--bg-light);
 }
 
 /* Network status */
@@ -209,25 +209,25 @@
 }
 
 .network-item.connecting {
-    background-color: #e0d0f0;
+    background-color: var(--bg-light);
 }
 
 .network-item.connecting .network-status {
-    color: #67c9dc;
+    color: var(--accent-blue);
     font-style: italic;
 }
 
 /* Add to wifi_styles.css */
 .custom-tag {
     font-size: 0.8em;
-    color: #67c9dc;
+    color: var(--accent-blue);
     margin-left: 4px;
 }
 
 .delete-network {
     background: none;
     border: none;
-    color: #666;
+    color: var(--text-muted);
     cursor: pointer;
     padding: 4px 8px;
     margin-left: 4px;
@@ -236,7 +236,7 @@
 
 .delete-network:hover {
     background-color: rgba(0, 0, 0, 0.1);
-    color: #ff4444;
+    color: var(--warning-text);
 }
 
 .security-toggle {
@@ -248,7 +248,7 @@
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #b89fc7;
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     font-family: inherit;
 }

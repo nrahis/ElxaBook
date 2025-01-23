@@ -20,7 +20,7 @@
 
 #about-content h2 {
     margin-top: 0;
-    color: #441d57;
+    color: var(--header-text);
 }
 
 #about-content p {

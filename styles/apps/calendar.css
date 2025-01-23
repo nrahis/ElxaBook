@@ -4,7 +4,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
     padding: 15px;
     font-family: var(--system-font);
     box-sizing: border-box;
@@ -27,15 +27,15 @@
 
 .tab-btn {
     padding: 8px 16px;
-    background-color: #e6d4f2;
-    border: 2px outset #b89fc7;
-    color: #441d57;
+    background-color: var(--bg-light);
+    border: 2px outset var(--border-light);
+    color: var(--start-menu-text);
     cursor: pointer;
 }
 
 .tab-btn.active {
-    background-color: #a267ac;
-    color: white;
+    background-color: var(--purple-main);
+    color: var(--start-menu-text);
     border-style: inset;
 }
 
@@ -47,9 +47,9 @@
 
 .nav-btn {
     padding: 4px 8px;
-    background-color: #e6d4f2;
-    border: 2px outset #b89fc7;
-    color: #441d57;
+    background-color: var(--bg-light);
+    border: 2px outset var(--border-light);
+    color: var(--start-menu-text);
     cursor: pointer;
     font-size: 12px;
 }
@@ -59,7 +59,7 @@
 }
 
 .current-month {
-    color: #441d57;
+    color: var(--start-menu-text);
     margin: 0;
     font-size: 16px;
     min-width: 140px;
@@ -87,8 +87,8 @@
 
 /* === Calendar Grid === */
 .calendar-grid {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
+    background-color: var(--bg-lightest);
+    border: 2px inset var(--border-light);
     padding: 10px;
     height: calc(100% - 20px);
     width: 100%;
@@ -102,7 +102,7 @@
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     font-weight: bold;
-    color: #441d57;
+    color: var(--header-text);
     margin-bottom: 4px;
     width: 100%;
 }
@@ -120,8 +120,8 @@
 }
 
 .day {
-    background-color: #e6d4f2;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-light);
     min-height: 45px;
     padding: 4px;
     cursor: pointer;
@@ -130,17 +130,17 @@
 }
 
 .day:hover {
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
 }
 
 .day.empty {
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
     cursor: default;
 }
 
 .day.current-day {
-    background-color: #a267ac;
-    color: white;
+    background-color: var(--purple-main);
+    color: var(--text-light);
 }
 
 .event-indicator {
@@ -158,17 +158,17 @@
 .today-panel {
     width: 220px;
     flex-shrink: 0;
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
+    background-color: var(--bg-lightest);
+    border: 2px inset var(--border-light);
     padding: 15px;
     overflow-y: auto;
 }
 
 .today-panel h3 {
-    color: #441d57;
+    color: var(--purple-darker);
+    border-bottom: 2px solid var(--border-light);
     margin: 0 0 15px 0;
     padding-bottom: 5px;
-    border-bottom: 2px solid #b89fc7;
 }
 
 .today-events {
@@ -178,8 +178,8 @@
 }
 
 .today-event {
-    background-color: #e6d4f2;
-    border: 1px solid #b89fc7;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-light);
     border-radius: 4px;
     padding: 10px;
     cursor: pointer;
@@ -187,12 +187,12 @@
 }
 
 .today-event:hover {
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
 }
 
 .event-time {
     font-size: 12px;
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 5px;
 }
 
@@ -203,7 +203,7 @@
 }
 
 .no-events {
-    color: #666;
+    color: var(--text-muted);
     font-style: italic;
     text-align: center;
     padding: 20px 0;
@@ -211,8 +211,8 @@
 
 /* === Upcoming Events Tab === */
 .upcoming-events {
-    background-color: #f0d9ff;
-    border: 2px inset #b89fc7;
+    background-color: var(--bg-lightest);
+    border: 2px inset var(--border-light);
     padding: 20px;
     flex: 1;
     overflow-y: auto;
@@ -228,11 +228,11 @@
 }
 
 .month-header {
-    color: #441d57;
+    color: var(--purple-dark);
+    border-bottom: 2px solid var(--border-light);
     font-size: 18px;
     margin: 0;
     padding-bottom: 5px;
-    border-bottom: 2px solid #b89fc7;
 }
 
 .month-events {
@@ -246,16 +246,16 @@
     grid-template-columns: auto auto 1fr;
     align-items: center;
     gap: 15px;
-    background-color: #e6d4f2;
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-light);
     padding: 12px;
-    border: 1px solid #b89fc7;
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
 .upcoming-event:hover {
-    background-color: #d5bde6;
+    background-color: var(--bg-mid);
 }
 
 /* === Event Dialog === */
@@ -277,15 +277,15 @@
 }
 
 .dialog-content {
-    background-color: #d5bde6;
-    border: 2px outset #b89fc7;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--border-light);
     padding: 20px;
     width: 300px;
 }
 
 .dialog-content h3 {
     margin: 0 0 15px 0;
-    color: #441d57;
+    color: var(--start-menu-text);
 }
 
 .event-datetime {
@@ -303,7 +303,7 @@
     width: 100%;
     margin-bottom: 10px;
     padding: 5px;
-    border: 2px inset #b89fc7;
+    border: 2px inset var(--border-light);
 }
 
 .icon-selector {
@@ -312,7 +312,7 @@
 
 .icon-selector h4 {
     margin: 0 0 10px 0;
-    color: #441d57;
+    color: var(--start-menu-text);
     font-size: 14px;
 }
 
@@ -324,8 +324,8 @@
 
 .icon-option {
     padding: 8px;
-    background-color: #e6d4f2;
-    border: 2px outset #b89fc7;
+    background-color: var(--bg-light);
+    border: 2px outset var(--border-light);
     cursor: pointer;
     font-size: 16px;
 }
@@ -335,7 +335,7 @@
 }
 
 .icon-option.selected {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
     border-style: inset;
 }
 
@@ -348,9 +348,9 @@
 
 .dialog-buttons button {
     padding: 6px 12px;
-    background-color: #e6d4f2;
-    border: 2px outset #b89fc7;
-    color: #441d57;
+    background-color: var(--bg-light);
+    border: 2px outset var(--border-light);
+    color: var(--start-menu-text);
     cursor: pointer;
     min-width: 80px;
 }
@@ -360,13 +360,13 @@
 }
 
 .delete-event {
-    background-color: #ffdddd !important;
-    border-color: #ffaaaa !important;
-    color: #cc0000 !important;
+    background-color: var(--warning-light) !important;
+    border-color: var(--warning-mid) !important;
+    color: var(--warning-text) !important;
 }
 
 .delete-event:hover {
-    background-color: #ffcccc !important;
+    background-color: var(--warning-lighter) !important;
 }
 
 /* === Scrollbar Styles === */
@@ -377,28 +377,28 @@
 
 .upcoming-events::-webkit-scrollbar-track,
 .today-panel::-webkit-scrollbar-track {
-    background: #f0d9ff;
-    border-left: 1px solid #b89fc7;
+    background: var(--bg-lightest);
+    border-left: 1px solid var(--border-light);
 }
 
 .upcoming-events::-webkit-scrollbar-thumb,
 .today-panel::-webkit-scrollbar-thumb {
-    background-color: #b89fc7;
-    border: 3px solid #f0d9ff;
+    background-color: var(--border-light);
+    border: 3px solid var(--bg-lightest);
     border-radius: 8px;
     min-height: 40px;
 }
 
 .upcoming-events::-webkit-scrollbar-thumb:hover,
 .today-panel::-webkit-scrollbar-thumb:hover {
-    background-color: #a267ac;
+    background-color: var(--purple-main);
 }
 
 /* Firefox scrollbar */
 .upcoming-events,
 .today-panel {
     scrollbar-width: thin;
-    scrollbar-color: #b89fc7 #f0d9ff;
+    scrollbar-color: var(--border-light) var(--bg-lightest);
 }
 
 /* Fun Zone Styles */
@@ -414,8 +414,8 @@
 }
 
 .fun-zone {
-    background: linear-gradient(45deg, #e6d4f2, #f0d9ff);
-    border-top: 2px solid #b89fc7;
+    background: linear-gradient(45deg, var(--bg-light), var(--bg-lightest));
+    border-top: 2px solid var(--border-light);
     margin-top: auto; /* Push to bottom of calendar-grid */
     padding: 10px;
     display: flex;
@@ -441,8 +441,8 @@
 
 /* Fun Fact Box */
 .fun-fact-box {
-    background-color: white;
-    border: 2px solid #a267ac;
+    background-color: var(--bg-explorer-window);
+    border: 2px solid var(--purple-main);
     border-radius: 15px;
     padding: 12px;
     width: 280px;
@@ -451,7 +451,7 @@
 }
 
 .fact-text {
-    color: #441d57;
+    color: var(--accent-text);
     font-size: 14px;
     margin-bottom: 8px;
     min-height: 40px;
@@ -459,8 +459,8 @@
 }
 
 .new-fact-btn {
-    background-color: #a267ac;
-    color: white;
+    background-color: var(--purple-main);
+    color: var(--text-light);
     border: none;
     border-radius: 20px;
     padding: 8px 16px;

@@ -3,6 +3,8 @@ import { FileExplorer } from './file_explorer.js';
 import { WindowManager } from './windows.js';
 import { TaskBar } from './taskbar.js';
 import { SystemTray } from './system_tray.js';
+import { SystemCleaner } from './system_cleaner.js';
+import { StorageManager } from './storage/storage_manager.js'; 
 import { WiFiSystem } from './wifi_system.js';
 import { Desktop } from './desktop.js';
 import { fileSystem } from './storage.js';
@@ -62,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
     taskbar.setWindowManager(windowManager);
 
     // Initialize core systems
+    const storageManager = new StorageManager();
+    fileSystem.storageManager = storageManager;
     windowManager.initialize();
     taskbar.initialize();
     const systemTray = new SystemTray();
@@ -126,6 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const settings = new Settings(fileSystem);
 
     // Now continue with registering non-core apps
+    windowManager.registerApp('systemCleaner', {
+        title: 'System Storage Cleaner',
+        initialize: (contentArea) => {
+            const cleaner = new SystemCleaner();
+            cleaner.initialize(contentArea);
+        },
+        defaultSize: { width: 500, height: 600 },
+        singleton: true
+    });
+
     windowManager.registerApp('paint', {
         title: 'EX Paint',
         initialize: (contentArea) => paint.initialize(contentArea),
@@ -246,6 +260,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentYearSpan = document.getElementById('currentYear');
     if (currentYearSpan) {
         currentYearSpan.textContent = new Date().getFullYear();
+    }
+
+    // Update all system version information
+    const aboutContent = document.getElementById('about-content');
+    if (aboutContent) {
+        // Find the version paragraph and update it
+        const versionParagraph = Array.from(aboutContent.getElementsByTagName('p'))
+            .find(p => p.textContent.startsWith('Version:'));
+        if (versionParagraph) {
+            versionParagraph.textContent = `Version: ${CONFIG.system.fullVersion()}`;
+        }
+
+        // Find and update the copyright paragraph
+        const copyrightParagraph = Array.from(aboutContent.getElementsByTagName('p'))
+            .find(p => p.textContent.startsWith('Copyright'));
+        if (copyrightParagraph) {
+            copyrightParagraph.textContent = CONFIG.system.copyright();
+        }
     }
 
     // Close start menu when clicking outside

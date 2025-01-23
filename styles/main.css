@@ -1,5 +1,69 @@
 :root {
     --system-font: "Verdana", sans-serif;
+
+    /* Special */
+    --taskbar-bg: #c79fd6;
+    --taskbar-border: #d5bde6;
+    --start-button-text: #441d57;
+    --start-button: #d5bde6;
+    --start-menu-bg: #d5bde6;
+    --start-menu-text: #2a1136;
+    --start-menu-hover: #b89fc7;
+    --start-menu-hover-text: #ffffff;
+    --header-text: #441d57;
+    
+    /* Base colors */
+    --purple-darker: #2a1136;
+    --purple-dark: #441d57;
+    --purple-medium: #67378f; 
+    --purple-main: #a267ac;
+    --purple-light: #c79fd6;
+    
+    /* UI element colors */
+    --bg-lightest: #f0d9ff;  /* Lightest background */
+    --bg-light: #e6d4f2;     /* Light background */
+    --bg-mid: #d5bde6;       /* Medium background, commonly used */
+    --border-light: #b89fc7;  /* Light borders */
+    --border-dark: #8b6b9c;   /* Darker borders */
+    
+    /* Accent colors */
+    --accent-blue: #67c9dc;
+    --accent-blue-light: #89d7e6;
+    --accent-pink: #ff99cc;
+    
+    /* Current gradient */
+    --bg-gradient: linear-gradient(135deg, var(--purple-main), var(--accent-blue), var(--accent-pink));
+
+    /* Misc */
+    --nav-button-disabled: #f0f0f0;
+    --text-black: #000000;
+    --text-muted: #666;
+    --text-disabled: #999;
+    --text-light: #ffffff;
+    --warning-mid: #ff9999;
+    --warning-light: #ffcccc;
+    --warning-lighter: #FFDEDE;
+    --warning-text: #cc0000;
+    --ui-disabled-bg: #f0f0f0;
+    --ui-disabled-border: #ccc;
+    --bg-explorer-window: #ffffff;
+
+    /* Window-specific gradients */
+    --titlebar-gradient: linear-gradient(to right, var(--purple-main), var(--accent-blue));
+    --button-gradient: linear-gradient(to bottom, var(--bg-light), var(--bg-mid));
+    --button-hover-gradient: linear-gradient(to bottom, var(--bg-mid), var(--border-light));
+    /* Other gradients */
+    --bg-dark-transparent: rgba(139, 107, 156, 0.2);
+    --bg-mid-transparent: rgba(213, 189, 230, 0.3);
+    --bg-mid-selected: rgba(213, 189, 230, 0.5);
+    --text-light-transparent: rgba(255, 255, 255, 0.4);
+    --purple-medium-alpha: rgba(68, 29, 87, 0.2);
+    --bg-gradient: linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc);
+
+    /* Shadows */
+    --window-shadow: rgba(0, 0, 0, 0.3);
+    --shadow-medium:rgba(0, 0, 0, 0.15);
+    --shadow-light: rgba(0, 0, 0, 0.1);
 }
 
 /* Base styles and layout */
@@ -7,8 +71,7 @@ body {
     font-family: var(--system-font);
     margin: 0;
     overflow: hidden;
-    /* Vaporwave Gradient */
-    background: linear-gradient(135deg, #a267ac, #67c9dc, #ff99cc);
+    background: var(--bg-gradient);
     background-size: 400% 400%;
     animation: gradientBG 15s ease infinite;
     height: 100vh;
@@ -40,8 +103,8 @@ body {
     left: 0;
     width: 100%;
     height: 30px;
-    background-color: #c79fd6;
-    border-top: 2px solid #d5bde6;
+    background-color: var(--taskbar-bg);
+    border-top: 2px solid var(--taskbar-border);
     display: flex;
     align-items: center;
     padding: 0 4px;
@@ -54,8 +117,9 @@ body {
     align-items: center;
     padding: 2px 8px;
     font-weight: bold;
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--start-button);
+    color: var(--start-button-text);
+    border: 2px outset var(--bg-lightest);
     cursor: pointer;
     font-family: inherit;
     font-size: 0.9em;
@@ -68,20 +132,20 @@ body {
 }
 
 #startButton:hover {
-    background-color: #e6d4f2;
+    background-color: var(--bg-light);
 }
 
 #startButton:active {
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     border-style: inset;
 }
 
 #clock {
     margin-left: auto;
     font-weight: bold;
-    color: #441d57;
     padding: 2px 8px;
-    border: 1px solid #b89fc7;
+    color: var(--purple-dark);
+    border: 1px solid var(--border-light);
     border-radius: 3px;
     font-size: 0.9em;
     height: 24px;
@@ -101,8 +165,8 @@ body {
     /* Min and max constraints */
     min-width: 180px;
     max-width: 250px;
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--bg-lightest);
     padding: 4px 0;
     z-index: 200;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
@@ -116,7 +180,7 @@ body {
 
 .menu-label {
     padding: 6px 12px;
-    color: #441d57;
+    color: var(--start-menu-text);
     cursor: default;
     font-weight: 500;
     /* Ensure text doesn't wrap */
@@ -129,8 +193,8 @@ body {
 .menu-label:hover,
 #startMenu a:hover,
 .shutdown-item:hover {
-    background-color: #b89fc7;
-    color: white;
+    background-color: var(--start-menu-hover);
+    color: var(--start-menu-hover-text);
 }
 
 .submenu {
@@ -139,8 +203,8 @@ body {
     left: 100%;
     /* Change from top: 0 to this: */
     bottom: 0;  /* This will make submenus open upward from the bottom */
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--start-menu-bg);
+    border: 2px outset var(--bg-lightest);
     width: max-content;
     min-width: 160px;
     max-width: 220px;
@@ -150,7 +214,7 @@ body {
 #startMenu a {
     display: block;
     padding: 6px 12px;
-    color: #441d57;
+    color: var(--start-menu-text);
     text-decoration: none;
     white-space: nowrap;
     /* Add ellipsis if text is too long */
@@ -164,7 +228,7 @@ body {
 
 .menu-separator {
     height: 1px;
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     margin: 4px 6px;
 }
 
@@ -172,14 +236,14 @@ body {
 .power-option {
     display: block;
     padding: 6px 12px;
-    color: #441d57;
+    color: var(--purple-dark);
     text-decoration: none;
     white-space: nowrap;
 }
 
 .power-option:hover {
-    background-color: #b89fc7;
-    color: white;
+    background-color: var(--border-light);
+    color: var(--text-light);
 }
 
 /* Add styles for the shutdown screen */
@@ -189,7 +253,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    color: white;
+    color: var(--text-light);
     display: none;
     justify-content: center;
     align-items: center;
@@ -209,14 +273,14 @@ body {
     display: flex;
     align-items: center;
     padding: 4px 8px;
-    color: #441d57;
+    color: var(--start-menu-text);
     text-decoration: none;
     gap: 6px;
 }
 
 .menu-item:hover {
-    background-color: #b89fc7;
-    color: white;
+    background-color: var(--border-light);
+    color: var(--start-menu-hover-text);
 }
 
 /* Taskbar programs */
@@ -237,8 +301,9 @@ body {
     flex: 1;
     margin: 2px;
     padding: 0 8px;
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--taskbar-bg);
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-button-text);
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -246,17 +311,16 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 0.9em;
-    color: #441d57;
 }
 
 .taskbar-program:hover {
-    background-color: #e6d4f2;
+    background-color: var(--bg-light);
 }
 
 .taskbar-program.active {
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     border-style: inset;
-    color: white;
+    color: var(--text-light);
 }
 
 .hidden {
@@ -280,8 +344,8 @@ body {
     width: 32px;
     margin: 2px;
     padding: 0 4px;
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--start-menu-bg);
+    border: 2px outset var(--bg-lightest);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -293,11 +357,11 @@ body {
 }
 
 .taskbar-pinned-item:hover {
-    background-color: #e6d4f2;
+    background-color: var(--bg-light);
 }
 
 .taskbar-pinned-item.active {
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     border-style: inset;
 }
 
@@ -309,24 +373,26 @@ body {
 /* Clock stuff */
 .clock-context-menu {
     font-family: var(--system-font);
+    background-color: var(--start-menu-bg);
     font-size: 0.9em;
 }
 
 .clock-context-menu .menu-item {
     padding: 6px 12px;
-    color: #441d57;
+    background-color: var(--start-menu-bg);
+    color: var(--start-button-text);
     cursor: pointer;
     white-space: nowrap;
 }
 
 .clock-context-menu .menu-item:hover {
-    background-color: #b89fc7;
-    color: white;
+    background-color: var(--border-light);
+    color: var(--text-light);
 }
 
 .clock-context-menu .menu-separator {
     height: 1px;
-    background-color: #b89fc7;
+    background-color: var(--border-light);
     margin: 4px 6px;
 }
 
@@ -358,22 +424,23 @@ body {
     width: 16px;
     height: 16px;
     cursor: pointer;
-    color: #441d57;
+    color: var(--header-text);
 }
 
 .tray-icon:hover {
-    color: #2a1136;
+    color: var(--purple-darker);
 }
 
 /* Update the clock styling to work with system tray */
 #clock {
-    margin-left: 0; /* Remove auto margin since system-tray now handles spacing */
+    margin-left: 0;
+    color: var(--start-menu-text) /* Remove auto margin since system-tray now handles spacing */
 }
 
 /* Battery */
 .battery-popup {
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--bg-lightest);
     padding: 12px;
     border-radius: 4px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
@@ -395,31 +462,31 @@ body {
 .battery-percentage {
     font-size: 1.2em;
     font-weight: bold;
-    color: #441d57;
+    color: var(--header-text);
 }
 
 .battery-state {
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.9em;
 }
 
 .time-remaining {
-    color: #666;
+    color: var(--text-muted);
     font-size: 0.9em;
 }
 
 .charge-button {
     width: 100%;
     padding: 6px;
-    background-color: #67c9dc;
-    border: 2px outset #8cd9e6;
-    color: white;
+    background-color: var(--accent-blue);
+    border: 2px outset var(--bg-lightest);
+    color: var(--text-light);
     cursor: pointer;
     font-family: inherit;
 }
 
 .charge-button:hover {
-    background-color: #89d7e6;
+    background-color: var(--accent-blue);
 }
 
 .charge-button:active {
@@ -431,8 +498,8 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #d5bde6;
-    border: 2px outset #f0d9ff;
+    background-color: var(--bg-mid);
+    border: 2px outset var(--bg-lightest);
     padding: 20px;
     border-radius: 4px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
@@ -440,8 +507,8 @@ body {
 }
 
 .battery-warning.critical {
-    background-color: #ffcccc;
-    border-color: #ff9999;
+    background-color: var(--warning-light);
+    border-color: var(--warning-mid);
 }
 
 .warning-content {
@@ -450,25 +517,25 @@ body {
 
 .warning-content h3 {
     margin: 0 0 10px 0;
-    color: #441d57;
+    color: var(--purple-dark);
 }
 
 .warning-content p {
     margin: 0 0 15px 0;
-    color: #666;
+    color: var(--text-muted);
 }
 
 .warning-content button {
     padding: 6px 20px;
-    background-color: #67c9dc;
-    border: 2px outset #8cd9e6;
-    color: white;
+    background-color: var(--accent-blue);
+    border: 2px outset var(--bg-lightest);
+    color: var(--text-light);
     cursor: pointer;
     font-family: inherit;
 }
 
 .warning-content button:hover {
-    background-color: #89d7e6;
+    background-color: var(--accent-blue-light);
 }
 
 .warning-content button:active {
