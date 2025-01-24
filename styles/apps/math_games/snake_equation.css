@@ -6,11 +6,13 @@
     background: linear-gradient(45deg, #000033, #330066);
     padding: 10px;
     font-family: 'Press Start 2P', 'Courier New', monospace;
-    height: calc(100% - 20px); /* Account for padding */
-    width: calc(100% - 20px); /* Account for padding */
+    height: 100%;
+    width: 100%;
     color: #00ff00;
     position: relative;
-    overflow: hidden; /* Prevent scrollbars */
+    overflow: auto;
+    gap: 8px;
+    box-sizing: border-box;
 }
 
 .game-header {
@@ -18,19 +20,28 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 5px;
 }
 
 .controls {
     display: flex;
     gap: 5px;
-    flex-wrap: wrap; /* Allow buttons to wrap on narrow screens */
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.game-info {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .difficulty-btn, .start-btn {
     padding: 6px 12px;
-    font-family: 'Press Start 2P', 'Courier New', monospace;
+    font-family: inherit;
     font-size: 10px;
     border: 2px solid #00ff00;
     background: #000033;
@@ -51,16 +62,41 @@
     color: #000033;
 }
 
-.score-display {
-    font-size: 14px;
+.score-display, .level-display, .progress-display {
+    font-size: 12px;
     color: #ff00ff;
     text-shadow: 0 0 5px #ff00ff;
     white-space: nowrap;
 }
 
+.high-scores {
+    width: 100%;
+    background: rgba(0, 0, 51, 0.5);
+    padding: 8px;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    margin: 5px 0;
+    text-align: center;
+}
+
+.high-scores-title {
+    color: #00ffff;
+    font-size: 12px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 5px #00ffff;
+}
+
+.high-scores-list {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    color: #ffff00;
+    font-size: 10px;
+}
+
 .target-equation, .current-equation {
     font-size: 12px;
-    margin: 5px 0;
+    margin: 3px 0;
     color: #00ffff;
     text-shadow: 0 0 5px #00ffff;
     text-align: center;
@@ -70,33 +106,28 @@
 .game-canvas {
     border: 2px solid #00ff00;
     box-shadow: 0 0 20px #00ff00;
-    margin: 10px 0;
-    max-width: 100%; /* Ensure canvas doesn't overflow */
-    height: auto; /* Maintain aspect ratio */
+    width: min(400px, 90%);
+    height: min(400px, 90vw);
+    margin: 5px 0;
+    background: #000033;
 }
 
 .game-message {
-    font-size: 16px;
+    font-size: 20px;
     color: #ff0000;
     text-shadow: 0 0 5px #ff0000;
     text-align: center;
-    margin-top: 10px;
     display: none;
     animation: pulse 2s infinite;
     position: absolute;
-    width: 100%;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: rgba(0, 0, 51, 0.9);
+    padding: 15px;
+    border-radius: 10px;
+    z-index: 50;
 }
-
-@keyframes pulse {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-/* High score / Game over */
 
 .game-over-overlay {
     position: absolute;
@@ -111,17 +142,6 @@
     z-index: 100;
 }
 
-.game-over-overlay.flash {
-    background: rgba(255, 0, 0, 0.5);
-    animation: flashRed 0.5s;
-}
-
-@keyframes flashRed {
-    0% { background: rgba(255, 0, 0, 0.8); }
-    50% { background: rgba(255, 0, 0, 0.4); }
-    100% { background: rgba(255, 0, 0, 0.8); }
-}
-
 .game-over-content {
     background: rgba(0, 0, 51, 0.9);
     padding: 20px;
@@ -130,51 +150,33 @@
     text-align: center;
     box-shadow: 0 0 20px #00ff00;
     animation: glowPulse 2s infinite;
-}
-
-@keyframes glowPulse {
-    0% { box-shadow: 0 0 20px #00ff00; }
-    50% { box-shadow: 0 0 40px #00ff00; }
-    100% { box-shadow: 0 0 20px #00ff00; }
+    max-width: 90%;
 }
 
 .game-over-message {
     color: #ff0000;
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 20px;
+    margin-bottom: 15px;
     text-shadow: 0 0 10px #ff0000;
 }
 
 .final-score {
     color: #00ffff;
-    font-size: 18px;
-    margin-bottom: 20px;
+    font-size: 16px;
+    margin-bottom: 15px;
 }
 
 .new-high-score {
     color: #ffff00;
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 18px;
+    margin-bottom: 15px;
     animation: rainbow 2s infinite;
-}
-
-.new-high-score.hidden {
-    display: none;
-}
-
-@keyframes rainbow {
-    0% { color: #ff0000; }
-    20% { color: #ffff00; }
-    40% { color: #00ff00; }
-    60% { color: #00ffff; }
-    80% { color: #ff00ff; }
-    100% { color: #ff0000; }
 }
 
 .retry-btn {
     padding: 10px 20px;
-    font-family: 'Press Start 2P', 'Courier New', monospace;
-    font-size: 16px;
+    font-family: inherit;
+    font-size: 14px;
     background: #000033;
     color: #00ff00;
     border: 2px solid #00ff00;
@@ -188,35 +190,32 @@
     box-shadow: 0 0 20px #00ff00;
 }
 
-.high-scores {
-    background: rgba(0, 0, 51, 0.5);
-    padding: 10px;
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    margin: 10px 0;
-    width: 100%;
-    text-align: center;
+/* Animations */
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
 }
 
-.high-scores-title {
-    color: #00ffff;
-    font-size: 14px;
-    margin-bottom: 5px;
-    text-shadow: 0 0 5px #00ffff;
+@keyframes glowPulse {
+    0% { box-shadow: 0 0 20px #00ff00; }
+    50% { box-shadow: 0 0 40px #00ff00; }
+    100% { box-shadow: 0 0 20px #00ff00; }
 }
 
-.high-scores-list {
-    color: #ffff00;
-    font-size: 12px;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+@keyframes rainbow {
+    0% { color: #ff0000; }
+    20% { color: #ffff00; }
+    40% { color: #00ff00; }
+    60% { color: #00ffff; }
+    80% { color: #ff00ff; }
+    100% { color: #ff0000; }
 }
 
 /* Grid animation */
 .snake-equation-container::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -239,7 +238,35 @@
 .target-equation,
 .current-equation,
 .game-canvas,
-.game-message {
+.game-message,
+.high-scores {
     position: relative;
     z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    .game-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .controls, .game-info {
+        justify-content: center;
+    }
+
+    .difficulty-btn, .start-btn {
+        font-size: 9px;
+        padding: 5px 10px;
+    }
+
+    .high-scores-list {
+        grid-template-columns: repeat(3, 1fr);
+        font-size: 9px;
+    }
+
+    .game-canvas {
+        width: 95%;
+        height: 95vw;
+    }
 }

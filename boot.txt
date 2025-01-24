@@ -59,8 +59,6 @@ window._resetFileSystem()
 
     TO DO
     - theme colors; save theme to user.config
-    - Snake Equation too hard, score not updating
-    - duck should not be case sensitive
         - work on file system in general
         - folders in project for music, images (.png only)
     - make version numbers in Boots

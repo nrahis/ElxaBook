@@ -103,6 +103,7 @@ export class Desktop {
         });
     
         // Restore any saved shortcuts
+        // Restore any saved shortcuts
         Object.entries(savedPositions).forEach(([name, data]) => {
             if (data.isShortcut && !this.desktopIcons.has(name)) {
                 try {
@@ -116,6 +117,10 @@ export class Desktop {
                     if (icon) {
                         // Add shortcut-specific properties
                         icon.dataset.targetPath = data.targetPath;
+                        
+                        // Add these two lines here:
+                        if (data.program) icon.dataset.program = data.program;
+                        icon.dataset.shortcutType = data.iconType;
                         
                         // Add shortcut overlay
                         const iconElement = icon.querySelector('.file-icon');
@@ -157,6 +162,10 @@ export class Desktop {
 
                         if (icon) {
                             icon.dataset.targetPath = shortcutData.targetPath;
+                            
+                            // Add these two lines here:
+                            if (shortcutData.program) icon.dataset.program = shortcutData.program;
+                            icon.dataset.shortcutType = shortcutData.type;
                             
                             // Add shortcut overlay if it's not a default icon
                             if (!shortcutData.isDefault) {
@@ -785,19 +794,13 @@ export class Desktop {
         
         if (!targetInfo) {
             console.error('Target info not found for:', targetPath);
-            console.log('Attempted path:', targetPath);
-            console.log('File system state:', {
-                files: JSON.parse(localStorage.getItem('elxaos_files')),
-                folders: JSON.parse(localStorage.getItem('elxaos_folders'))
-            });
             throw new Error('Target not found');
         }
     
-        // Rest of the createShortcut method remains the same...
-        let shortcutName = `${name} - Shortcut`;
+        let shortcutName = `${name}`;
         let counter = 1;
         while (this.desktopIcons.has(shortcutName)) {
-            shortcutName = `${name} - Shortcut (${counter})`;
+            shortcutName = `${name} (${counter})`;
             counter++;
         }
     
@@ -806,7 +809,7 @@ export class Desktop {
     
         if (targetInfo.type === 'program') {
             iconCategory = 'program';
-            iconType = targetInfo;  // Pass the whole program info
+            iconType = targetInfo;  // Pass the whole program info for proper icon
         } else if (type === 'folder' || targetInfo.type === 'folder') {
             iconCategory = 'folder';
             // Check for special system folders
@@ -839,6 +842,10 @@ export class Desktop {
             
             // Store the target path in the icon's dataset
             shortcutIcon.dataset.targetPath = targetPath;
+            shortcutIcon.dataset.shortcutType = targetInfo.type;
+            if (targetInfo.program) {
+                shortcutIcon.dataset.program = targetInfo.program;
+            }
             
             // Add shortcut overlay
             const iconElement = shortcutIcon.querySelector('.file-icon');
@@ -859,10 +866,11 @@ export class Desktop {
                 JSON.stringify({
                     targetPath: targetPath,
                     type: targetInfo.type,
+                    program: targetInfo.program, // Important for program shortcuts
                     category: iconCategory,
-                    program: targetInfo.program, // Include program info
                     iconType: iconType,
-                    iconCategory: iconCategory
+                    iconCategory: iconCategory,
+                    originalName: targetInfo.name
                 }),
                 'shortcut'
             );
@@ -878,7 +886,8 @@ export class Desktop {
                 isShortcut: true,
                 targetPath: targetPath,
                 iconType: iconType,
-                category: iconCategory
+                category: iconCategory,
+                program: targetInfo.program // Save program info in positions
             };
             this.saveIconPositions(iconPositions);
     
@@ -899,26 +908,44 @@ export class Desktop {
     
         console.log('Available apps:', Array.from(this.windowManager.apps.keys()));
         
-        // First check if this is a shortcut by looking for the target path in the icon's dataset
+        // First check if this is a shortcut
         const icon = this.desktopIcons.get(name);
         if (icon && icon.dataset.targetPath) {
             console.log('Opening shortcut with target path:', icon.dataset.targetPath);
             
-            // Get the file info to determine the type
-            const fileInfo = this.fileSystem.getFile(icon.dataset.targetPath) || 
-                            this.fileSystem.getFolderInfo(icon.dataset.targetPath);
-            
-            if (fileInfo) {
-                if (fileInfo.type === 'program') {
-                    // For program shortcuts
-                    this.windowManager.createWindow(fileInfo.program);
-                } else if (fileInfo.type === 'folder' || icon.dataset.type === 'folder') {
+            const fullPath = icon.dataset.targetPath;
+            const shortcutType = icon.dataset.shortcutType;
+            const program = icon.dataset.program;
+    
+            try {
+                if (shortcutType === 'program' || program) {
+                    // Handle program shortcuts directly
+                    this.windowManager.createWindow(program || shortcutType);
+                } else if (shortcutType === 'folder') {
                     // For folder shortcuts
-                    this.windowManager.createWindow('folder', { path: icon.dataset.targetPath });
+                    this.windowManager.createWindow('folder', { path: fullPath });
                 } else {
                     // For file shortcuts
-                    this.windowManager.createWindow('notepad', { file: fileInfo });
+                    const fileInfo = this.fileSystem.getFile(fullPath);
+                    if (fileInfo) {
+                        switch (fileInfo.type) {
+                            case 'text':
+                                this.windowManager.createWindow('notepad', { file: fileInfo });
+                                break;
+                            case 'image':
+                                this.windowManager.createWindow('paint', { file: fileInfo });
+                                break;
+                            case 'slideshow':
+                                this.windowManager.createWindow('slideshow', { file: fileInfo });
+                                break;
+                            default:
+                                this.windowManager.createWindow('notepad', { file: fileInfo });
+                        }
+                    }
                 }
+            } catch (error) {
+                console.error('Error opening shortcut:', error);
+                alert('Error opening shortcut: ' + error.message);
             }
             return;
         }

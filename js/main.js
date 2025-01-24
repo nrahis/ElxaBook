@@ -21,6 +21,7 @@ import { scientificCalculator } from './apps/system/scientific_calculator.js';
 import { Clock } from './apps/system/clock.js';
 import { Calendar } from './apps/system/calendar.js';
 import { Slideshow } from './apps/system/slideshow.js';
+import { EXCode } from './apps/excode_editor.js';
 import { Settings } from './settings.js';
 import { RecycleBinHandler } from './recycle-bin-handler.js';
 import { FileOpenDialog } from './dialogs/file_open_dialog.js';
@@ -156,19 +157,22 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('minesweeper', {
         title: 'Kittysweeper',
         initialize: (contentArea) => minesweeper.initialize(contentArea),
-        defaultSize: { width: 500, height: 600 }
+        defaultSize: { width: 500, height: 600 },
+        singleton: true 
     });
 
     windowManager.registerApp('mathMatch', {
         title: 'Math Match',
         initialize: (contentArea) => mathMatch.initialize(contentArea),
-        defaultSize: { width: 500, height: 550 }
+        defaultSize: { width: 500, height: 550 },
+        singleton: true 
     });
 
     windowManager.registerApp('timeCrunch', {
         title: 'Time Crunch',
         initialize: (contentArea) => timeCrunch.initialize(contentArea),
-        defaultSize: { width: 410, height: 500 }
+        defaultSize: { width: 410, height: 500 },
+        singleton: true 
     });
 
     windowManager.registerApp('snakeEquation', {  // lowercase to match the data-app attribute
@@ -177,13 +181,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const game = new SnakeEquation();
             game.initialize(contentArea);
         },
-        defaultSize: { width: 500, height: 600 }
+        defaultSize: { width: 500, height: 600 },
+        singleton: true 
     });
     
     windowManager.registerApp('solitaire', {
         title: 'Solitaire',
         initialize: (contentArea) => solitaire.initialize(contentArea),
-        defaultSize: { width: 710, height: 610 }
+        defaultSize: { width: 710, height: 610 },
+        singleton: true 
     });
 
     windowManager.registerApp('about', {
@@ -197,7 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('scientificCalculator', {
         title: 'Calculator',
         initialize: (contentArea) => scientificCalculator.initialize(contentArea), // Fix typo from 'sceintificCalculator'
-        defaultSize: { width: 330, height: 410 }
+        defaultSize: { width: 330, height: 410 },
+        singleton: true 
     });
 
     windowManager.registerApp('clock', {
@@ -209,13 +216,25 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('calendar', {
         title: 'Calendar',
         initialize: (contentArea) => calendar.initialize(contentArea),
-        defaultSize: { width: 850, height: 600 }
+        defaultSize: { width: 850, height: 600 },
+        singleton: true 
     });
 
     windowManager.registerApp('slideshow', {
         title: 'Slideshow',
         initialize: (contentArea) => slideshow.initialize(contentArea),
-        defaultSize: { width: 1000, height: 600 }
+        defaultSize: { width: 1000, height: 600 },
+        singleton: true 
+    });
+
+    windowManager.registerApp('excode', {
+        title: 'EXCode',
+        initialize: (contentArea) => {
+            const excode = new EXCode(fileSystem);
+            excode.initialize(contentArea);
+        },
+        defaultSize: { width: 1200, height: 700 },
+        singleton: true  // Probably want just one instance at a time
     });
 
     windowManager.registerApp('settings', {
