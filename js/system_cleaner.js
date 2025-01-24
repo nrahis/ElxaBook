@@ -138,31 +138,19 @@ export class SystemCleaner {
         const files = JSON.parse(localStorage.getItem('elxaos_files') || '{}');
         const userPath = `/ElxaOS/Users/${this.currentUser}`;
         
-        // Get only user-created files (not system files, games, or shortcuts)
+        // Get only user files (not system files)
         const userFiles = [];
         for (const [path, file] of Object.entries(files)) {
-            // Skip if file is:
-            // - Not in user's directory
-            // - Protected
-            // - A shortcut (.lnk)
-            // - A program/game
-            // - In the Games folder
-            if (!path.startsWith(userPath) || 
-                file.isProtected || 
-                file.name.endsWith('.lnk') || 
-                file.type === 'program' ||
-                path.includes('/Games/')) {
-                continue;
+            if (path.startsWith(userPath) && !file.isProtected) {
+                userFiles.push({
+                    path,
+                    name: file.name,
+                    type: this.getFileType(file),
+                    location: this.getFileLocation(path),
+                    size: new Blob([file.content || '']).size,
+                    modified: new Date(file.modified).toLocaleString()
+                });
             }
-
-            userFiles.push({
-                path,
-                name: file.name,
-                type: this.getFileType(file),
-                location: this.getFileLocation(path),
-                size: new Blob([file.content || '']).size,
-                modified: new Date(file.modified).toLocaleString()
-            });
         }
 
         return userFiles.sort((a, b) => b.size - a.size); // Sort by size descending
@@ -211,34 +199,7 @@ export class SystemCleaner {
         }
     }
 
-    initialize(container) {
-        container.innerHTML = `
-            <div class="cleaner-container">
-                <h2>Storage Cleaner</h2>
-                <p class="cleaner-info">Manage your saved files to free up space</p>
-                
-                <div class="cl-files-container">
-                    <div class="cl-files-header">
-                        <div class="cl-file-name-col">Name</div>
-                        <div class="cl-file-type-col">Type</div>
-                        <div class="cl-file-location-col">Location</div>
-                        <div class="cl-file-size-col">Size</div>
-                        <div class="cl-file-actions-col">Action</div>
-                    </div>
-                    <div class="cl-files-list"></div>
-                </div>
-
-                <div class="cleaner-footer">
-                    <button class="clean-all-button">Clean All Files</button>
-                </div>
-            </div>
-        `;
-
-        this.updateDisplay(container);
-        this.setupEventListeners(container);
-    }
-
-    updateDisplay(container) {
+    updateFilesList(container) {
         const filesList = container.querySelector('.cl-files-list');
         const files = this.getUserFiles();
         
@@ -265,16 +226,16 @@ export class SystemCleaner {
         `).join('');
     }
 
-    setupEventListeners(container) {
+    setupCleanerEvents(container) {
         // Individual file deletion
         container.addEventListener('click', (e) => {
             if (e.target.classList.contains('delete-file-button')) {
-                const fileItem = e.target.closest('.file-item');
+                const fileItem = e.target.closest('.cl-file-item');
                 const path = fileItem.dataset.path;
                 
                 if (confirm('Are you sure you want to delete this file?')) {
                     if (this.deleteFile(path)) {
-                        this.updateDisplay(container);
+                        this.updateFilesList(container);
                     } else {
                         alert('Failed to delete file');
                     }
@@ -283,7 +244,7 @@ export class SystemCleaner {
         });
 
         // Clean all files
-        container.querySelector('.clean-all-button').addEventListener('click', () => {
+        container.querySelector('.clean-all-button')?.addEventListener('click', () => {
             if (confirm('Are you sure you want to delete all user files? This cannot be undone!')) {
                 const files = this.getUserFiles();
                 let successCount = 0;
@@ -296,7 +257,7 @@ export class SystemCleaner {
 
                 if (successCount > 0) {
                     alert(`Successfully deleted ${successCount} files`);
-                    this.updateDisplay(container);
+                    this.updateFilesList(container);
                 }
             }
         });

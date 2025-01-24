@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const slideshow = new Slideshow(fileSystem);
     const settings = new Settings(fileSystem);
 
+
     // Now continue with registering non-core apps
     windowManager.registerApp('systemCleaner', {
         title: 'System Storage Cleaner',
@@ -232,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     windowManager.registerApp('duck', {
         title: 'DUCK Terminal',
         initialize: (contentArea) => {
-            const duck = new Duck(window.elxaWifiSystem);  // Pass the WiFi system
+            const duck = new Duck(window.elxaWifiSystem, fileSystem);  // Use the global WiFi system
             duck.initialize(contentArea);
         },
         defaultSize: { width: 700, height: 500 }

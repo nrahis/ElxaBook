@@ -1,141 +1,31 @@
-.cleaner-container {
-    padding: 20px;
-    font-family: var(--system-font);
-}
-
-.cleaner-container h2 {
-    color: var(--purple-dark);
-    margin-bottom: 10px;
-}
-
-.cleaner-info {
-    color: var(--text-muted);
-    margin-bottom: 20px;
-}
-
-.cl-files-container {
-    border: 1px solid var(--border-light);
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.cl-files-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    padding: 10px;
-    background-color: var(--bg-light);
-    border-bottom: 1px solid var(--border-light);
-    font-weight: bold;
-    color: var(--purple-dark);
-}
-
-.cl-files-list {
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.cl-file-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    padding: 10px;
-    border-bottom: 1px solid var(--border-light);
-    align-items: center;
-}
-
-.cl-file-item:hover {
-    background-color: var(--bg-light);
-}
-
-.cl-file-item:last-child {
-    border-bottom: none;
-}
-
-.cl-file-name-col {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding-right: 10px; 
-}
-
-.cl-file-size-col {
-    color: var(--text-muted);
-}
-
-.delete-file-button {
-    padding: 4px 8px;
-    background-color: var(--warning-mid);
-    border: 2px outset var(--warning-light);
-    color: var(--warning-text);
-    cursor: pointer;
-}
-
-.delete-file-button:hover {
-    background-color: var(--warning-light);
-}
-
-.delete-file-button:active {
-    border-style: inset;
-}
-
-.cleaner-footer {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.clean-all-button {
-    padding: 8px 16px;
-    background-color: var(--warning-mid);
-    border: 2px outset var(--warning-light);
-    color: var(--warning-text);
-    cursor: pointer;
-}
-
-.clean-all-button:hover {
-    background-color: var(--warning-light);
-}
-
-.clean-all-button:active {
-    border-style: inset;
-}
-
-.clean-all-button:disabled {
-    background-color: var(--ui-disabled-bg);
-    border-color: var(--ui-disabled-border);
-    color: var(--text-disabled);
-    cursor: not-allowed;
-}
-
-.no-files {
-    padding: 20px;
-    text-align: center;
-    color: var(--text-muted);
-    font-style: italic;
-}
-
+/* Tabs */
 .cleaner-tabs {
     display: flex;
-    gap: 2px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid var(--border-dark);
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
+    padding: 4px 4px 0 4px;
 }
 
 .tab-button {
-    padding: 8px 16px;
+    padding: 6px 16px;
     background-color: var(--bg-light);
-    border: none;
-    border-radius: 4px 4px 0 0;
+    border: 1px solid var(--purple-dark);
+    border-bottom: none;
+    margin-right: 2px;
     cursor: pointer;
-    color: var(--text-normal);
+    color: var(--start-menu-text);
+    font-size: 12px;
+    position: relative;
+    top: 2px;
 }
 
 .tab-button:hover:not(.disabled) {
-    background-color: var(--bg-lighter);
+    background-color: var(--bg-lightest);
 }
 
 .tab-button.active {
-    background-color: var(--bg-lighter);
-    border: 2px solid var(--border-dark);
-    border-bottom: 2px solid var(--bg-lighter);
+    background: var(--bg-lightest);
+    border-bottom: 1px solid var(--bg-lightest);
     margin-bottom: -2px;
 }
 
@@ -144,35 +34,64 @@
     cursor: not-allowed;
 }
 
-/* Storage Location Tab Styles */
-.storage-section {
-    background: var(--bg-light);
+/* Content Area */
+.tab-content {
     padding: 20px;
-    border-radius: 4px;
+    background: var(--bg-lightest);
+}
+
+/* File List Styles */
+.cl-files-container {
+    border: 1px solid var(--border-light);
+    background: var(--bg-explorer-window);
     margin-bottom: 20px;
+}
+
+.cl-files-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 8px;
+    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
+    border-bottom: 1px solid var(--border-light);
+    font-weight: bold;
+}
+
+.cl-file-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-light);
+    align-items: center;
+}
+
+.cl-file-item:hover {
+    background-color: var(--bg-light);
+}
+
+/* Storage Location Styles */
+.storage-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-explorer-window);
 }
 
 .storage-status {
     margin-bottom: 15px;
-    font-size: 1.1em;
-}
-
-.status-value {
-    font-weight: bold;
-    color: var(--purple-dark);
+    color: var(--start-menu-text);
 }
 
 .storage-button {
-    padding: 8px 16px;
-    background-color: var(--accent-blue);
+    padding: 6px 16px;
+    background: var(--button-gradient);
     border: 2px outset var(--bg-lightest);
-    color: white;
+    color: var(--start-menu-text);
     cursor: pointer;
-    margin-bottom: 15px;
+    min-width: 80px;
 }
 
 .storage-button:hover {
-    background-color: var(--accent-blue-light);
+    background: var(--button-hover-gradient);
 }
 
 .storage-button:active {
@@ -180,21 +99,64 @@
 }
 
 .storage-description {
-    color: var(--text-muted);
+    color: var(--accent-text);
+    margin-top: 10px;
+    font-size: 12px;
     line-height: 1.4;
 }
 
 .storage-warning {
-    background-color: var(--warning-light);
+    background: var(--warning-light);
     color: var(--warning-text);
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid var(--warning-mid);
+    margin-bottom: 15px;
 }
 
+/* Buttons and Actions */
+.delete-file-button {
+    padding: 4px 8px;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-menu-text);
+    cursor: pointer;
+}
+
+.delete-file-button:hover {
+    background: var(--button-hover-gradient);
+}
+
+.delete-file-button:active {
+    border-style: inset;
+}
+
+.clean-all-button {
+    padding: 6px 16px;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--start-menu-text);
+    cursor: pointer;
+}
+
+.clean-all-button:hover {
+    background: var(--button-hover-gradient);
+}
+
+.clean-all-button:active {
+    border-style: inset;
+}
+
+.clean-all-button:disabled {
+    background: var(--ui-disabled-bg);
+    border-color: var(--ui-disabled-border);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+}
+
+/* Programs Tab */
 .coming-soon {
     color: var(--text-muted);
     font-style: italic;
     text-align: center;
-    padding: 40px;
+    padding: 20px;
 }
