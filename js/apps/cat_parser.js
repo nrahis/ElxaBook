@@ -171,111 +171,468 @@ class CATParser {
         return tokens;
     }
 
+    // Add this method to CATParser class, removing any duplicate parseBlock definitions
+
     parse(code) {
+        // First tokenize the code
         const tokens = this.tokenize(code);
-        const ast = {
+        
+        // Create program AST
+        const program = {
             type: 'Program',
             body: []
         };
 
         let current = 0;
-
         while (current < tokens.length) {
-            const token = tokens[current];
-
-            if (token.type === this.TOKEN_TYPES.NEWLINE) {
+            // Skip newlines and whitespace
+            if (tokens[current].type === this.TOKEN_TYPES.NEWLINE) {
                 current++;
                 continue;
             }
 
-            if (token.type === this.TOKEN_TYPES.KEYWORD) {
-                switch (token.meaning) {
+            // Parse each statement
+            if (tokens[current].type === this.TOKEN_TYPES.KEYWORD) {
+                switch (tokens[current].meaning) {
                     case 'print': {
-                        current++;
+                        current++; // Move past MEOW
                         const expression = this.parseExpression(tokens, current);
-                        current = expression.next;
-                        ast.body.push({
+                        if (!expression || !expression.value) {
+                            throw new Error('Expected expression after MEOW');
+                        }
+                        program.body.push({
                             type: 'PrintStatement',
                             value: expression.value
                         });
+                        current = expression.next;
                         break;
                     }
+                    
                     case 'declare': {
-                        const varName = tokens[++current];
-                        const operator = tokens[++current];
+                        current++; // Move past PURR
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after PURR');
+                        }
+                        const name = tokens[current];
                         current++;
+                        
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.OPERATOR || tokens[current].value !== '=') {
+                            throw new Error('Expected = after variable name in PURR');
+                        }
+                        current++;
+                        
                         const expression = this.parseExpression(tokens, current);
-                        current = expression.next;
-                        ast.body.push({
+                        if (!expression || !expression.value) {
+                            throw new Error('Expected value after = in PURR');
+                        }
+                        program.body.push({
                             type: 'VariableDeclaration',
-                            name: varName,
-                            operator: operator,
+                            name: name,
                             value: expression.value
                         });
+                        current = expression.next;
                         break;
                     }
+                    
                     case 'increment': {
-                        const variable = tokens[++current];
-                        current++;
-                        ast.body.push({
+                        current++; // Move past SCRATCH
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after SCRATCH');
+                        }
+                        program.body.push({
                             type: 'IncrementStatement',
-                            variable: variable
+                            variable: tokens[current]
                         });
-                        break;
-                    }
-                    case 'decrement': {
-                        const variable = tokens[++current];
                         current++;
-                        ast.body.push({
-                            type: 'DecrementStatement',
-                            variable: variable
-                        });
                         break;
                     }
+                    
+                    case 'decrement': {
+                        current++; // Move past LICK
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after LICK');
+                        }
+                        program.body.push({
+                            type: 'DecrementStatement',
+                            variable: tokens[current]
+                        });
+                        current++;
+                        break;
+                    }
+                    
                     case 'while': {
-                        current++; // Skip WHILE keyword
+                        current++; // Move past HUNT
+                        if (!tokens[current] || tokens[current].meaning !== 'while_condition') {
+                            throw new Error('Expected WHILE after HUNT');
+                        }
+                        current++; // Move past WHILE
+                        
                         const condition = this.parseExpression(tokens, current);
+                        if (!condition || !condition.value) {
+                            throw new Error('Expected condition after HUNT WHILE');
+                        }
                         current = condition.next;
+                        
+                        // Use existing parseBlock method
                         const block = this.parseBlock(tokens, current);
-                        current = block.next;
-                        ast.body.push({
+                        if (!block) {
+                            throw new Error('Expected code block after HUNT WHILE condition');
+                        }
+                        program.body.push({
                             type: 'WhileLoop',
                             condition: condition.value,
                             body: block.statements
                         });
+                        current = block.next;
                         break;
                     }
+                    
                     case 'for': {
-                        current++;
+                        current++; // Move past CHASE
                         const count = this.parseExpression(tokens, current);
-                        current = count.next;
-                        // Skip 'TIMES' keyword
-                        while (current < tokens.length && 
-                               (tokens[current].type === this.TOKEN_TYPES.NEWLINE ||
-                                tokens[current].value === 'TIMES')) {
-                            current++;
+                        if (!count || !count.value) {
+                            throw new Error('Expected number after CHASE');
                         }
+                        current = count.next;
+                        
+                        if (!tokens[current] || tokens[current].meaning !== 'times') {
+                            throw new Error('Expected TIMES after CHASE number');
+                        }
+                        current++; // Move past TIMES
+                        
+                        // Use existing parseBlock method
                         const block = this.parseBlock(tokens, current);
-                        current = block.next;
-                        ast.body.push({
+                        if (!block) {
+                            throw new Error('Expected code block after CHASE number TIMES');
+                        }
+                        program.body.push({
                             type: 'ForLoop',
                             count: count.value,
                             body: block.statements
                         });
+                        current = block.next;
                         break;
                     }
+                    
+                    default:
+                        throw new Error(`Unknown keyword: ${tokens[current].value}`);
                 }
             } else {
-                // Handle standalone expressions
-                const expression = this.parseExpression(tokens, current);
-                if (expression.value) {
-                    ast.body.push(expression.value);
-                }
-                current = expression.next;
+                // Skip unknown tokens
+                current++;
             }
         }
 
-        return ast;
+        return program;
+    }
+
+    // Add this method to the CATParser class
+    parseStatement(tokens, start) {
+        let current = start;
+        const token = tokens[current];
+
+        if (!token) return null;
+
+        if (token.type === this.TOKEN_TYPES.KEYWORD) {
+            switch (token.meaning) {
+                case 'print': {
+                    current++; // Move past MEOW
+                    const expression = this.parseExpression(tokens, current);
+                    if (!expression || !expression.value) {
+                        throw new Error('Expected expression after MEOW');
+                    }
+                    return {
+                        value: {
+                            type: 'PrintStatement',
+                            value: expression.value
+                        },
+                        next: expression.next
+                    };
+                }
+
+                case 'declare': {
+                    current++; // Move past PURR
+                    if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                        throw new Error('Expected variable name after PURR');
+                    }
+                    const name = tokens[current];
+                    current++;
+
+                    if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.OPERATOR || tokens[current].value !== '=') {
+                        throw new Error('Expected = after variable name in PURR');
+                    }
+                    current++;
+
+                    const expression = this.parseExpression(tokens, current);
+                    if (!expression || !expression.value) {
+                        throw new Error('Expected value after = in PURR');
+                    }
+                    return {
+                        value: {
+                            type: 'VariableDeclaration',
+                            name: name,
+                            value: expression.value
+                        },
+                        next: expression.next
+                    };
+                }
+
+                case 'increment': {
+                    current++; // Move past SCRATCH
+                    if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                        throw new Error('Expected variable name after SCRATCH');
+                    }
+                    return {
+                        value: {
+                            type: 'IncrementStatement',
+                            variable: tokens[current]
+                        },
+                        next: current + 1
+                    };
+                }
+
+                case 'decrement': {
+                    current++; // Move past LICK
+                    if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                        throw new Error('Expected variable name after LICK');
+                    }
+                    return {
+                        value: {
+                            type: 'DecrementStatement',
+                            variable: tokens[current]
+                        },
+                        next: current + 1
+                    };
+                }
+
+                case 'while': {
+                    current++; // Move past HUNT
+                    if (!tokens[current] || tokens[current].meaning !== 'while_condition') {
+                        throw new Error('Expected WHILE after HUNT');
+                    }
+                    current++; // Move past WHILE
+
+                    const condition = this.parseExpression(tokens, current);
+                    if (!condition || !condition.value) {
+                        throw new Error('Expected condition after HUNT WHILE');
+                    }
+                    current = condition.next;
+
+                    // Parse the block
+                    const block = this.parseBlock(tokens, current);
+                    if (!block) {
+                        throw new Error('Expected code block after HUNT WHILE condition');
+                    }
+                    return {
+                        value: {
+                            type: 'WhileLoop',
+                            condition: condition.value,
+                            body: block.statements
+                        },
+                        next: block.next
+                    };
+                }
+
+                case 'for': {
+                    current++; // Move past CHASE
+                    const count = this.parseExpression(tokens, current);
+                    if (!count || !count.value) {
+                        throw new Error('Expected number after CHASE');
+                    }
+                    current = count.next;
+
+                    if (!tokens[current] || tokens[current].meaning !== 'times') {
+                        throw new Error('Expected TIMES after CHASE number');
+                    }
+                    current++; // Move past TIMES
+
+                    const block = this.parseBlock(tokens, current);
+                    if (!block) {
+                        throw new Error('Expected code block after CHASE number TIMES');
+                    }
+                    return {
+                        value: {
+                            type: 'ForLoop',
+                            count: count.value,
+                            body: block.statements
+                        },
+                        next: block.next
+                    };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    parseBlock(tokens, start) {
+        let current = start;
+        const statements = [];
+        
+        // Skip any whitespace or newlines before the brace
+        while (current < tokens.length && 
+               (tokens[current].type === this.TOKEN_TYPES.NEWLINE || 
+                /\s/.test(tokens[current].value))) {
+            current++;
+        }
+    
+        // Check for opening brace
+        if (!tokens[current] || tokens[current].value !== '{') {
+            throw new Error(`Expected { at start of block, found ${tokens[current]?.value || 'end of input'}`);
+        }
+        current++;
+    
+        // Process statements until we hit closing brace
+        while (current < tokens.length && tokens[current].value !== '}') {
+            // Skip standalone newlines
+            if (tokens[current].type === this.TOKEN_TYPES.NEWLINE) {
+                current++;
+                continue;
+            }
+    
+            // Parse statements based on keyword type
+            if (tokens[current].type === this.TOKEN_TYPES.KEYWORD) {
+                switch (tokens[current].meaning) {
+                    case 'print': {
+                        current++; // Move past MEOW
+                        const expression = this.parseExpression(tokens, current);
+                        if (!expression || !expression.value) {
+                            throw new Error('Expected expression after MEOW');
+                        }
+                        statements.push({
+                            type: 'PrintStatement',
+                            value: expression.value
+                        });
+                        current = expression.next;
+                        break;
+                    }
+    
+                    case 'declare': {
+                        current++; // Move past PURR
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after PURR');
+                        }
+                        const name = tokens[current];
+                        current++;
+                        
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.OPERATOR || tokens[current].value !== '=') {
+                            throw new Error('Expected = after variable name in PURR');
+                        }
+                        current++;
+                        
+                        const expression = this.parseExpression(tokens, current);
+                        if (!expression || !expression.value) {
+                            throw new Error('Expected value after = in PURR');
+                        }
+                        statements.push({
+                            type: 'VariableDeclaration',
+                            name: name,
+                            value: expression.value
+                        });
+                        current = expression.next;
+                        break;
+                    }
+    
+                    case 'increment': {
+                        current++; // Move past SCRATCH
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after SCRATCH');
+                        }
+                        statements.push({
+                            type: 'IncrementStatement',
+                            variable: tokens[current]
+                        });
+                        current++;
+                        break;
+                    }
+    
+                    case 'decrement': {
+                        current++; // Move past LICK
+                        if (!tokens[current] || tokens[current].type !== this.TOKEN_TYPES.IDENTIFIER) {
+                            throw new Error('Expected variable name after LICK');
+                        }
+                        statements.push({
+                            type: 'DecrementStatement',
+                            variable: tokens[current]
+                        });
+                        current++;
+                        break;
+                    }
+    
+                    case 'while': {
+                        current++; // Move past HUNT
+                        if (!tokens[current] || tokens[current].meaning !== 'while_condition') {
+                            throw new Error('Expected WHILE after HUNT');
+                        }
+                        current++; // Move past WHILE
+                        
+                        const condition = this.parseExpression(tokens, current);
+                        if (!condition || !condition.value) {
+                            throw new Error('Expected condition after HUNT WHILE');
+                        }
+                        current = condition.next;
+                        
+                        const block = this.parseBlock(tokens, current);
+                        if (!block) {
+                            throw new Error('Expected code block after HUNT WHILE condition');
+                        }
+                        statements.push({
+                            type: 'WhileLoop',
+                            condition: condition.value,
+                            body: block.statements
+                        });
+                        current = block.next;
+                        break;
+                    }
+    
+                    case 'for': {
+                        current++; // Move past CHASE
+                        const count = this.parseExpression(tokens, current);
+                        if (!count || !count.value) {
+                            throw new Error('Expected number after CHASE');
+                        }
+                        current = count.next;
+                        
+                        if (!tokens[current] || tokens[current].meaning !== 'times') {
+                            throw new Error('Expected TIMES after CHASE number');
+                        }
+                        current++; // Move past TIMES
+                        
+                        const block = this.parseBlock(tokens, current);
+                        if (!block) {
+                            throw new Error('Expected code block after CHASE number TIMES');
+                        }
+                        statements.push({
+                            type: 'ForLoop',
+                            count: count.value,
+                            body: block.statements
+                        });
+                        current = block.next;
+                        break;
+                    }
+    
+                    default:
+                        throw new Error(`Unknown keyword: ${tokens[current].value}`);
+                }
+            } else {
+                // Handle non-keyword tokens if needed
+                const expression = this.parseExpression(tokens, current);
+                if (expression) {
+                    statements.push(expression.value);
+                    current = expression.next;
+                } else {
+                    current++;
+                }
+            }
+        }
+    
+        // Check for closing brace
+        if (!tokens[current] || tokens[current].value !== '}') {
+            throw new Error('Expected } at end of block');
+        }
+        current++;
+    
+        return { statements, next: current };
     }
 
     parseExpression(tokens, start) {
@@ -374,79 +731,6 @@ class CATParser {
         }
 
         return null;
-    }
-
-    parseBlock(tokens, start) {
-        let current = start;
-        const statements = [];
-        
-        // Expect and skip opening brace
-        if (!tokens[current] || tokens[current].value !== '{') {
-            throw new Error('Expected { at start of block');
-        }
-        current++;
-
-        while (current < tokens.length && tokens[current].value !== '}') {
-            // Skip newlines
-            if (tokens[current].type === this.TOKEN_TYPES.NEWLINE) {
-                current++;
-                continue;
-            }
-
-            if (tokens[current].type === this.TOKEN_TYPES.KEYWORD) {
-                switch (tokens[current].meaning) {
-                    case 'print': {
-                        current++;
-                        const expression = this.parseExpression(tokens, current);
-                        current = expression.next;
-                        statements.push({
-                            type: 'PrintStatement',
-                            value: expression.value
-                        });
-                        break;
-                    }
-                    case 'increment': {
-                        const variable = tokens[++current];
-                        current++;
-                        statements.push({
-                            type: 'IncrementStatement',
-                            variable: variable
-                        });
-                        break;
-                    }
-                    case 'decrement': {
-                        const variable = tokens[++current];
-                        current++;
-                        statements.push({
-                            type: 'DecrementStatement',
-                            variable: variable
-                        });
-                        break;
-                    }
-                    default: {
-                        const expression = this.parseExpression(tokens, current);
-                        if (expression.value) {
-                            statements.push(expression.value);
-                        }
-                        current = expression.next;
-                    }
-                }
-            } else {
-                const expression = this.parseExpression(tokens, current);
-                if (expression.value) {
-                    statements.push(expression.value);
-                }
-                current = expression.next;
-            }
-        }
-
-        // Expect and skip closing brace
-        if (!tokens[current] || tokens[current].value !== '}') {
-            throw new Error('Expected } at end of block');
-        }
-        current++;
-
-        return { statements, next: current };
     }
 
     validate(ast) {

@@ -1,0 +1,234 @@
+/* browser.css */
+.browser-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: var(--bg-light);
+}
+
+/* Menu Bar */
+.browser-menu-bar {
+    display: flex;
+    gap: 8px;
+    padding: 4px;
+    background: var(--bg-mid);
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Toolbar */
+.browser-toolbar {
+    display: flex;
+    gap: 4px;
+    padding: 8px;
+    background: var(--bg-light);
+    border-bottom: 1px solid var(--border-light);
+    align-items: center;
+}
+
+.nav-button {
+    padding: 4px 8px;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--purple-dark);
+    cursor: pointer;
+    font-size: 14px;
+    min-width: 28px;
+}
+
+.nav-button:hover {
+    background: var(--button-hover-gradient);
+}
+
+.nav-button:active {
+    border-style: inset;
+}
+
+.nav-button:disabled {
+    background: var(--ui-disabled-bg);
+    border-color: var(--ui-disabled-border);
+    color: var(--text-disabled);
+    cursor: default;
+}
+
+.address-bar {
+    flex-grow: 1;
+    display: flex;
+    gap: 4px;
+    margin: 0 8px;
+}
+
+.address-bar input {
+    flex-grow: 1;
+    padding: 4px 8px;
+    border: 2px inset var(--bg-lightest);
+    background: white;
+    color: var(--purple-dark);
+    font-family: var(--system-font);
+}
+
+.address-bar button {
+    padding: 4px 12px;
+    background: var(--button-gradient);
+    border: 2px outset var(--bg-lightest);
+    color: var(--purple-dark);
+    cursor: pointer;
+}
+
+.address-bar button:hover {
+    background: var(--button-hover-gradient);
+}
+
+.address-bar button:active {
+    border-style: inset;
+}
+
+/* Content Area */
+.browser-content {
+    flex-grow: 1;
+    background: white;
+    overflow: auto;
+    padding: 20px;
+}
+
+/* Snoogle Homepage */
+.snoogle-home {
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.snoogle-home h1 {
+    font-size: 72px;
+    color: var(--purple-main);
+    margin-bottom: 40px;
+    text-shadow: 2px 2px var(--accent-blue), 
+                 4px 4px var(--accent-pink);
+}
+
+.search-box {
+    max-width: 600px;
+    margin: 0 auto;
+    display: flex;
+    gap: 8px;
+}
+
+.search-box input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 2px solid var(--purple-light);
+    border-radius: 4px;
+    font-size: 16px;
+    color: var(--purple-dark);
+}
+
+.search-box button {
+    padding: 12px 24px;
+    background: var(--purple-main);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-box button:hover {
+    background: var(--purple-dark);
+}
+
+/* Error Page */
+.error-page {
+    text-align: center;
+    padding: 40px;
+    color: var(--purple-dark);
+}
+
+.error-page h2 {
+    color: var(--warning-text);
+    margin-bottom: 20px;
+}
+
+.error-details {
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: left;
+}
+
+/* Favorites Panel */
+.favorites-panel {
+    background: var(--bg-lightest);
+    border-bottom: 1px solid var(--border-light);
+    padding: 8px;
+}
+
+.favorites-panel.hidden {
+    display: none;
+}
+
+.favorite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.favorite-item:hover {
+    background: var(--bg-mid);
+}
+
+.favorite-item span {
+    color: var(--purple-dark);
+}
+
+.favorite-item button {
+    padding: 2px 6px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.favorite-item button:hover {
+    color: var(--warning-text);
+}
+
+.search-results {
+    margin-top: 40px;
+    text-align: left;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.results-count {
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.search-result {
+    margin-bottom: 24px;
+}
+
+.result-title {
+    color: var(--link-color);
+    font-size: 18px;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.result-url {
+    color: var(--accent-green);
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.result-description {
+    color: var(--text-main);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.search-result.fake .result-title {
+    color: var(--text-muted);
+    cursor: not-allowed;
+}

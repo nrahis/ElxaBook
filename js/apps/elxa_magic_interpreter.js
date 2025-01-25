@@ -30,7 +30,22 @@ class ElxaMagicInterpreter {
             "🐍 *adjusts tie with tail* Another brilliant innovation from Elxa Technologies!",
             "🐍 Just checked my snake wallet - only made another trillion today!",
             "🐍 *coils around golden calculator* Let me compute that for you...",
-            () => `🐍 ${this.config.system.name}: Where every byte has a bite! *winks with snake eye*`
+            "🐍 *checks gold-plated calculator* According to my calculations, Elxa's stock just went up another trillion!",
+            "🐍 Mrs. Snake-e packed me fibonacci sequence sandwiches for lunch today! How thoughtful!",
+            "🐍 *adjusts silk tie with tail* Just parked my Denali next to my solid gold supercomputer!",
+            "🐍 Mr. Snake-e's Pro Tip: The secret to being a trillionaire is counting in python! *winks*",
+            "🐍 *coils around executive chair* Another profitable day of making math more ssssslithery!",
+            "🐍 Just got back from a board meeting in my diamond-encrusted helicopter! The graphs were exponential!",
+            "🐍 Mrs. Snake-e says I need to stop buying more calculators, but how can I resist? They're prime investments!",
+            "🐍 *straightens executive scales* Time to make mathematics more luxurious!",
+            "🐍 Breaking news: Mr. Snake-e's net worth now requires scientific notation to display!",
+            "🐍 *flicks tongue at spreadsheet* These profits are looking particularly pythonic today!",
+            "🐍 Had to upgrade my Denali again - kept filling it up with too many mathematical constants!",
+            "🐍 Mrs. Snake-e made her famous pi(e) for dessert. It's infinite-ly delicious!",
+            "🐍 *rattles diamond-studded tail* Time to calculate today's quadrillion-dollar profits!",
+            "🐍 Just commissioned a solid gold statue of the quadratic formula for my office lobby!",
+            "🐍 *polishes monocle with tail* Did someone say it's time for some luxury mathematics?",
+            "🐍 ElxaCorp: Where every byte has a bite! *winks with snake eye*"
         ];
 
         this.elxaResponses = [
@@ -86,16 +101,44 @@ class ElxaMagicInterpreter {
             "🦆 DUCK (aka Walter) is processing your request...",
             "DUCK POWER ACTIVATED! *fancy hacking noises*",
             "Warning: DUCK has detected unauthorized fun!",
-            "DUCK-tecting suspicious activity... it's cookies in the cookie jar!"
+            "DUCK-tecting suspicious activity... it's cookies in the cookie jar!",
+            "🦆 Emergency DUCK deployment in progress... *fancy typing sounds*",
+            "ALERT: DUCK has breached the firewall with bread crumbs!",
+            "🦆 Deploying tactical DUCK algorithms... *quack quack quack*",
+            "DUCK says: Error 404 - Hidden snacks not found in the database!",
+            "🦆 Initializing DUCK override... *dramatic waddle sequence*",
+            "Warning: DUCK has infiltrated the system with maximum cuteness!",
+            "🦆 DUCK.exe is running... Converting all passwords to quacks...",
+            "Super secret DUCK encryption enabled! *mysterious pond splashing*",
+            "🦆 DUCK defensive systems online! Protecting against boring code!",
+            "CAUTION: DUCK is redistributing digital bread crumbs...",
+            "🦆 *DUCK unleashes powerful quack attack* System thoroughly DUCKed!"
         ];
+
         this.abbyResponses = [
             "Meow! Abby's virtual assistant is here to help! 🐱",
             "Abby's digital paw-print detected! Systems purring normally...",
             "🐱 Abby says: Don't forget to take breaks and pet real cats!",
             "Abby's virtual whiskers are twitching... detecting computer mice!",
             "Abby says: It's about time for cuddles, isn't it? :3",
-            "Abby is proud of you for being so smart! Must be all those veggies!"
+            "Abby is proud of you for being so smart! Must be all those veggies!",
+            "Abby's Paw-sonal Assistant reminds you: Remember to smile today! 🐱",
+            "🐱 *purrs contentedly* Your code is looking paw-sitively wonderful!",
+            "Meow! Abby's watching over your programming from her cozy cloud pillow 🌟",
+            "🐱 *gentle headbutt* Abby thinks you deserve a coding break and some snuggles",
+            "Abby's Virtual Assistant says: You're doing great! Time for a celebratory treat? 🍪",
+            "🐱 *stretches and yawns* Another purr-fect day at Elxa Technologies!",
+            "Abby's wisdom for today: Sometimes the best debug tool is a quick cat nap 😺",
+            "🐱 *paw tap* Abby's sensors detect you're doing amazing work!",
+            "Meow! Abby's keeping your code warm and bug-free with virtual purrs~",
+            "🐱 Abby's daily reminder: You're as special as catnip and twice as nice!",
+            "According to Abby's calculations, it's time for some computer cuddles! 💕",
+            "🐱 *happy whisker twitch* Abby says your code is looking meow-velous!",
+            "Abby's virtual tail is swishing with pride at your programming progress! ✨",
+            "🐱 Abby's Debugging Service: Purrs away the bugs, leaves the hugs!",
+            "Meow! Abby's digital whiskers sense great things happening at Elxa today!"
         ];
+
         this.explosionTypes = [
             "💥 BOOM!",
             "🎉 KABOOM!",

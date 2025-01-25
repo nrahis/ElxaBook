@@ -17,7 +17,7 @@
             <div class="welcome-content">
                 <div class="welcome-logo">ElxaOS</div>
                 <div class="welcome-message">Welcome to the future of computing</div>
-                <div class="welcome-version">Chocolate Mist Edition v1.1</div>
+                <div class="welcome-version"><span id="osVersion"></div>
                 <button id="start-button">Start ElxaOS</button>
             </div>
         </div>
@@ -56,6 +56,7 @@
 
 codes
 window._resetFileSystem()
+python3 -m http.server 8000
 
     TO DO
     - theme colors; save theme to user.config
@@ -66,7 +67,6 @@ window._resetFileSystem()
         - pretend browser and webpages
             I'm making a pretend OS. It's retro Window/vaporwave themed. I want to create a "browser" that, when opened, defaults to our custom "homepage", which would be a fictional search engine--Snoogle. The browser would need a similar UI, including File/Options/Help menus similar to our file explorer windows; it would need an address bar, back/forward/refresh/home buttons, and maybe "favorites" and "history". We would need to make it modular like our other apps within this OS; I also want the ability to type in "addresses" in the address bar that would load custom pretend webpages that we'd make separately. We'll also be making a pretend internet/wifi for our OS, and when it's "disconnected", the browser would need to show a no network error page. 
     - b-bomb app
-    - EX Abbi Code - pretend coder, cat themed
     - math games
     - messenger - hook up to Gemini, generate messages
         - ability to "uninstall" non-system games, with installers kept in System/Installers folder

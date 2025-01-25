@@ -19,9 +19,12 @@ class EXCode {
         this.showingReference = false;
         this.highlighter = new CATHighlighter();
         this.updateHighlightDebounced = this.debounce(this.updateHighlight.bind(this), 50);
+        
+        // Create new instances of parser and executor
         this.parser = new CATParser();
-        this.executor = new CATExecutor();
         this.magicInterpreter = new ElxaMagicInterpreter();
+        this.executor = new CATExecutor(this.magicInterpreter);
+
     }
 
     debounce(func, wait) {
@@ -679,72 +682,83 @@ class EXCode {
     
         this.writeToConsole("Running program...\n");
     
-        // Original magic patterns check
-        const patterns = {
+        // Initialize execution flags and storage
+        let hasValidCATCode = false;
+        let hasMagicWords = false;
+        let parsedAst = null;
+        let parsingError = null;
+    
+        // Step 1: Try to parse as CAT code first
+        try {
+            const tokens = this.parser.tokenize(code);
+            parsedAst = {
+                type: 'Program',
+                body: []
+            };
+            
+            let current = 0;
+            while (current < tokens.length) {
+                // Skip newlines
+                if (tokens[current].type === this.parser.TOKEN_TYPES.NEWLINE) {
+                    current++;
+                    continue;
+                }
+    
+                if (tokens[current].type === this.parser.TOKEN_TYPES.KEYWORD) {
+                    const statement = this.parser.parseStatement(tokens, current);
+                    if (statement) {
+                        parsedAst.body.push(statement.value);
+                        current = statement.next;
+                        hasValidCATCode = true;
+                    } else {
+                        current++;
+                    }
+                } else {
+                    current++;
+                }
+            }
+        } catch (error) {
+            parsingError = error;
+            hasValidCATCode = false;
+        }
+    
+        // Step 2: Check for magic words
+        const magicPatterns = {
+            duck: /(DUCK|duck|Duck|Walter)/i,
+            abby: /(ABBY|abby|Abby|Abs)/i,
+            elxa: /(ELXA|elxa|Elxa|ex|EX)/i,
+            snake: /(Mr\.Snake-e|SNAKE-E|snake|Snake|snake-e|snake-E)/i,
+            bad: /(crap|poop|butt|shut up|hate|nuts)/i,
             numbers: /\b\d+\b/,
             binary: /\b[01]+\b/,
-            timer: /<timer>=\[\d+(?::\d+)?\]/,
-            magicWords: /(DUCK|duck|Abby|ABBY|Elxa|ELXA|Mr\.Snake-e|SNAKE-E|snake|Snake|snake-e|snake-E|crap|poop|butt|shut up|hate|nuts)/i
+            timer: /<timer>=\[\d+(?::\d+)?\]/
         };
     
-        const hasMagicPatterns = Object.values(patterns).some(pattern => 
-            pattern.test(code)
-        );
+        hasMagicWords = Object.values(magicPatterns).some(pattern => pattern.test(code));
     
+        // Step 3: Execute code based on what we found
         try {
-            let hasValidCATCode = false;
-            let catOutput = [];
-            
-            // First, try to parse as CAT code regardless of magic words
-            try {
-                const ast = this.parser.parse(code);
-                const errors = this.parser.validate(ast);
+            // Execute CAT code if valid
+            if (hasValidCATCode && parsedAst && parsedAst.body) {
+                // Ensure executor has magic interpreter
+                if (!this.executor.magicInterpreter) {
+                    this.executor.magicInterpreter = this.magicInterpreter;
+                }
+    
+                // Reset executor state
+                this.executor.variables.clear();
+    
+                // Execute the CAT code
+                const catOutput = this.executor.execute(parsedAst);
                 
-                if (errors.length === 0) {
-                    hasValidCATCode = true;
-                    // Ensure executor has magic interpreter
-                    if (!this.executor.magicInterpreter) {
-                        this.executor.magicInterpreter = this.magicInterpreter;
+                // Display CAT output
+                catOutput.forEach(line => {
+                    if (line && line.trim()) {
+                        this.writeToConsole(line);
                     }
-                    catOutput = this.executor.execute(ast);
-                } else {
-                    // Store errors for later if needed
-                    throw { type: 'CAT_ERROR', errors };
-                }
-            } catch (catError) {
-                if (catError.type !== 'CAT_ERROR') {
-                    throw catError;
-                }
-            }
-    
-            // Check for magic patterns and execute if present
-            if (hasMagicPatterns) {
-                const magicOutput = this.magicInterpreter.interpretMagicCode(code);
-                
-                // Set up callback for timer updates
-                const handleTimerUpdate = (updates) => {
-                    updates.forEach(update => this.writeToConsole(update));
-                };
-                
-                // Register callback for any active timers
-                for (const [timerId] of this.magicInterpreter.activeTimers) {
-                    this.magicInterpreter.timerCallbacks.set(timerId, handleTimerUpdate);
-                }
-                
-                // Output magic responses first
-                magicOutput.forEach(line => {
-                    this.writeToConsole(line);
                 });
-            }
     
-            // If we had valid CAT code, output its results after magic
-            if (hasValidCATCode) {
-                if (hasMagicPatterns) {
-                    this.writeToConsole("\n--- CAT Program Output ---");
-                }
-                catOutput.forEach(line => this.writeToConsole(line));
-                
-                // Show variables if any exist
+                // Display final variable state
                 const variables = Array.from(this.executor.variables.entries())
                     .map(([name, value]) => `${name} = ${value}`)
                     .join('\n');
@@ -753,26 +767,53 @@ class EXCode {
                     this.writeToConsole("\nProgram variables:");
                     this.writeToConsole(variables);
                 }
+            }
+    
+            // Process magic words if present - do this regardless of CAT code validity
+            if (hasMagicWords) {
+                // Create separate instance for magic interpretation to avoid interference
+                const magicInterpreter = new ElxaMagicInterpreter();
+                const magicOutput = magicInterpreter.interpretMagicCode(code);
                 
+                // Set up timer callback
+                const handleTimerUpdate = (updates) => {
+                    updates.forEach(update => this.writeToConsole(update));
+                };
+                
+                // Register callbacks for any active timers
+                for (const [timerId] of magicInterpreter.activeTimers) {
+                    magicInterpreter.timerCallbacks.set(timerId, handleTimerUpdate);
+                }
+                
+                // Output magic responses
+                magicOutput.forEach(line => {
+                    if (line && line.trim()) {
+                        this.writeToConsole(line);
+                    }
+                });
+            }
+    
+            // If neither CAT nor magic words were found
+            if (!hasValidCATCode && !hasMagicWords) {
+                this.writeToConsole("😺 Meow! I'm not sure what to do with this code.");
+                this.writeToConsole("Try:");
+                this.writeToConsole("- Using CAT commands like MEOW or PURR");
+                this.writeToConsole("- Writing some magic words like 'Abby' or 'DUCK'");
+                this.writeToConsole("- Or combine them both!");
+                return;
+            }
+    
+            // Only show finished message if we actually executed something
+            if (hasValidCATCode || hasMagicWords) {
                 this.writeToConsole("\nProgram finished! 😺");
-            } else if (!hasMagicPatterns) {
-                // Neither valid CAT nor magic code
-                throw new Error('NO_VALID_CODE');
             }
     
         } catch (error) {
-            if (error.message === 'NO_VALID_CODE') {
-                this.writeToConsole("🤔 Hmm... I'm not sure what to do with this code.");
-                this.writeToConsole("Try using CAT commands like MEOW or PURR,");
-                this.writeToConsole("or keep experimenting with your creative code!");
-            } else if (error.type === 'CAT_ERROR') {
-                this.writeToConsole("😺 Meow! Found some things to fix:");
-                error.errors.forEach(err => {
-                    const friendly = this.parser.formatError(err);
-                    this.writeToConsole(`Line ${friendly.line}: ${friendly.message}`);
-                });
-            } else {
-                this.writeToConsole(`An unexpected error occurred: ${error.message}`);
+            this.writeToConsole(`🙀 Oops! Something went wrong: ${error.message}`);
+            
+            if (error.line) {
+                const friendly = this.parser.formatError(error);
+                this.writeToConsole(`Line ${friendly.line}: ${friendly.message}`);
             }
         }
     }

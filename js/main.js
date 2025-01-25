@@ -22,6 +22,8 @@ import { Clock } from './apps/system/clock.js';
 import { Calendar } from './apps/system/calendar.js';
 import { Slideshow } from './apps/system/slideshow.js';
 import { EXCode } from './apps/excode_editor.js';
+import { Browser } from './apps/snoogle_browser.js';
+//import { Messenger } from './apps/messenger/messenger.js';
 import { Settings } from './settings.js';
 import { RecycleBinHandler } from './recycle-bin-handler.js';
 import { FileOpenDialog } from './dialogs/file_open_dialog.js';
@@ -227,14 +229,48 @@ document.addEventListener('DOMContentLoaded', () => {
         singleton: true 
     });
 
+    windowManager.registerApp('browser', {
+        title: 'Snoogle Browser',
+        initialize: (contentArea) => {
+            const browser = new Browser(fileSystem, window.elxaWifiSystem);
+            browser.initialize(contentArea);
+        },
+        defaultSize: { width: 1000, height: 700 }
+    });
+
+    //windowManager.registerApp('messenger', {
+        //title: 'Messenger',
+        //initialize: (contentArea) => {
+            //const messenger = new Messenger(fileSystem, window.elxaWifiSystem);
+            //messenger.initialize(contentArea);
+        //},
+        //defaultSize: { width: 900, height: 600 },
+        //singleton: true
+    //});
+
     windowManager.registerApp('excode', {
         title: 'EXCode',
         initialize: (contentArea) => {
             const excode = new EXCode(fileSystem);
             excode.initialize(contentArea);
+            
+            // Get the window element and maximize it
+            const window = contentArea.closest('.program-window');
+            if (window) {
+                // Store current window state before maximizing
+                window.dataset.prevState = JSON.stringify({
+                    top: window.style.top,
+                    left: window.style.left,
+                    width: window.style.width,
+                    height: window.style.height
+                });
+                
+                // Add maximized class to trigger the maximized state
+                window.classList.add('maximized');
+            }
         },
         defaultSize: { width: 1200, height: 700 },
-        singleton: true  // Probably want just one instance at a time
+        singleton: true
     });
 
     windowManager.registerApp('settings', {
