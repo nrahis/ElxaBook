@@ -1,4 +1,5 @@
-// wifi_system.js
+import { SettingsManager } from './settings_manager.js';
+
 export class Network {
     constructor(name, security = 'none', signalStrength = 100, isCustom = false) {
         this.name = name;
@@ -34,6 +35,8 @@ export class WiFiSystem {
         ];
         this.popup = null;
         this.signalUpdateInterval = null;
+        this.settingsManager = window.elxaSettingsManager;
+        this.loadSavedNetworks();
     }
 
     initialize() {
@@ -358,5 +361,27 @@ export class WiFiSystem {
                 </button>
             ` : ''}
         `;
+    }
+
+    loadSavedNetworks() {
+        const wifiSettings = this.settingsManager.getSettings('wifi');
+        if (wifiSettings?.customNetworks) {
+            this.networks = [
+                ...this.networks,
+                ...wifiSettings.customNetworks.map(n => new Network(
+                    n.name, 
+                    n.security, 
+                    n.signalStrength, 
+                    true
+                ))
+            ];
+        }
+    }
+
+    saveNetworks() {
+        const customNetworks = this.networks
+            .filter(n => n.isCustom)
+            .map(n => n.toJSON());
+        this.settingsManager.updateSettings('wifi', 'customNetworks', customNetworks);
     }
 }

@@ -1,15 +1,34 @@
 import { fileSystem } from './storage.js';
-import { StorageManager } from './storage/storage_manager.js';  
+import { StorageSettings } from './storage/storage_settings.js';
 
 export class SystemCleaner {
     constructor() {
+        // Debug logging to verify initialization
+        console.log('Initializing SystemCleaner');
+        console.log('FileSystem available:', !!fileSystem);
+        console.log('Current user:', fileSystem?.currentUsername);
+        
         this.currentUser = fileSystem.currentUsername;
-        this.currentTab = 'clean-files'; // Default tab
+        this.currentTab = 'clean-files';
+        this.storageManager = fileSystem.storageManager;
+        console.log('StorageManager available:', !!this.storageManager);
+        
+        // Initialize StorageSettings with the storageManager
+        this.storageSettings = new StorageSettings(this.storageManager);
+        console.log('StorageSettings initialized:', !!this.storageSettings);
     }
 
     async initialize(container) {
+        if (!container) {
+            console.error('No container provided to SystemCleaner');
+            return;
+        }
+
+        // Add required CSS class to container
+        container.classList.add('cleaner-container');
+        
         container.innerHTML = `
-            <div class="cleaner-container">
+            <div class="cleaner-wrapper">
                 <div class="cleaner-tabs">
                     <button class="tab-button active" data-tab="clean-files">
                         Clean Files
@@ -22,185 +41,142 @@ export class SystemCleaner {
                     </button>
                 </div>
 
-                <div class="tab-content"></div>
+                <div class="tab-content">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
         `;
 
-        this.setupTabs(container);
-        await this.showTab(container, 'clean-files');
+        // Setup tabs and show initial content
+        try {
+            await this.setupTabs(container);
+            await this.showTab(container, 'clean-files');
+        } catch (error) {
+            console.error('Failed to initialize SystemCleaner:', error);
+            container.querySelector('.tab-content').innerHTML = `
+                <div class="error-message">
+                    Failed to initialize system cleaner. Please try again.
+                    Error: ${error.message}
+                </div>
+            `;
+        }
     }
 
-    setupTabs(container) {
-        container.querySelector('.cleaner-tabs').addEventListener('click', async (e) => {
+    async setupTabs(container) {
+        const tabsContainer = container.querySelector('.cleaner-tabs');
+        if (!tabsContainer) return;
+
+        tabsContainer.addEventListener('click', async (e) => {
             const button = e.target.closest('.tab-button');
             if (button && !button.classList.contains('disabled')) {
+                // Remove active class from all buttons
                 container.querySelectorAll('.tab-button').forEach(btn => 
                     btn.classList.remove('active'));
+                // Add active class to clicked button
                 button.classList.add('active');
+                // Show the corresponding tab content
                 await this.showTab(container, button.dataset.tab);
             }
         });
     }
 
     async showTab(container, tabId) {
+        console.log(`Attempting to show tab: ${tabId}`);
         const content = container.querySelector('.tab-content');
-        this.currentTab = tabId;
+        if (!content) {
+            console.error('No content container found');
+            return;
+        }
 
-        switch(tabId) {
-            case 'clean-files':
-                this.showCleanFilesTab(content);
-                break;
-            case 'storage-location':
-                await this.showStorageLocationTab(content);
-                break;
-            case 'programs':
-                this.showProgramsTab(content);
-                break;
+        this.currentTab = tabId;
+        content.innerHTML = '<div class="loading">Loading tab content...</div>';
+
+        try {
+            switch(tabId) {
+                case 'clean-files':
+                    console.log('Loading clean files tab');
+                    await this.showCleanFilesTab(content);
+                    break;
+                case 'storage-location':
+                    console.log('Loading storage location tab');
+                    if (!this.storageSettings) {
+                        throw new Error('Storage settings not initialized');
+                    }
+                    await this.storageSettings.initialize(content);
+                    break;
+                case 'programs':
+                    console.log('Loading programs tab');
+                    this.showProgramsTab(content);
+                    break;
+                default:
+                    throw new Error(`Unknown tab: ${tabId}`);
+            }
+        } catch (error) {
+            console.error(`Error showing tab ${tabId}:`, error);
+            content.innerHTML = `
+                <div class="error-message">
+                    <h3>Error Loading Tab</h3>
+                    <p>An error occurred while loading this tab: ${error.message}</p>
+                    <button onclick="this.closest('.tab-content').querySelector('.error-message').remove(); this.showTab(this.closest('.cleaner-container'), '${tabId}')">
+                        Try Again
+                    </button>
+                </div>
+            `;
         }
     }
 
-    showCleanFilesTab(container) {
+    async showCleanFilesTab(container) {
+        console.log('Setting up clean files tab content');
         container.innerHTML = `
-            <h2>Storage Cleaner</h2>
-            <p class="cleaner-info">Manage your saved files to free up space</p>
-            
-            <div class="cl-files-container">
-                <div class="cl-files-header">
-                    <div class="cl-file-name-col">Name</div>
-                    <div class="cl-file-type-col">Type</div>
-                    <div class="cl-file-location-col">Location</div>
-                    <div class="cl-file-size-col">Size</div>
-                    <div class="cl-file-actions-col">Action</div>
+            <div class="cleaner-section">
+                <h2 class="section-title">Storage Cleaner</h2>
+                <p class="cleaner-info">Manage your saved files to free up space</p>
+                
+                <div class="cl-files-container">
+                    <div class="cl-files-header">
+                        <div class="cl-file-name-col">Name</div>
+                        <div class="cl-file-type-col">Type</div>
+                        <div class="cl-file-location-col">Location</div>
+                        <div class="cl-file-size-col">Size</div>
+                        <div class="cl-file-actions-col">Action</div>
+                    </div>
+                    <div class="cl-files-list">
+                        <div class="loading">Loading files...</div>
+                    </div>
                 </div>
-                <div class="cl-files-list"></div>
-            </div>
 
-            <div class="cleaner-footer">
-                <button class="clean-all-button">Clean All Files</button>
-            </div>
-        `;
-
-        this.updateFilesList(container);
-        this.setupCleanerEvents(container);
-    }
-
-    async showStorageLocationTab(container) {
-        // Access StorageManager through fileSystem
-        const storageManager = fileSystem.storageManager;
-        const supported = await storageManager.isSupported();
-        const hasPermission = await storageManager.hasPermission();
-    
-        container.innerHTML = `
-            <h2>Storage Location</h2>
-            <div class="storage-info">
-                ${supported ? `
-                    <div class="storage-section">
-                        <p class="storage-status">
-                            Current Storage: <span class="status-value">
-                                ${hasPermission ? 'External Storage' : 'Browser Storage'}
-                            </span>
-                        </p>
-                        <button class="storage-button" id="changeStorageBtn">
-                            ${hasPermission ? 'Change Storage Location' : 'Set Storage Location'}
-                        </button>
-                        <p class="storage-description">
-                            Choose a folder on your computer where ElxaOS will store your files.
-                            This allows unlimited storage and keeps your files accessible even when offline.
-                        </p>
-                    </div>
-                ` : `
-                    <div class="storage-warning">
-                        Your browser doesn't support external file storage.
-                        Files will be saved in browser storage instead.
-                    </div>
-                `}
+                <div class="cleaner-footer">
+                    <button class="clean-all-button">Clean All Files</button>
+                </div>
             </div>
         `;
-    
-        if (supported) {
-            container.querySelector('#changeStorageBtn').addEventListener('click', async () => {
-                const success = await storageManager.selectDirectory();
-                if (success) {
-                    await this.showStorageLocationTab(container);
-                }
-            });
+
+        try {
+            await this.updateFilesList(container);
+            this.setupCleanerEvents(container);
+        } catch (error) {
+            console.error('Error loading files list:', error);
+            container.querySelector('.cl-files-list').innerHTML = `
+                <div class="error-message">
+                    Failed to load files list: ${error.message}
+                </div>
+            `;
         }
     }
 
     showProgramsTab(container) {
         container.innerHTML = `
-            <h2>Programs</h2>
-            <p class="coming-soon">Program management coming soon...</p>
+            <div class="cleaner-section">
+                <h2 class="section-title">Programs</h2>
+                <p class="coming-soon">Program management coming soon...</p>
+            </div>
         `;
     }
 
-    getUserFiles() {
-        const files = JSON.parse(localStorage.getItem('elxaos_files') || '{}');
-        const userPath = `/ElxaOS/Users/${this.currentUser}`;
-        
-        // Get only user files (not system files)
-        const userFiles = [];
-        for (const [path, file] of Object.entries(files)) {
-            if (path.startsWith(userPath) && !file.isProtected) {
-                userFiles.push({
-                    path,
-                    name: file.name,
-                    type: this.getFileType(file),
-                    location: this.getFileLocation(path),
-                    size: new Blob([file.content || '']).size,
-                    modified: new Date(file.modified).toLocaleString()
-                });
-            }
-        }
-
-        return userFiles.sort((a, b) => b.size - a.size); // Sort by size descending
-    }
-
-    getFileType(file) {
-        if (file.type === 'image' || file.name.endsWith('.png')) return 'Image';
-        if (file.name.endsWith('.txt')) return 'Text Document';
-        if (file.name.endsWith('.odp')) return 'Slideshow';
-        return 'Document';
-    }
-
-    getFileLocation(path) {
-        // Extract the parent folder name from the path
-        const parts = path.split('/');
-        // Find the index of the main folders we care about
-        const mainFolders = ['Documents', 'Pictures', 'Music', 'Downloads'];
-        for (let i = parts.length - 2; i >= 0; i--) {
-            if (mainFolders.includes(parts[i])) {
-                return parts[i];
-            }
-        }
-        return parts[parts.length - 2]; // Fallback to immediate parent
-    }
-
-    formatSize(bytes) {
-        const units = ['B', 'KB', 'MB'];
-        let size = bytes;
-        let unitIndex = 0;
-        
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-        
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
-    }
-
-    deleteFile(path) {
-        try {
-            fileSystem.deleteFile(path);
-            return true;
-        } catch (error) {
-            console.error('Failed to delete file:', error);
-            return false;
-        }
-    }
-
-    updateFilesList(container) {
+    async updateFilesList(container) {
         const filesList = container.querySelector('.cl-files-list');
+        if (!filesList) return;
+
         const files = this.getUserFiles();
         
         if (files.length === 0) {
@@ -209,7 +185,10 @@ export class SystemCleaner {
                     No user files found
                 </div>
             `;
-            container.querySelector('.clean-all-button').disabled = true;
+            const cleanAllButton = container.querySelector('.clean-all-button');
+            if (cleanAllButton) {
+                cleanAllButton.disabled = true;
+            }
             return;
         }
 
@@ -224,42 +203,106 @@ export class SystemCleaner {
                 </div>
             </div>
         `).join('');
+        
+        const cleanAllButton = container.querySelector('.clean-all-button');
+        if (cleanAllButton) {
+            cleanAllButton.disabled = false;
+        }
+    }
+
+    getUserFiles() {
+        const files = JSON.parse(localStorage.getItem('elxaos_files') || '{}');
+        const userPath = `/ElxaOS/Users/${this.currentUser}`;
+        
+        const userFiles = [];
+        for (const [path, file] of Object.entries(files)) {
+            if (path.startsWith(userPath) && !file.isProtected) {
+                userFiles.push({
+                    path,
+                    name: file.name,
+                    type: this.getFileType(file),
+                    location: this.getFileLocation(path),
+                    size: this.getFileSize(file),
+                    modified: new Date(file.modified).toLocaleString()
+                });
+            }
+        }
+
+        return userFiles.sort((a, b) => b.size - a.size);
+    }
+
+    getFileSize(file) {
+        if (!file.content) return 0;
+        return typeof file.content === 'string' ? 
+            new Blob([file.content]).size : 0;
+    }
+
+    getFileType(file) {
+        if (file.type === 'image') return 'Image';
+        if (file.type === 'text') return 'Text Document';
+        return 'File';
+    }
+
+    getFileLocation(path) {
+        const parts = path.split('/');
+        const mainFolders = ['Documents', 'Pictures', 'Music', 'Downloads'];
+        for (let i = parts.length - 2; i >= 0; i--) {
+            if (mainFolders.includes(parts[i])) {
+                return parts[i];
+            }
+        }
+        return parts[parts.length - 2];
+    }
+
+    formatSize(bytes) {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
     }
 
     setupCleanerEvents(container) {
-        // Individual file deletion
-        container.addEventListener('click', (e) => {
+        // Handle individual file deletion
+        container.addEventListener('click', async (e) => {
             if (e.target.classList.contains('delete-file-button')) {
                 const fileItem = e.target.closest('.cl-file-item');
                 const path = fileItem.dataset.path;
                 
                 if (confirm('Are you sure you want to delete this file?')) {
-                    if (this.deleteFile(path)) {
-                        this.updateFilesList(container);
-                    } else {
+                    try {
+                        fileSystem.deleteFile(path);
+                        await this.updateFilesList(container);
+                    } catch (error) {
                         alert('Failed to delete file');
                     }
                 }
             }
         });
 
-        // Clean all files
-        container.querySelector('.clean-all-button')?.addEventListener('click', () => {
-            if (confirm('Are you sure you want to delete all user files? This cannot be undone!')) {
-                const files = this.getUserFiles();
-                let successCount = 0;
-                
-                files.forEach(file => {
-                    if (this.deleteFile(file.path)) {
-                        successCount++;
+        // Handle clean all files
+        const cleanAllButton = container.querySelector('.clean-all-button');
+        if (cleanAllButton) {
+            cleanAllButton.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to delete all user files? This cannot be undone!')) {
+                    const files = this.getUserFiles();
+                    let successCount = 0;
+                    
+                    for (const file of files) {
+                        try {
+                            fileSystem.deleteFile(file.path);
+                            successCount++;
+                        } catch (error) {
+                            console.error('Failed to delete file:', error);
+                        }
                     }
-                });
 
-                if (successCount > 0) {
-                    alert(`Successfully deleted ${successCount} files`);
-                    this.updateFilesList(container);
+                    if (successCount > 0) {
+                        alert(`Successfully deleted ${successCount} files`);
+                        await this.updateFilesList(container);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }

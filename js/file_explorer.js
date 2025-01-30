@@ -1,6 +1,7 @@
 // file_explorer.js
 import { IconSet } from './icons.js'; 
 import { RecycleBinHandler } from './recycle-bin-handler.js';
+import { SettingsManager } from './settings_manager.js';
 
 export class FileExplorer {
     constructor(fileSystem, windowManager) {
@@ -61,6 +62,8 @@ export class FileExplorer {
         };
 
         this.recycleBinHandler = new RecycleBinHandler(fileSystem);
+        this.settingsManager = window.elxaSettingsManager;
+        this.viewMode = this.settingsManager.getSettings('display', 'fileExplorerView') || 'icons';
     }
 
     initialize(contentArea, initialPath) {
@@ -2025,33 +2028,13 @@ export class FileExplorer {
     setViewMode(mode) {
         this.viewMode = mode;
         if (this.elements.fileList) {
-            // Clear existing view classes
-            this.elements.fileList.className = 'file-list';
-            // Add new view class
-            this.elements.fileList.classList.add(`view-${mode}`);
+            this.elements.fileList.className = `file-list view-${mode}`;
         }
         
         // Save the view mode preference
-        try {
-            const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
-            const settings = this.fileSystem.getFile(settingsPath);
-            const settingsObj = settings ? JSON.parse(settings.content) : {};
-            settingsObj.display = settingsObj.display || {};
-            settingsObj.display.fileExplorerView = mode;
-            this.fileSystem.saveFile(settingsPath, 'user.config', JSON.stringify(settingsObj), 'json');
-        } catch (error) {
-            console.log('Could not save view mode preference');
-        }
+        this.settingsManager.updateSettings('display', 'fileExplorerView', mode);
         
-        // Update radio buttons in view menu
-        const viewModeButtons = this.elements.menubar
-            .querySelectorAll('.menu-dropdown .radio-item');
-        viewModeButtons.forEach(button => {
-            button.classList.toggle('checked', 
-                button.textContent.toLowerCase() === mode);
-        });
-        
-        // Refresh the view to apply the new mode
+        // Refresh the view
         this.populateContent();
     }
 

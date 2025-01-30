@@ -2,6 +2,7 @@ import { UserManager } from './user_manager.js';
 import { FileSystem } from './storage.js';
 import { AvatarManager } from './avatar_manager.js'; // Add this import
 import { CONFIG } from './apps/system/config.js';
+import { SettingsManager } from './settings_manager.js';
 
 class BootSequence {
     constructor() {
@@ -194,47 +195,26 @@ class BootSequence {
         }
     }
 
-    handleLogin() {
+    async handleLogin() {
         const password = this.passwordInput.value;
         
         if (this.userManager.validateLogin(this.selectedUser, password)) {
-            // Correct password
             this.loginMessage.textContent = `Welcome back, ${this.selectedUser}! 🐍`;
             this.loginMessage.style.color = '#00ff9d';
             this.loginMessage.classList.add('show');
             
             // Update FileSystem's current user
             window.elxaFileSystem.setCurrentUser(this.selectedUser);
-            console.log('Set current user to:', this.selectedUser); // Debug log
-
-        // Load user settings
-            const settingsPath = `/ElxaOS/Users/${this.selectedUser}/.settings/user.config`;
+            
+            // Initialize and apply settings using new SettingsManager
+            window.elxaSettingsManager = new SettingsManager(window.elxaFileSystem);
             try {
-                const settingsFile = window.elxaFileSystem.getFile(settingsPath);
-                if (settingsFile) {
-                    const settings = JSON.parse(settingsFile.content);
-                    // Apply settings
-                    if (settings.display?.background) {
-                        if (settings.display.background.startsWith('default-')) {
-                            const index = parseInt(settings.display.background.split('-')[1]);
-                            document.body.style.background = defaultBackgrounds[index].value;
-                            document.body.style.backgroundSize = '400% 400%';
-                        } else {
-                            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-                            document.body.style.background = `url(${customBgs[parseInt(settings.display.background)]})`;
-                            document.body.style.backgroundSize = 'cover';
-                        }
-                    }
-                    if (settings.personalization?.systemFont) {
-                        // Set the font immediately
-                        document.documentElement.style.setProperty('--system-font', settings.personalization.systemFont);
-                    }
-                }
+                await window.elxaSettingsManager.initialize(this.selectedUser);
             } catch (error) {
-                console.error('Failed to load user settings:', error);
+                console.error('Error initializing settings:', error);
             }
             
-            // Transition to desktop
+            // Continue with login
             setTimeout(() => {
                 this.bootSequence.style.animation = 'fadeOut 1s forwards';
                 setTimeout(() => {

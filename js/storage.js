@@ -25,8 +25,16 @@ export class FileSystem {
     }
 
     // Initialize the basic file system structure
-    initializeFileSystem() {
-        if (!localStorage.getItem(this.SYSTEM_KEY)) {
+    async initializeFileSystem() {
+        try {
+            await this.storageManager.initialize();
+        } catch (error) {
+            console.warn('Failed to initialize storage manager:', error);
+        }
+    
+        const needsInitialization = !localStorage.getItem(this.SYSTEM_KEY);
+        
+        if (needsInitialization) {
             const defaultSystem = {
                 root: {
                     name: 'ElxaOS',
@@ -99,7 +107,34 @@ export class FileSystem {
                     path: '/ElxaOS/Users/kitkat',
                     type: 'system',
                     isProtected: true,
-                    isHidden: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/.messenger': {
+                    name: '.messenger',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'system',
+                    isProtected: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/.messenger/chats': {
+                    name: 'chats',
+                    path: '/ElxaOS/Users/kitkat/.messenger',
+                    type: 'system',
+                    isProtected: true,
+                    isHidden: false,
+                    created: new Date().toISOString(),
+                    modified: new Date().toISOString()
+                },
+                '/ElxaOS/Users/kitkat/.settings': {
+                    name: '.settings',
+                    path: '/ElxaOS/Users/kitkat',
+                    type: 'system',
+                    isProtected: true,
+                    isHidden: false,
                     created: new Date().toISOString(),
                     modified: new Date().toISOString()
                 },
@@ -298,15 +333,120 @@ export class FileSystem {
                 }
             };
                 
-            // Save everything to localStorage in the correct order
             localStorage.setItem(this.SYSTEM_KEY, JSON.stringify(defaultSystem));
             localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(defaultFolders));
             localStorage.setItem(this.FILES_KEY, JSON.stringify(defaultFiles));
+    
+            // After setting up the basic file system, ensure the default user's folders exist
+            this.ensureDefaultUserFolders();
+        } else {
+            // Even if system exists, verify default user folders
+            this.verifyDefaultUserStructure();
         }
-
-        // Add showHiddenFiles flag to the class
+    
+        // Initialize showHiddenFiles flag
         this.showHiddenFiles = false;
+    
+        // Log initialization completion
+        console.log('File system initialization complete');
+        console.log('System structure:', JSON.parse(localStorage.getItem(this.SYSTEM_KEY)));
+        console.log('Folders:', JSON.parse(localStorage.getItem(this.FOLDERS_KEY)));
+        console.log('Files:', JSON.parse(localStorage.getItem(this.FILES_KEY)));
     }
+
+
+    ensureDefaultUserFolders() {
+        console.log('Ensuring default user folders exist');
+        const defaultUser = 'kitkat';
+        const userRootPath = `/ElxaOS/Users/${defaultUser}`;
+        
+        try {
+            // Define all required folders
+            const requiredFolders = [
+                { path: userRootPath, name: defaultUser, type: 'user-root' },
+                { path: `${userRootPath}/.settings`, name: '.settings', hidden: true },
+                { path: `${userRootPath}/.messenger`, name: '.messenger', hidden: true },
+                { path: `${userRootPath}/.messenger/chats`, name: 'chats', hidden: true },
+                { path: `${userRootPath}/Desktop`, name: 'Desktop' },
+                { path: `${userRootPath}/Documents`, name: 'Documents' },
+                { path: `${userRootPath}/Pictures`, name: 'Pictures' },
+                { path: `${userRootPath}/Music`, name: 'Music' },
+                { path: `${userRootPath}/Downloads`, name: 'Downloads' },
+                { path: `${userRootPath}/Games`, name: 'Games' },
+                { path: `${userRootPath}/Applications`, name: 'Applications' }
+            ];
+    
+            const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY) || '{}');
+    
+            // Create each required folder if it doesn't exist
+            requiredFolders.forEach(folder => {
+                const fullPath = this.joinPaths(folder.path);
+                if (!folders[fullPath]) {
+                    folders[fullPath] = {
+                        name: folder.name,
+                        path: this.getParentPath(fullPath),
+                        type: folder.type || 'user',
+                        isProtected: folder.type === 'user-root',
+                        isHidden: folder.hidden || false,
+                        created: new Date().toISOString(),
+                        modified: new Date().toISOString()
+                    };
+                }
+            });
+    
+            localStorage.setItem(this.FOLDERS_KEY, JSON.stringify(folders));
+    
+            // Ensure default user.config exists
+            const settingsPath = `${userRootPath}/.settings`;
+            const defaultSettings = {
+                display: {
+                    background: 'default-0',
+                    fileExplorerView: 'icons',
+                    desktopIcons: {}
+                },
+                personalization: {
+                    systemFont: '"Verdana", sans-serif'
+                },
+                systemTray: {
+                    clock: {
+                        format24Hour: false,
+                        showSeconds: true,
+                        showDate: true,
+                        dateFormat: 'MM/DD/YYYY'
+                    }
+                }
+            };
+    
+            this.saveFile(
+                settingsPath,
+                'user.config',
+                JSON.stringify(defaultSettings, null, 2),
+                'settings'
+            );
+    
+        } catch (error) {
+            console.error('Error creating default user folders:', error);
+        }
+    }
+    
+    verifyDefaultUserStructure() {
+        console.log('Verifying default user structure');
+        const defaultUser = 'kitkat';
+        const userRootPath = `/ElxaOS/Users/${defaultUser}`;
+        
+        // Check if .settings folder and user.config exist
+        const settingsPath = `${userRootPath}/.settings`;
+        const configPath = `${settingsPath}/user.config`;
+        
+        const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY) || '{}');
+        const files = JSON.parse(localStorage.getItem(this.FILES_KEY) || '{}');
+        
+        if (!folders[settingsPath] || !files[configPath]) {
+            console.log('Missing critical user files/folders, recreating...');
+            this.ensureDefaultUserFolders();
+        }
+    }
+    
 
     // Path handling methods
     normalizePath(path) {
@@ -632,20 +772,27 @@ export class FileSystem {
     async saveFile(path, name, content, type = 'text', additionalProps = {}) {
         console.log('=== SaveFile Debug ===');
         console.log('Input parameters:', { path, name, type });
-        console.log('Content type:', typeof content);
-        console.log('Content starts with:', content?.substring?.(0, 50) + '...');
         
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY) || '{}');
         
-        // Handle shortcuts exactly as before
-        if (type === 'shortcut') {
-            const finalName = name.endsWith('.lnk') ? name : `${name}.lnk`;
+        // Always use localStorage for these types of files
+        const useLocalStorage = 
+            type === 'shortcut' ||
+            type === 'settings' ||
+            type === 'program' ||
+            name === 'user.config' ||
+            path.includes('/.settings/') ||
+            path.includes('/System/');
+            
+        if (useLocalStorage) {
+            console.log('Using localStorage for system/config file');
+            const finalName = type === 'shortcut' ? (name.endsWith('.lnk') ? name : `${name}.lnk`) : name;
             const fullPath = this.joinPaths(path, finalName);
             
             files[fullPath] = {
                 name: finalName,
-                content, // Keep shortcut content in localStorage
-                type: 'shortcut',
+                content,
+                type,
                 path,
                 created: files[fullPath]?.created || new Date().toISOString(),
                 modified: new Date().toISOString(),
@@ -656,12 +803,12 @@ export class FileSystem {
             return fullPath;
         }
         
-        // Regular file handling
+        // Handle regular files
         const cleanName = name.replace(/\.(png|txt|jpg|jpeg|odp|lnk)$/g, '');
         let finalType = type;
         let finalName;
         
-        // Determine file type and name as before
+        // Determine file type and name
         if (type === 'image' || content?.startsWith?.('data:image')) {
             finalType = 'image';
             finalName = `${cleanName}.png`;
@@ -674,10 +821,14 @@ export class FileSystem {
         }
         
         const fullPath = this.joinPaths(path, finalName);
-        console.log('Full path:', fullPath);
     
-        // Try external storage first if available
-        if (this.storageManager?.initialized) {
+        // Try external storage for large files or images
+        const useExternalStorage = this.storageManager?.initialized && (
+            (typeof content === 'string' && content.length > 50000) ||
+            finalType === 'image'
+        );
+    
+        if (useExternalStorage) {
             try {
                 const success = await this.storageManager.saveFile(fullPath, content);
                 if (success) {
@@ -686,7 +837,7 @@ export class FileSystem {
                         name: finalName,
                         type: finalType,
                         path,
-                        externallyStored: true, // Flag to indicate content is stored externally
+                        externallyStored: true,
                         created: files[fullPath]?.created || new Date().toISOString(),
                         modified: new Date().toISOString(),
                         ...additionalProps
@@ -696,11 +847,12 @@ export class FileSystem {
                     return fullPath;
                 }
             } catch (error) {
-                console.warn('External storage save failed, falling back to localStorage:', error);
+                console.warn('External storage save failed:', error);
+                // Continue to localStorage fallback
             }
         }
         
-        // Fall back to localStorage (original behavior)
+        // Fallback to localStorage
         files[fullPath] = {
             name: finalName,
             content,
@@ -714,43 +866,61 @@ export class FileSystem {
         localStorage.setItem(this.FILES_KEY, JSON.stringify(files));
         return fullPath;
     }
-
+    
     async getFile(path) {
         console.log('Getting file at path:', path);
         const files = JSON.parse(localStorage.getItem(this.FILES_KEY) || '{}');
         const fileMetadata = files[path];
         
         if (!fileMetadata) {
-            console.log('File not found');
+            console.log('File not found:', path);
             return null;
         }
     
-        // If it's a shortcut or the file is not externally stored,
-        // return the full file data from localStorage
-        if (fileMetadata.type === 'shortcut' || !fileMetadata.externallyStored) {
-            console.log('Found file in localStorage:', fileMetadata);
+        // Always use localStorage for system/config files
+        if (
+            fileMetadata.type === 'shortcut' || 
+            fileMetadata.type === 'settings' ||
+            fileMetadata.type === 'program' ||
+            path.includes('user.config') ||
+            path.includes('/.settings/') ||
+            path.includes('/System/') ||
+            !fileMetadata.externallyStored
+        ) {
+            console.log('Using localStorage for file:', path);
             return fileMetadata;
         }
     
-        // If file is externally stored, try to load its content
-        if (this.storageManager?.initialized) {
+        // Try to load externally stored content
+        if (this.storageManager?.initialized && fileMetadata.externallyStored) {
             try {
+                console.log('Attempting to load from external storage:', path);
                 const content = await this.storageManager.loadFile(path);
                 if (content !== null) {
-                    // Return combined metadata and content
                     return {
                         ...fileMetadata,
                         content
                     };
                 }
+                console.log('External load failed, falling back to localStorage');
             } catch (error) {
                 console.error('Failed to load external file:', error);
+                // Fall back to localStorage if available
+                if (fileMetadata.content) {
+                    console.log('Using cached content from localStorage');
+                    return fileMetadata;
+                }
             }
         }
     
-        // If external load fails or isn't available, return metadata only
-        console.log('Returning metadata only:', fileMetadata);
-        return fileMetadata;
+        // If we reach here and still have metadata, return it
+        if (fileMetadata.content) {
+            console.log('Returning localStorage content');
+            return fileMetadata;
+        }
+    
+        console.log('No content found for file');
+        return fileMetadata; // Return metadata only if no content is available
     }
 
     deleteFile(path) {
@@ -1119,40 +1289,70 @@ export class FileSystem {
         const userRootPath = `/ElxaOS/Users/${username}`;
         try {
             this.createFolder('/ElxaOS/Users', username);
-        } catch (error) {
-            console.error('Failed to create user root folder:', error);
-            return false;
-        }
+            
+            // Create standard user folders inside the user's directory
+            const userFolders = [
+                'Desktop',
+                'Documents',
+                'Pictures',
+                'Music',
+                'Downloads',
+                'Games',
+                'Programs',
+                // Add hidden messenger folders
+                {name: '.messenger', hidden: true},
+                {name: 'chats', parent: '.messenger', hidden: true},
+                // Add .settings folder
+                {name: '.settings', hidden: true}
+            ];
     
-        // Create standard user folders inside the user's directory
-        const userFolders = [
-            'Desktop',
-            'Documents',
-            'Pictures',
-            'Music',
-            'Downloads',
-            'Games',
-            'Programs'
-        ];
-    
-        console.log('Attempting to create user folders...');
-        
-        try {
-            userFolders.forEach(folderName => {
-                console.log('Creating folder:', {
-                    parentPath: userRootPath,
-                    name: folderName
-                });
-                this.createFolder(userRootPath, folderName);
+            // Create folders
+            userFolders.forEach(folder => {
+                if (typeof folder === 'string') {
+                    this.createFolder(userRootPath, folder);
+                } else {
+                    const parentPath = folder.parent ? 
+                        `${userRootPath}/${folder.parent}` : userRootPath;
+                    
+                    if (folder.parent && !this.folderExists(`${userRootPath}/${folder.parent}`)) {
+                        this.createFolder(userRootPath, folder.parent);
+                    }
+                    
+                    this.createFolder(parentPath, folder.name);
+                }
             });
-            console.log('User folder creation successful!');
-                
-            // Let's verify the folders were created
-            const folders = JSON.parse(localStorage.getItem(this.FOLDERS_KEY));
-            console.log('Current folder structure:', folders);
+    
+            // Create default settings file
+            const defaultSettings = {
+                display: {
+                    background: 'default-0',
+                    fileExplorerView: 'icons',
+                    desktopIcons: {}
+                },
+                personalization: {
+                    systemFont: '"Verdana", sans-serif'
+                },
+                systemTray: {
+                    clock: {
+                        format24Hour: false,
+                        showSeconds: true,
+                        showDate: true,
+                        dateFormat: 'MM/DD/YYYY'
+                    }
+                }
+            };
+    
+            // Save default settings
+            this.saveFile(
+                `${userRootPath}/.settings`,
+                'user.config',
+                JSON.stringify(defaultSettings, null, 2),
+                'settings'
+            );
+    
             return true;
         } catch (error) {
-            console.error('Error creating user folders:', error);
+            console.error('Error creating user folders and settings:', error);
             return false;
         }
     }

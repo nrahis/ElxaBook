@@ -28,42 +28,81 @@ export class Browser {
             'snoogle-dictionary.ex': {
                 title: 'Snoogle Dictionary',
                 type: 'file',
-                path: './js/apps/websites/snoogle-dictionary/index.html'
+                path: './js/apps/websites/snoogle-dictionary/index.html',
+                searchData: {
+                    keywords: ['dictionary', 'language', 'reference', 'words', 'definitions', 'thesaurus', 'vocabulary', 'snakesian'],
+                    description: 'Comprehensive dictionary and language reference tool featuring Snakesian and standard English definitions, etymologies, and usage examples.',
+                    category: 'Utilities'
+                }
             },
             'snoogle-pedia.ex': {
                 title: 'SnooglePedia - The ExWeb Encyclopedia',
                 type: 'file',
-                path: './js/apps/websites/snoogle-pedia/index.html'
+                path: './js/apps/websites/snoogle-pedia/index.html',
+                searchData: {
+                    keywords: ['encyclopedia', 'Wikipedia', 'wikipedia', 'learn', 'learning', 'knowledge', 'articles', 'reference', 'research', 'education', 'information', 'wiki', 'snakesia'],
+                    description: 'Free online encyclopedia covering topics from Snakesian history to modern technology. Community-edited with verified sources.',
+                    category: 'Education'
+                }
             },
             'weather.ex': {
                 title: 'Snakesia Weather Service',
                 type: 'file',
-                path: './js/apps/websites/snakesia-weather/index.html'
+                path: './js/apps/websites/snakesia-weather/index.html',
+                searchData: {
+                    keywords: ['weather', 'forecast', 'temperature', 'climate', 'meteorology', 'snakesia', 'radar', 'precipitation'],
+                    description: 'Official Snakesian weather forecasting service providing real-time updates, radar maps, and climate data for all regions.',
+                    category: 'Utilities'
+                }
             },
             'phones.ex': {
                 title: 'Phoneverse',
                 type: 'file',
-                path: './js/apps/websites/phones/index.html'
+                path: './js/apps/websites/phones/index.html',
+                searchData: {
+                    keywords: ['phone', 'phones', 'cell', 'mobile', 'directory', 'contacts', 'business', 'yellow pages', 'phone numbers', 'listings', 'local'],
+                    description: 'Complete phone directory for Snakesia. Find business and residential listings, along with local service information.',
+                    category: 'Utilities'
+                }
             },
             'keycuts.ex': {
                 title: 'KeyCuts - Shortcut Reference',
                 type: 'file',
-                path: './js/apps/websites/keycuts/index.html'
+                path: './js/apps/websites/keycuts/index.html',
+                searchData: {
+                    keywords: ['keyboard shortcuts', 'keyboard', 'shortcut', 'productivity', 'elxaos', 'hotkeys', 'reference', 'guide', 'computer tips'],
+                    description: 'Official ElxaOS keyboard shortcut reference guide. Learn to navigate your system like a pro!',
+                    category: 'Utilities'
+                }
             },
             'rpi-guide.ex': {
                 title: 'Raspberry Pi 4 Guide',
                 type: 'file',
-                path: './js/apps/websites/rpi-guide/index.html'
-            },
-
-
-            'remycraft.ex': {
-                title: 'RemyCraft - Official Server',
-                type: 'file',
-                path: './js/apps/websites/remycraft/index.html',
+                path: './js/apps/websites/rpi-guide/index.html',
                 searchData: {
-                    keywords: ['minecraft', 'gaming', 'server', 'remy', 'vexin', 'multiplayer', 'games'],
-                    description: 'Official Minecraft server hosted by Remy Vexin. Join the most popular game server in Snakesia!',
+                    keywords: ['raspberry pi', 'linux', 'hardware', 'diy', 'computer', 'computing', 'electronics', 'programming', 'gpio', 'python'],
+                    description: 'Complete guide to setting up and programming the Raspberry Pi 4 in Snakesia. Includes ElxaOS compatibility tips.',
+                    category: 'Technology'
+                }
+            },
+            'chihuahua-info.ex': {
+                title: 'Chihuahua Information Center',
+                type: 'file',
+                path: './js/apps/websites/cic/index.html',
+                searchData: {
+                    keywords: ['chihuahua', 'chihuahuas', 'dogs', 'dog', 'pet', 'pets', 'research', 'veterinary', 'canine studies', 'snake-u', 'animal science'],
+                    description: 'Academic resource for Chihuahua research from the Department of Canine Studies at Snake-E University.',
+                    category: 'Education'
+                }
+            },
+            // Individual
+            'remicraft.ex': {
+                title: 'RemiCraft - Official Server',
+                type: 'file',
+                path: './js/apps/websites/remicraft/index.html',
+                searchData: {
+                    keywords: ['minecraft', 'gaming', 'server', 'remi', 'marway', 'multiplayer', 'games'],
+                    description: 'Official Minecraft server hosted by Remi Marway. Join the most popular game server in Snakesia!',
                     category: 'Gaming'
                 }
             },
@@ -114,7 +153,12 @@ export class Browser {
                 title: 'ElxaTech',
                 type: 'file',
                 path: './js/apps/websites/elxatech/index.html',
-                css: './js/apps/websites/elxatech/styles.css'
+                css: './js/apps/websites/elxatech/styles.css',
+                searchData: {
+                    keywords: ['education', 'technology', 'science', 'math', 'chemistry', 'phones', 'retro', 'learning', 'tutorials', 'snake-e', 'academic'],
+                    description: 'Premier educational technology platform offering resources in mathematics, chemistry, computer science, and technology history.',
+                    category: 'Education'
+                }
             },
             'elxatech.ex/about': {
                 title: 'ElxaTech',
@@ -171,83 +215,226 @@ export class Browser {
                 css: './js/apps/websites/snake-e-corp/styles.css'
             },
             // Xeocities
+            'pacman-xeocities.ex': {
+                title: 'PacMan Power! 👻',
+                type: 'file',
+                path: './js/apps/websites/pp-xeocities/index.html',
+            },
+            'chi-corner-xeocities.ex': {
+                title: 'ChiChis Chihuahua Corner',
+                type: 'file',
+                path: './js/apps/websites/chi-xeocities/index.html',
+            },
             'craftzone-xeocities.ex': {
                 title: 'CRAFTZONE',
                 type: 'file',
-                path: './js/apps/websites/craftzone-xeocities/index.html'
+                path: './js/apps/websites/craftzone-xeocities/index.html',
+                searchData: {
+                    keywords: ['games', 'gaming', 'Minecraft', 'hobbies', 'personal', 'personal page', 'xeocities', 'projects', 'tutorials'],
+                    description: 'Your ultimate guide to Minecraft facts! Featuring tips and tricks!',
+                    category: 'Personal'
+                }
             },
             'nr-xeocities.ex': {
                 title: 'NileRed Chemistry Corner',
                 type: 'file',
-                path: './js/apps/websites/nr-xeocities/index.html'
+                path: './js/apps/websites/nr-xeocities/index.html',
+                searchData: {
+                    keywords: ['NileRed', 'chemistry', 'experiment', 'experiments', 'science', 'reaction', 'reactions', 'blue iodine', 'crystal growing'],
+                    description: 'Explore unique Snakesian chemical reactions and experiments. Features our special blue iodine and naturally-forming copper sulfate crystals!',
+                    category: 'Education'
+                }
             },
             'cat-xeocities.ex': {
                 title: 'Whiskers World~',
                 type: 'file',
-                path: './js/apps/websites/cat-xeocities/index.html'
+                path: './js/apps/websites/cat-xeocities/index.html',
+                searchData: {
+                    keywords: ['cats', 'cat', 'kitty', 'pet', 'pets', 'felines', 'cat facts', 'cat care'],
+                    description: 'The ultimate fan site for Snakesian cats and their unique characteristics. Featuring facts, care tips, and photos of our special 19-toed felines!',
+                    category: 'Personal'
+                }
             },
             'ms-xeocities.ex': {
                 title: 'Mrs. Snake-e-s Corner',
                 type: 'file',
-                path: './js/apps/websites/ms-xeocities/index.html'
+                path: './js/apps/websites/ms-xeocities/index.html',
+                searchData: {
+                    keywords: ['gardening', 'garden', 'plant', 'baking', 'bake', 'recipe', 'recipes', 'cookie', 'cookies', 'garden tips', 'homemade'],
+                    description: 'Traditional Snakesian gardening tips and family recipes from Mrs. Snake-E herself. Growing blue roses and baking snake-shaped cookies since 1975.',
+                    category: 'Personal'
+                }
             },
             // Social Media
             'snakebook.ex': {
                 title: 'Snakebook',
                 type: 'file',
-                path: './js/apps/websites/snakebook/index.html'
+                path: './js/apps/websites/snakebook/index.html',
+                searchData: {
+                    keywords: ['social media', 'networking', 'friends', 'social network', 'snakebook', 'profiles', 'messaging', 'snakesia social', 'status updates', 'photos'],
+                    description: 'Snakesia\'s largest social network. Connect with friends, share updates, and join the largest online community in Snakesia.',
+                    category: 'Social'
+                }
             },
             'dissscord.ex': {
                 title: 'DisssCord',
                 type: 'file',
-                path: './js/apps/websites/dissscord/index.html'
+                path: './js/apps/websites/dissscord/index.html',
+                searchData: {
+                    keywords: ['chat', 'communities', 'discord', 'voice chat', 'gaming', 'servers', 'groups', 'messaging', 'voice channels', 'text channels'],
+                    description: 'Join the conversation on DisssСord! The premier chat platform for Snakesian communities, gamers, and groups. Create servers, chat with friends, and join voice channels.',
+                    category: 'Social'
+                }
             },
             'abbit.ex': {
                 title: 'Abbit',
                 type: 'file',
-                path: './js/apps/websites/abbit/index.html'
+                path: './js/apps/websites/abbit/index.html',
+                searchData: {
+                    keywords: ['forum', 'community', 'discussions', 'subrabbits', 'news', 'memes', 'posts', 'upvotes', 'threads', 'karma'],
+                    description: 'Dive into endless discussions on Abbit, where Snakesians share news, memes, and join topic-focused communities called subrabbits. Your daily source for what\'s trending in Snakesia.',
+                    category: 'Social'
+                }
             },
             'websites': {
                 title: 'ExWeb Directory',
                 type: 'function',
                 content: function() {
-                    // Create HTML for the list of sites from the current websiteRegistry
-                    const sitesList = Object.entries(this.websiteRegistry)
-                        .filter(([url]) => !url.includes('/') && url !== 'error' && url !== 'websites')
-                        .map(([url, site]) => `
-                            <a href="${url}" class="site-link">${site.title}</a>
-                            <div class="site-description">Visit ${url}</div>
-                        `).join('');
+                    // Define categories and their display names
+                    const categories = {
+                        'Government': '🏛️ Government & Public Services',
+                        'Business': '💼 Business & Corporate',
+                        'Social': '👥 Social Networks',
+                        'Gaming': '🎮 Games & Entertainment',
+                        'Personal': '🏠 Personal Pages',
+                        'Education': '📚 Educational Resources',
+                        'Technology': '💻 Technology',
+                        'Utilities': '🔧 Utilities & Tools'
+                    };
             
+                    // Helper function to get site category
+                    const getSiteCategory = (site) => {
+                        if (site.searchData && site.searchData.category) {
+                            return site.searchData.category;
+                        }
+                        
+                        // Default categorization based on URL patterns
+                        if (site.title.includes('Snoogle')) return 'Utilities';
+                        if (site.url && site.url.includes('xeocities')) return 'Personal';
+                        if (site.url && site.url.includes('snake-e.corp')) return 'Business';
+                        if (site.url && site.url.includes('elxatech')) return 'Technology';
+                        
+                        // Catch-all category
+                        return 'Utilities';
+                    };
+            
+                    // Organize sites into categories
+                    const categorizedSites = {};
+                    Object.entries(this.websiteRegistry)
+                        .filter(([url]) => !url.includes('/') && url !== 'error' && url !== 'websites')
+                        .forEach(([url, site]) => {
+                            const category = getSiteCategory(site);
+                            if (!categorizedSites[category]) {
+                                categorizedSites[category] = [];
+                            }
+                            categorizedSites[category].push({ url, site });
+                        });
+            
+                    // Generate HTML for each category
+                    const categoryHTML = Object.entries(categories)
+                        .map(([category, displayName]) => {
+                            if (!categorizedSites[category] || categorizedSites[category].length === 0) {
+                                return ''; // Skip empty categories
+                            }
+            
+                            const sitesHTML = categorizedSites[category]
+                                .sort((a, b) => a.site.title.localeCompare(b.site.title))
+                                .map(({ url, site }) => `
+                                    <div class="site-entry">
+                                        <a href="${url}" class="site-link">
+                                            <span class="site-title">${site.title}</span>
+                                            <span class="site-url">${url}</span>
+                                        </a>
+                                        ${site.searchData ? `
+                                            <div class="site-description">
+                                                ${site.searchData.description || `Visit ${url}`}
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `).join('');
+            
+                            return `
+                                <div class="category-section">
+                                    <h2>${displayName}</h2>
+                                    <div class="site-group">
+                                        ${sitesHTML}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+            
+                    // Return the complete directory with styling
                     return {
                         title: 'ExWeb Directory',
                         content: `
                             <div class="directory">
+                                <style>
+                                    .directory {
+                                        padding: 20px;
+                                        max-width: 800px;
+                                        margin: 0 auto;
+                                    }
+                                    .category-section {
+                                        margin-bottom: 30px;
+                                    }
+                                    .category-section h2 {
+                                        color: #2c3e50;
+                                        border-bottom: 2px solid #eee;
+                                        padding-bottom: 10px;
+                                        margin-bottom: 15px;
+                                    }
+                                    .site-group {
+                                        display: grid;
+                                        gap: 15px;
+                                    }
+                                    .site-entry {
+                                        background: #f8f9fa;
+                                        border: 1px solid #dee2e6;
+                                        padding: 12px;
+                                        border-radius: 4px;
+                                        transition: all 0.2s ease;
+                                    }
+                                    .site-entry:hover {
+                                        background: #fff;
+                                        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                                    }
+                                    .site-link {
+                                        text-decoration: none;
+                                        display: block;
+                                    }
+                                    .site-title {
+                                        color: #0066cc;
+                                        font-weight: 500;
+                                        display: block;
+                                    }
+                                    .site-url {
+                                        color: #6c757d;
+                                        font-size: 0.9em;
+                                        display: block;
+                                        margin-top: 3px;
+                                    }
+                                    .site-description {
+                                        color: #495057;
+                                        font-size: 0.9em;
+                                        margin-top: 8px;
+                                    }
+                                </style>
                                 <h1>ExWeb Directory</h1>
-                                <div class="site-group">
-                                    ${sitesList}
-                                </div>
+                                ${categoryHTML}
                             </div>
                         `
                     };
                 }
-            },
-            'error': {
-                title: 'Connection Error',
-                type: 'inline',
-                content: `
-                    <div class="error-page">
-                        <h2>Unable to Connect</h2>
-                        <p>Snoogle can't reach this website. Please check your network connection.</p>
-                        <div class="error-details">
-                            <ul>
-                                <li>Check if WiFi is enabled</li>
-                                <li>Try refreshing the page</li>
-                                <li>Check if the address is correct</li>
-                            </ul>
-                        </div>
-                    </div>
-                `
             }
         };
     }

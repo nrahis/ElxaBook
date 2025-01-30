@@ -3,60 +3,71 @@
 <head>
     <style>
         .ab-container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu;
+            background: #dae0e6;
             min-height: 100vh;
-            color: #e6e6e6;
         }
 
         .ab-header {
-            background: #0f3460;
-            padding: 10px 20px;
-            border-bottom: 2px solid #e94560;
+            background: white;
+            padding: 8px 16px;
+            border-bottom: 1px solid #edeff1;
             position: sticky;
             top: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            height: 48px;
         }
 
         .ab-logo {
-            color: #e94560;
-            font-size: 24px;
-            font-weight: bold;
+            color: #1a1a1b;
+            font-size: 22px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            text-decoration: none;
         }
 
         .ab-user-info {
-            font-size: 14px;
-            color: #888;
+            font-size: 13px;
+            color: #1a1a1b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ab-karma {
+            color: #ff4500;
+            font-weight: 500;
         }
 
         .ab-subreddit-bar {
-            background: #16213e;
-            padding: 10px 20px;
+            background: white;
+            padding: 0 16px;
             display: flex;
-            gap: 15px;
+            gap: 8px;
             overflow-x: auto;
             white-space: nowrap;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid #edeff1;
+            height: 40px;
+            align-items: center;
         }
 
         .ab-subreddit-link {
-            color: #e94560;
+            color: #1c1c1c;
             text-decoration: none;
-            padding: 5px 10px;
-            border-radius: 15px;
+            padding: 4px 8px;
+            border-radius: 20px;
             font-size: 14px;
-            cursor: pointer;
+            font-weight: 500;
         }
 
         .ab-subreddit-link:hover {
-            background: #0f3460;
+            background: rgba(26,26,27,0.1);
         }
 
         .ab-feed {
@@ -64,73 +75,107 @@
         }
 
         .ab-post {
-            background: #16213e;
-            margin-bottom: 15px;
-            padding: 15px;
+            background: white;
+            margin-bottom: 10px;
             border-radius: 4px;
-            border: 1px solid #333;
+            border: 1px solid #ccc;
+            display: flex;
         }
 
-        .ab-post-subreddit {
-            color: #e94560;
+        .ab-vote-section {
+            background: #f8f9fa;
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 40px;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .ab-vote-count {
             font-size: 12px;
-            margin-bottom: 5px;
+            font-weight: 700;
+            color: #1a1a1b;
+        }
+
+        .ab-post-content-section {
+            padding: 8px;
+            flex-grow: 1;
+        }
+
+        .ab-post-header {
+            font-size: 12px;
+            color: #787c7e;
+            margin-bottom: 8px;
+        }
+
+        .ab-subreddit-name {
+            color: #1a1a1b;
+            font-weight: 700;
+            text-decoration: none;
         }
 
         .ab-post-title {
             font-size: 18px;
-            margin-bottom: 10px;
-            color: #fff;
+            font-weight: 500;
+            color: #222;
+            margin: 0 0 8px;
+            line-height: 22px;
         }
 
         .ab-post-content {
             font-size: 14px;
-            line-height: 1.4;
-            color: #ccc;
-            margin-bottom: 10px;
+            line-height: 21px;
+            color: #1a1a1b;
+            margin-bottom: 8px;
         }
 
         .ab-post-footer {
             display: flex;
-            gap: 15px;
-            color: #666;
+            gap: 4px;
+            color: #787c7e;
             font-size: 12px;
+            font-weight: 700;
+            align-items: center;
         }
 
         .ab-post-footer span {
+            padding: 8px;
+            border-radius: 2px;
             display: flex;
             align-items: center;
             gap: 4px;
+            cursor: pointer;
         }
 
-        .ab-snakesian {
-            color: #4a9eff;
-        }
-
-        .ab-american {
-            color: #ff4a4a;
+        .ab-post-footer span:hover {
+            background: rgba(26,26,27,0.1);
         }
 
         .ab-code {
-            background: #0a0a0a;
-            padding: 10px;
+            background: #f6f7f8;
+            padding: 16px;
             border-radius: 4px;
             font-family: monospace;
-            margin: 10px 0;
+            margin: 8px 0;
+            border: 1px solid #edeff1;
         }
 
-        .ab-karma {
-            color: #e94560;
-            font-weight: bold;
+        .ab-snakesian {
+            color: #0079d3;
+        }
+
+        .ab-american {
+            color: #ff4500;
         }
     </style>
 </head>
 <body>
     <div class="ab-container">
         <div class="ab-header">
-            <div class="ab-logo">
-                🐰 Abbit
-            </div>
+            <a href="#" class="ab-logo">
+                🐰 abbit
+            </a>
             <div class="ab-user-info">
                 ElxaTechie • <span class="ab-karma">1337</span> karma
             </div>

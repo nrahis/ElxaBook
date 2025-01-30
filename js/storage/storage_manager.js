@@ -3,6 +3,14 @@ export class StorageManager {
         this.directoryHandle = null;
         this.initialized = false;
     }
+    
+    async initialize() {
+        const supported = await this.isSupported();
+        if (supported) {
+            this.initialized = await this.hasPermission();
+        }
+        return this.initialized;
+    }
 
     async isSupported() {
         return 'showDirectoryPicker' in window;

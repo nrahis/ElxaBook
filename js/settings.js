@@ -1,17 +1,17 @@
-// settings.js
 import { UserManager } from './user_manager.js';
 import { AvatarManager } from './avatar_manager.js';
-import { CONFIG } from './apps/system/config.js'
+import { CONFIG } from './apps/system/config.js';
+import { SettingsManager } from './settings_manager.js';
 
 export class Settings {
     constructor(fileSystem) {
         this.fileSystem = fileSystem;
-        this.themes = {};
-        this.loadThemes();
-        this.avatarManager = new AvatarManager();
-        this.currentTab = 'display'; // Default tab
+        this.pendingChanges = {
+            display: {},
+            personalization: {}
+        };
         
-        // Background options from your existing code
+        // Background options
         this.defaultBackgrounds = [
             {
                 name: 'Vaporwave Gradient',
@@ -35,7 +35,7 @@ export class Settings {
             }
         ];
 
-        // Add default fonts
+        // System fonts
         this.systemFonts = [
             { name: 'Verdana', value: '"Verdana", sans-serif' },
             { name: 'Arial', value: '"Arial", sans-serif' },
@@ -45,10 +45,26 @@ export class Settings {
         ];
     }
 
-    initialize(contentArea) {
+    async initialize(contentArea) {
         this.contentArea = contentArea;
+        
+        // Create a new SettingsManager if one doesn't exist globally
+        if (!window.elxaSettingsManager) {
+            window.elxaSettingsManager = new SettingsManager(this.fileSystem);
+            await window.elxaSettingsManager.initialize(this.fileSystem.currentUsername);
+        }
+        
+        this.settingsManager = window.elxaSettingsManager;
+        
+        await this.loadThemes();
         this.render();
-        this.loadSavedSettings();
+        
+        // Load current settings
+        const currentSettings = this.settingsManager.getSettings();
+        
+        // Apply settings to UI without previewing
+        this.applySettingsToUI(currentSettings);
+        this.setupEventListeners();
     }
 
     render() {
@@ -120,7 +136,7 @@ export class Settings {
                 <div class="settings-group">
                     <h3>Theme</h3>
                     <select id="themeSelect" class="settings-select">
-                        ${Object.values(this.themes).map(theme => 
+                        ${Object.values(this.themes || {}).map(theme => 
                             `<option value="${theme.id}">${theme.name}</option>`
                         ).join('')}
                     </select>
@@ -168,9 +184,7 @@ export class Settings {
                     ${Object.values(users).map(user => {
                         const avatar = avatarManager.getUserAvatar(user.username);
                         const canEditAvatar = 
-                            // User can edit their own avatar
                             user.username === currentUser.username ||
-                            // Administrators can edit any avatar
                             currentUser.type === 'administrator';
     
                         return `
@@ -207,100 +221,247 @@ export class Settings {
                 
                 <button class="settings-button" id="addUser">Add New User...</button>
             </div>
-    
-            <div id="avatarDialog" class="settings-dialog" style="display: none;">
-                <div class="dialog-content">
-                    <h3>Change Avatar</h3>
-                    <div class="avatar-options">
-                        ${Object.entries(avatarManager.getDefaultAvatars()).map(([key, avatar]) => `
-                            <div class="avatar-option" data-avatar="${key}">
-                                <div class="avatar-preview">
-                                    ${avatar.content}
-                                </div>
-                                <span class="avatar-name">${avatar.name}</span>
-                            </div>
-                        `).join('')}
-                        <div class="avatar-option custom">
-                            <div class="avatar-preview">
-                                <label for="customAvatar" class="custom-avatar-label">
-                                    Custom<br>Upload
-                                </label>
-                                <input type="file" id="customAvatar" accept="image/*" style="display: none;">
-                            </div>
-                            <span class="avatar-name">Custom Upload</span>
-                        </div>
-                    </div>
-                    <div class="dialog-buttons">
-                        <button id="cancelAvatar">Cancel</button>
-                    </div>
-                </div>
-            </div>
         `;
-    }
-    
-    showAddUserDialog() {
-        const dialog = document.createElement('div');
-        dialog.className = 'settings-dialog';
-        dialog.innerHTML = `
-            <div class="dialog-content">
-                <h3>Add New User</h3>
-                <div class="dialog-form">
-                    <label>Username:</label>
-                    <input type="text" id="newUsername" class="dialog-input">
-                    
-                    <label>Password:</label>
-                    <input type="password" id="newPassword" class="dialog-input">
-                    
-                    <label>Confirm Password:</label>
-                    <input type="password" id="confirmPassword" class="dialog-input">
-                    
-                    <label>Account Type:</label>
-                    <select id="accountType" class="dialog-input">
-                        <option value="standard">Standard User</option>
-                        <option value="administrator">Administrator</option>
-                    </select>
-                </div>
-                <div class="dialog-buttons">
-                    <button id="createUser">Create</button>
-                    <button id="cancelCreate">Cancel</button>
-                </div>
-            </div>
-        `;
-    
-        document.body.appendChild(dialog);
-    
-        // Add event listeners for the dialog
-        dialog.querySelector('#createUser').addEventListener('click', () => {
-            const username = dialog.querySelector('#newUsername').value;
-            const password = dialog.querySelector('#newPassword').value;
-            const confirm = dialog.querySelector('#confirmPassword').value;
-            const type = dialog.querySelector('#accountType').value;
-    
-            if (password !== confirm) {
-                alert('Passwords do not match');
-                return;
-            }
-    
-            try {
-                const userManager = new UserManager(this.fileSystem);
-                userManager.createUser(username, password, type);
-                dialog.remove();
-                this.refreshUsersPanel();
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-    
-        dialog.querySelector('#cancelCreate').addEventListener('click', () => {
-            dialog.remove();
-        });
     }
 
+    renderSystemPanel() {
+        return `
+            <div class="settings-panel">
+                <div class="system-info">
+                    <h3>About ${CONFIG.system.name}</h3>
+                    <div class="info-item">
+                        <label>Version:</label>
+                        <span>${CONFIG.system.shortVersion()}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Computer Name:</label>
+                        <span>ELXA-PC</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Current User:</label>
+                        <span>${this.fileSystem.currentUsername}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Preview methods
+    previewBackground(value) {
+        const preview = this.contentArea.querySelector('#backgroundPreview');
+        if (!preview) return;
+
+        if (value.startsWith('default-')) {
+            const index = parseInt(value.split('-')[1]);
+            preview.style.background = this.defaultBackgrounds[index].value;
+            document.body.style.background = this.defaultBackgrounds[index].value;
+        } else {
+            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
+            preview.style.background = `url(${customBgs[parseInt(value)]})`;
+            document.body.style.background = `url(${customBgs[parseInt(value)]})`;
+        }
+        preview.style.backgroundSize = 'cover';
+        document.body.style.backgroundSize = value.startsWith('default-') ? '400% 400%' : 'cover';
+    }
+
+    previewFont(fontValue) {
+        document.documentElement.style.setProperty('--system-font', fontValue);
+        const fontPreview = this.contentArea.querySelector('#fontPreview');
+        if (fontPreview) {
+            fontPreview.style.fontFamily = fontValue;
+        }
+    }
+
+    // Settings management
+    validateSettings(settings) {
+        // Ensure all required properties exist
+        const validated = {
+            display: {
+                background: settings.display?.background || 'default-0',
+                fileExplorerView: settings.display?.fileExplorerView || 'icons'
+            },
+            personalization: {
+                theme: settings.personalization?.theme || 'default',
+                systemFont: settings.personalization?.systemFont || '"Verdana", sans-serif'
+            }
+        };
+        return validated;
+    }
+
+    async applySettings() {
+        if (Object.keys(this.pendingChanges.display).length === 0 && 
+            Object.keys(this.pendingChanges.personalization).length === 0) {
+            return false;
+        }
+
+        // Update settings using settingsManager
+        for (const [category, changes] of Object.entries(this.pendingChanges)) {
+            if (Object.keys(changes).length > 0) {
+                await this.settingsManager.updateSettings(category, changes);
+            }
+        }
+
+        this.pendingChanges = { display: {}, personalization: {} };
+        return true;
+    }
+
+    // Modify handleCancel method
+    async handleCancel() {
+        // Revert all previewed changes by reapplying current settings
+        await this.settingsManager.applySettings();
+        this.pendingChanges = { display: {}, personalization: {} };
+        this.closeWindow();
+    }
+
+    async handleOK() {
+        if (await this.applySettings()) {
+            this.closeWindow();
+        } else {
+            this.closeWindow();
+        }
+    }
+
+    // UI updates
+    applySettingsToUI(settings) {
+        if (!settings) {
+            console.error('No settings provided to applySettingsToUI');
+            return;
+        }
+    
+        try {
+            if (settings.display?.background) {
+                const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
+                if (backgroundSelect) {
+                    backgroundSelect.value = settings.display.background;
+                    this.previewBackground(settings.display.background);
+                }
+            }
+    
+            if (settings.personalization?.theme) {
+                const themeSelect = this.contentArea.querySelector('#themeSelect');
+                if (themeSelect) {
+                    themeSelect.value = settings.personalization.theme;
+                }
+            }
+    
+            if (settings.personalization?.systemFont) {
+                const systemFont = this.contentArea.querySelector('#systemFont');
+                if (systemFont) {
+                    systemFont.value = settings.personalization.systemFont;
+                    this.previewFont(settings.personalization.systemFont);
+                }
+            }
+        } catch (error) {
+            console.error('Error applying settings to UI:', error);
+        }
+    }
+
+    // Event handlers
+    setupEventListeners() {
+        // Tab switching
+        this.contentArea.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.dataset.tab;
+                this.switchTab(tabName);
+            });
+        });
+
+        // Background selection
+        const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
+        if (backgroundSelect) {
+            backgroundSelect.addEventListener('change', (e) => {
+                // Only preview the change, don't apply it
+                this.previewBackground(e.target.value);
+                this.pendingChanges.display.background = e.target.value;
+            });
+        }
+
+        // Theme selection
+        const themeSelect = this.contentArea.querySelector('#themeSelect');
+        if (themeSelect) {
+            themeSelect.addEventListener('change', (e) => {
+                this.pendingChanges.personalization.theme = e.target.value;
+                // Preview theme without applying it permanently
+                this.settingsLoader.applyTheme(e.target.value, true);
+            });
+        }
+
+        // Font selection
+        const systemFont = this.contentArea.querySelector('#systemFont');
+        if (systemFont) {
+            systemFont.addEventListener('change', (e) => {
+                // Only preview the font
+                this.previewFont(e.target.value);
+                this.pendingChanges.personalization.systemFont = e.target.value;
+            });
+        }
+
+        // Footer buttons
+        const applyButton = this.contentArea.querySelector('#settings-apply');
+        const okButton = this.contentArea.querySelector('#settings-ok');
+        const cancelButton = this.contentArea.querySelector('#settings-cancel');
+
+        if (applyButton) {
+            applyButton.addEventListener('click', async () => {
+                await this.applySettings();
+            });
+        }
+        if (okButton) {
+            okButton.addEventListener('click', async () => {
+                await this.handleOK();
+            });
+        }
+        if (cancelButton) {
+            cancelButton.addEventListener('click', async () => {
+                await this.handleCancel();
+            });
+        }
+
+        // User panel events
+        this.setupUsersPanelEvents();
+    }
+
+    // Theme loading
+    async loadThemes() {
+        try {
+            const themesList = await fetch('/assets/themes/themes.json')
+                .then(response => response.json())
+                .then(data => data.themeFiles);
+            
+            this.themes = {};
+    
+            for (const themeFile of themesList) {
+                try {
+                    const theme = await fetch(`/assets/themes/${themeFile}`)
+                        .then(response => response.json());
+                    // ... continuing loadThemes method:
+                    const themeKey = themeFile.replace('.json', '');
+                    this.themes[themeKey] = theme;
+                } catch (error) {
+                    console.error(`Error loading theme ${themeFile}:`, error);
+                }
+            }
+    
+            console.log('Loaded themes:', this.themes);
+    
+            const themeSelect = this.contentArea?.querySelector('#themeSelect');
+            if (themeSelect) {
+                themeSelect.innerHTML = Object.values(this.themes)
+                    .map(theme => `<option value="${theme.id}">${theme.name}</option>`)
+                    .join('');
+            }
+        } catch (error) {
+            console.error('Failed to load themes:', error);
+            this.themes = {};
+        }
+    }
+
+    // User management methods
     setupUsersPanelEvents() {
         const addUserBtn = this.contentArea.querySelector('#addUser');
         if (addUserBtn) {
             addUserBtn.addEventListener('click', () => {
-                console.log('Add user button clicked'); // Debug log
+                console.log('Add user button clicked');
                 this.showAddUserDialog();
             });
         }
@@ -329,7 +490,7 @@ export class Settings {
             });
         });
     }
-    
+
     handleDeleteUser(username) {
         if (confirm(`Are you sure you want to delete user "${username}"?`)) {
             try {
@@ -342,316 +503,7 @@ export class Settings {
         }
     }
 
-    showAvatarDialog(username) {
-        const dialog = document.getElementById('avatarDialog');
-        dialog.style.display = 'flex';
-
-        // Setup avatar option clicks
-        const avatarOptions = dialog.querySelectorAll('.avatar-option');
-        avatarOptions.forEach(option => {
-            if (!option.classList.contains('custom')) {
-                option.addEventListener('click', () => {
-                    const avatarKey = option.dataset.avatar;
-                    const avatar = this.avatarManager.getDefaultAvatars()[avatarKey];
-                    this.avatarManager.setUserAvatar(username, avatar);
-                    this.refreshUsersPanel();
-                    dialog.style.display = 'none';
-                });
-            }
-        });
-
-        // Setup custom avatar upload
-        const customAvatarInput = dialog.querySelector('#customAvatar');
-        customAvatarInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                try {
-                    const avatarData = await this.avatarManager.handleCustomAvatarUpload(file);
-                    this.avatarManager.setUserAvatar(username, avatarData);
-                    this.refreshUsersPanel();
-                    dialog.style.display = 'none';
-                } catch (error) {
-                    alert('Failed to upload avatar: ' + error.message);
-                }
-            }
-        });
-
-        // Setup cancel button
-        const cancelButton = dialog.querySelector('#cancelAvatar');
-        cancelButton.addEventListener('click', () => {
-            dialog.style.display = 'none';
-        });
-    }
-    
-
-    refreshUsersPanel() {
-        const panel = this.contentArea.querySelector('#users-panel');
-        if (panel) {
-            panel.innerHTML = this.renderUsersPanel();
-            this.setupUsersPanelEvents();
-        }
-    }
-    
-    showChangePasswordDialog(username) {
-        const dialog = document.createElement('div');
-        dialog.className = 'settings-dialog';
-        dialog.innerHTML = `
-            <div class="dialog-content">
-                <h3>Change Password for ${username}</h3>
-                <div class="dialog-form">
-                    <label>Current Password:</label>
-                    <input type="password" id="currentPassword" class="dialog-input">
-                    
-                    <label>New Password:</label>
-                    <input type="password" id="newPassword" class="dialog-input">
-                    
-                    <label>Confirm New Password:</label>
-                    <input type="password" id="confirmPassword" class="dialog-input">
-                </div>
-                <div class="dialog-buttons">
-                    <button id="savePassword">Save</button>
-                    <button id="cancelPassword">Cancel</button>
-                </div>
-            </div>
-        `;
-    
-        document.body.appendChild(dialog);
-    
-        // Add event listeners for the dialog
-        dialog.querySelector('#savePassword').addEventListener('click', () => {
-            const currentPassword = dialog.querySelector('#currentPassword').value;
-            const newPassword = dialog.querySelector('#newPassword').value;
-            const confirmPassword = dialog.querySelector('#confirmPassword').value;
-    
-            if (newPassword !== confirmPassword) {
-                alert('New passwords do not match');
-                return;
-            }
-    
-            try {
-                const userManager = new UserManager(this.fileSystem);
-                userManager.changePassword(username, currentPassword, newPassword);
-                dialog.remove();
-                alert('Password changed successfully');
-            } catch (error) {
-                alert(error.message);
-            }
-        });
-    
-        dialog.querySelector('#cancelPassword').addEventListener('click', () => {
-            dialog.remove();
-        });
-    }
-
-    renderSystemPanel() {
-        return `
-            <div class="settings-panel">
-                <div class="system-info">
-                    <h3>About ${CONFIG.system.name}</h3>
-                    <div class="info-item">
-                        <label>Version:</label>
-                        <span>${CONFIG.system.shortVersion()}</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Computer Name:</label>
-                        <span>ELXA-PC</span>
-                    </div>
-                    <div class="info-item">
-                        <label>Current User:</label>
-                        <span>kitkat</span>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    setupEventListeners() {
-        // Tab switching
-        const tabs = this.contentArea.querySelectorAll('.tab-button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                const tabName = e.target.dataset.tab;
-                this.switchTab(tabName);
-            });
-        });
-
-        // Background selection
-        const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
-        if (backgroundSelect) {
-            backgroundSelect.addEventListener('change', (e) => {
-                this.updateBackgroundPreview(e.target.value);
-            });
-        }
-
-        // File input for custom backgrounds
-        const browseButton = this.contentArea.querySelector('#browseButton');
-        const fileInput = this.contentArea.querySelector('#customBackground');
-        if (browseButton && fileInput) {
-            browseButton.addEventListener('click', () => fileInput.click());
-            fileInput.addEventListener('change', (e) => this.handleCustomBackground(e));
-        }
-
-        // font preview
-        const systemFont = this.contentArea.querySelector('#systemFont');
-        const fontPreview = this.contentArea.querySelector('#fontPreview');
-        
-        if (systemFont && fontPreview) {
-            console.log('Setting up font event listener');
-            systemFont.addEventListener('change', (e) => {
-                const select = e.target;
-                const selectedOption = select.options[select.selectedIndex];
-                const selectedFont = selectedOption.value;
-                
-                console.log('Font changed to:', selectedFont);
-                console.log('Selected option:', selectedOption.textContent);
-                
-                // Update preview
-                fontPreview.style.fontFamily = selectedFont;
-                
-                // Update system font immediately for preview
-                document.documentElement.style.setProperty('--system-font', selectedFont);
-                
-                // Log current computed style to verify
-                console.log('Current system font:', getComputedStyle(document.documentElement).getPropertyValue('--system-font'));
-                
-                // Test if the font is actually being applied
-                console.log('Preview font family:', getComputedStyle(fontPreview).fontFamily);
-            });
-        }
-
-        // Add theme selection handler
-        const themeSelect = this.contentArea.querySelector('#themeSelect');
-        if (themeSelect) {
-            themeSelect.addEventListener('change', (e) => {
-                this.applyTheme(e.target.value);
-                
-                // Update the preview immediately
-                const preview = this.contentArea.querySelector('.theme-preview');
-                if (preview) {
-                    preview.style.setProperty('--theme-preview-scale', '1');
-                }
-            });
-        }
-
-        // Footer buttons
-        const applyButton = this.contentArea.querySelector('#settings-apply');
-        const okButton = this.contentArea.querySelector('#settings-ok');
-        const cancelButton = this.contentArea.querySelector('#settings-cancel');
-
-        if (applyButton) {
-            applyButton.addEventListener('click', () => this.applySettings());
-        }
-        if (okButton) {
-            okButton.addEventListener('click', () => this.handleOK());
-        }
-        if (cancelButton) {
-            cancelButton.addEventListener('click', () => this.handleCancel());
-        }
-
-        // Add user panel event setup
-        this.setupUsersPanelEvents();
-    }
-
-    switchTab(tabName) {
-        // Remove active class from all tabs and panels
-        this.contentArea.querySelectorAll('.tab-button').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        this.contentArea.querySelectorAll('.tab-panel').forEach(panel => {
-            panel.classList.remove('active');
-        });
-
-        // Add active class to selected tab and panel
-        const selectedTab = this.contentArea.querySelector(`[data-tab="${tabName}"]`);
-        const selectedPanel = this.contentArea.querySelector(`#${tabName}-panel`);
-        if (selectedTab && selectedPanel) {
-            selectedTab.classList.add('active');
-            selectedPanel.classList.add('active');
-        }
-    }
-
-    async loadThemes() {
-        try {
-            // First load the list of themes
-            const themesList = await fetch('/assets/themes/themes.json')
-                .then(response => response.json())
-                .then(data => data.themeFiles);
-            
-            this.themes = {};
-    
-            // Load each theme file
-            for (const themeFile of themesList) {
-                try {
-                    const theme = await fetch(`/assets/themes/${themeFile}`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Failed to load theme: ${themeFile}`);
-                            }
-                            return response.json();
-                        });
-                    
-                    const themeKey = themeFile.replace('.json', '');
-                    this.themes[themeKey] = theme;
-                } catch (error) {
-                    console.error(`Error loading theme ${themeFile}:`, error);
-                }
-            }
-    
-            console.log('Loaded themes:', this.themes); // Debug log
-    
-            // Update the theme select if it exists
-            const themeSelect = this.contentArea?.querySelector('#themeSelect');
-            if (themeSelect) {
-                themeSelect.innerHTML = Object.values(this.themes)
-                    .map(theme => `<option value="${theme.id}">${theme.name}</option>`)
-                    .join('');
-                    
-                // Select the default theme
-                themeSelect.value = 'default';
-                this.applyTheme('default');
-            }
-        } catch (error) {
-            console.error('Failed to load themes:', error);
-            this.themes = {};
-        }
-    }
-
-    applyTheme(themeId) {
-        const theme = this.themes[themeId];
-        if (!theme) return;
-
-        const root = document.documentElement;
-        
-        // Apply all color variables
-        Object.entries(theme.colors).forEach(([variable, value]) => {
-            root.style.setProperty(variable, value);
-        });
-
-        // Apply gradients
-        Object.entries(theme.gradients).forEach(([variable, value]) => {
-            root.style.setProperty(variable, value);
-        });
-
-        // Apply transparent colors
-        Object.entries(theme.transparentColors).forEach(([variable, value]) => {
-            root.style.setProperty(variable, value);
-        });
-    }
-
-    updateBackgroundPreview(value) {
-        const preview = this.contentArea.querySelector('#backgroundPreview');
-        if (!preview) return;
-
-        if (value.startsWith('default-')) {
-            const index = parseInt(value.split('-')[1]);
-            preview.style.background = this.defaultBackgrounds[index].value;
-        } else {
-            const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-            preview.style.background = `url(${customBgs[parseInt(value)]})`;
-        }
-        preview.style.backgroundSize = 'cover';
-    }
-
+    // Custom backgrounds
     loadCustomBackgrounds() {
         const select = this.contentArea.querySelector('#backgroundSelect');
         const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
@@ -662,328 +514,77 @@ export class Settings {
             option.textContent = `Custom Background ${index + 1}`;
             select.appendChild(option);
         });
+
+        // Setup browse button
+        const browseButton = this.contentArea.querySelector('#browseButton');
+        const customBackgroundInput = this.contentArea.querySelector('#customBackground');
+        
+        if (browseButton && customBackgroundInput) {
+            browseButton.addEventListener('click', () => {
+                customBackgroundInput.click();
+            });
+            
+            customBackgroundInput.addEventListener('change', (e) => {
+                this.handleCustomBackground(e);
+            });
+        }
     }
 
     handleCustomBackground(e) {
         const file = e.target.files[0];
         if (!file) return;
     
-        try {
-            const reader = new FileReader();
-            reader.onload = (readerEvent) => {
-                const dataUrl = readerEvent.target.result;
-                
-                // Get existing custom backgrounds or initialize empty array
-                const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-                
-                // Add new background
-                customBgs.push(dataUrl);
-                
-                // Save updated list
-                localStorage.setItem('customBackgrounds', JSON.stringify(customBgs));
-    
-                // Add new option to select dropdown
-                const select = this.contentArea.querySelector('#backgroundSelect');
-                const option = document.createElement('option');
-                option.value = customBgs.length - 1;  // Index of new background
-                option.textContent = `Custom Background ${customBgs.length}`;
-                select.appendChild(option);
-    
-                // Select the new background
-                select.value = customBgs.length - 1;
-    
-                // Update preview
-                const preview = this.contentArea.querySelector('#backgroundPreview');
-                preview.style.background = `url(${dataUrl})`;
-                preview.style.backgroundSize = 'cover';
-            };
-    
-            reader.readAsDataURL(file);
-        } catch (error) {
-            console.error('Error loading custom background:', error);
-            alert('Failed to load custom background. Please try another image.');
-        }
-    }
-   
-    saveSettings() {
-        const settings = {
-            display: {
-                background: this.contentArea.querySelector('#backgroundSelect').value,
-                customBackgrounds: JSON.parse(localStorage.getItem('customBackgrounds') || '[]'),
-                fileExplorerView: 'icons',
-                desktopIcons: {}
-            },
-            personalization: {
-                primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
-                accentColor: this.contentArea.querySelector('#accentColor')?.value,
-                systemFont: this.contentArea.querySelector('#systemFont')?.value
-            },
-            systemTray: {
-                clock: {
-                    format24Hour: localStorage.getItem('clock24Hour') === 'true',
-                    showSeconds: localStorage.getItem('showSeconds') === 'true',
-                    showDate: localStorage.getItem('showDate') === 'true',
-                    dateFormat: localStorage.getItem('dateFormat') || 'MM/DD/YYYY'
-                },
-                wifi: {
-                    customNetworks: window.elxaSystemTray.wifi.networks
-                        .filter(network => network.isCustom)
-                        .map(network => ({
-                            name: network.name,
-                            security: network.security,
-                            password: network.password,
-                            saved: network.saved
-                        }))
-                }
-            }
-        };
-
-        // Create settings directory if it doesn't exist
-        const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings`;
-        if (!this.fileSystem.folderExists(settingsPath)) {
-            try {
-                this.fileSystem.createFolder(`/ElxaOS/Users/${this.fileSystem.currentUsername}`, '.settings');
-            } catch (error) {
-                console.error('Failed to create settings directory:', error);
-                return false;
-            }
-        }
-
-        // Save settings to file
-        try {
-            this.fileSystem.saveFile(
-                settingsPath,
-                'user.config',
-                JSON.stringify(settings, null, 2),
-                'settings'
-            );
-            return true;
-        } catch (error) {
-            console.error('Failed to save settings:', error);
-            return false;
-        }
-    }
-
-    loadSettings() {
-        const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
-        try {
-            const settingsFile = this.fileSystem.getFile(settingsPath);
-            if (settingsFile) {
-                const settings = JSON.parse(settingsFile.content);
-                this.applyLoadedSettings(settings);
-                
-                // Apply system tray settings
-                if (settings.systemTray) {
-                    // Apply clock settings
-                    if (settings.systemTray.clock) {
-                        const { format24Hour, showSeconds, showDate, dateFormat } = settings.systemTray.clock;
-                        localStorage.setItem('clock24Hour', format24Hour);
-                        localStorage.setItem('showSeconds', showSeconds);
-                        localStorage.setItem('showDate', showDate);
-                        localStorage.setItem('dateFormat', dateFormat);
-                    }
-                    
-                    // Apply WiFi settings
-                    if (settings.systemTray.wifi?.customNetworks) {
-                        const systemTray = window.elxaSystemTray;
-                        if (systemTray && systemTray.wifi) {
-                            // Filter out existing custom networks
-                            systemTray.wifi.networks = systemTray.wifi.networks
-                                .filter(network => !network.isCustom);
-                            
-                            // Add saved custom networks
-                            settings.systemTray.wifi.customNetworks.forEach(savedNetwork => {
-                                const network = new Network(
-                                    savedNetwork.name,
-                                    savedNetwork.security,
-                                    100, // Initial signal strength
-                                    true // isCustom flag
-                                );
-                                network.password = savedNetwork.password;
-                                network.saved = savedNetwork.saved;
-                                systemTray.wifi.networks.push(network);
-                            });
-                        }
-                    }
-                }
-                return true;
-            }
-        } catch (error) {
-            console.error('Failed to load settings:', error);
-        }
-        return false;
-    }
-
-    applyLoadedSettings(settings) {
-        // Apply display settings
-        if (settings.display) {
-            if (settings.display.background) {
-                const backgroundSelect = this.contentArea.querySelector('#backgroundSelect');
-                if (backgroundSelect) {
-                    backgroundSelect.value = settings.display.background;
-                    this.updateBackgroundPreview(settings.display.background);
-                }
-            }
-            
-            if (settings.display.customBackgrounds) {
-                localStorage.setItem('customBackgrounds', JSON.stringify(settings.display.customBackgrounds));
-                this.loadCustomBackgrounds();
-            }
-        }
-
-        // Apply personalization settings
-        if (settings.personalization) {
-            const { primaryColor, accentColor, systemFont } = settings.personalization;
-            
-            if (primaryColor) {
-                const primaryColorInput = this.contentArea.querySelector('#primaryColor');
-                if (primaryColorInput) primaryColorInput.value = primaryColor;
-            }
-            
-            if (accentColor) {
-                const accentColorInput = this.contentArea.querySelector('#accentColor');
-                if (accentColorInput) accentColorInput.value = accentColor;
-            }
-            
-            if (systemFont) {
-                const systemFontSelect = this.contentArea.querySelector('#systemFont');
-                if (systemFontSelect) {
-                    systemFontSelect.value = systemFont;
-                    document.documentElement.style.setProperty('--system-font', systemFont);
-                }
-            }
-        }
-    }
-
-    applySettings() {
-        // Apply current settings visually
-        const selectedBackground = this.contentArea.querySelector('#backgroundSelect').value;
-        const currentTheme = {
-            primaryColor: this.contentArea.querySelector('#primaryColor')?.value,
-            accentColor: this.contentArea.querySelector('#accentColor')?.value,
-            systemFont: this.contentArea.querySelector('#systemFont')?.value
-        };
-    
-        // Apply background
-        if (selectedBackground.startsWith('default-')) {
-            const index = parseInt(selectedBackground.split('-')[1]);
-            document.body.style.background = this.defaultBackgrounds[index].value;
-            document.body.style.backgroundSize = '400% 400%';
-        } else {
+        const reader = new FileReader();
+        reader.onload = (readerEvent) => {
+            const dataUrl = readerEvent.target.result;
             const customBgs = JSON.parse(localStorage.getItem('customBackgrounds') || '[]');
-            document.body.style.background = `url(${customBgs[parseInt(selectedBackground)]})`;
-            document.body.style.backgroundSize = 'cover';
-        }
-
-        // Apply font settings
-        const systemFontSelect = this.contentArea.querySelector('#systemFont');
-        if (systemFontSelect) {
-            const selectedFont = systemFontSelect.value;
-            console.log('Applying font:', selectedFont); // Debug log
-            
-            // Apply to root element
-            document.documentElement.style.setProperty('--system-font', selectedFont);
-            const testFontChange = () => {
-                const testElement = document.createElement('div');
-                testElement.style.position = 'fixed';
-                testElement.style.top = '10px';
-                testElement.style.right = '10px';
-                testElement.style.zIndex = '9999';
-                testElement.style.background = 'white';
-                testElement.style.padding = '5px';
-                testElement.textContent = 'Font Test';
-                document.body.appendChild(testElement);
-                
-                console.log('Test element font:', getComputedStyle(testElement).fontFamily);
-                
-                setTimeout(() => testElement.remove(), 2000);
-            };
-            
-            // Force refresh by temporarily removing and re-adding the property
-            const tempFont = document.documentElement.style.getPropertyValue('--system-font');
-            document.documentElement.style.removeProperty('--system-font');
-            setTimeout(() => {
-                document.documentElement.style.setProperty('--system-font', tempFont);
-                console.log('Font applied:', getComputedStyle(document.documentElement).getPropertyValue('--system-font'));
-            }, 0);
-        }
-
-        // Save settings
-        return this.saveSettings();
-    }
-
-    handleOK() {
-        if (this.applySettings()) {
-            this.closeWindow();
-        } else {
-            alert('Failed to save settings. Please try again.');
-        }
-    }
+            customBgs.push(dataUrl);
+            localStorage.setItem('customBackgrounds', JSON.stringify(customBgs));
     
-    handleCancel() {
-        // Reload the last saved settings before closing
-        this.loadSettings();
-        this.closeWindow();
-    }
+            const select = this.contentArea.querySelector('#backgroundSelect');
+            const option = document.createElement('option');
+            option.value = customBgs.length - 1;
+            option.textContent = `Custom Background ${customBgs.length}`;
+            select.appendChild(option);
     
+            select.value = customBgs.length - 1;
+            this.previewBackground(String(customBgs.length - 1));
+            this.pendingChanges.display.background = String(customBgs.length - 1);
+        };
+    
+        reader.readAsDataURL(file);
+    }
+
+    // Utility methods
+    switchTab(tabName) {
+        this.contentArea.querySelectorAll('.tab-button').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        this.contentArea.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        const selectedTab = this.contentArea.querySelector(`[data-tab="${tabName}"]`);
+        const selectedPanel = this.contentArea.querySelector(`#${tabName}-panel`);
+        if (selectedTab && selectedPanel) {
+            selectedTab.classList.add('active');
+            selectedPanel.classList.add('active');
+        }
+    }
+
+    refreshUsersPanel() {
+        const panel = this.contentArea.querySelector('#users-panel');
+        if (panel) {
+            panel.innerHTML = this.renderUsersPanel();
+            this.setupUsersPanelEvents();
+        }
+    }
+
     closeWindow() {
         const windowElement = this.contentArea.closest('.program-window');
         if (windowElement) {
             const closeEvent = new Event('windowclose');
             windowElement.dispatchEvent(closeEvent);
-        }
-    }
-    
-    loadSavedSettings() {
-        const savedBackground = localStorage.getItem('currentBackground');
-        const savedTheme = JSON.parse(localStorage.getItem('currentTheme') || '{}');
-        
-        // Set background select
-        if (savedBackground) {
-            // Find matching background in defaults
-            const defaultIndex = this.defaultBackgrounds.findIndex(bg => 
-                savedBackground.includes(bg.value)
-            );
-            
-            const select = this.contentArea.querySelector('#backgroundSelect');
-            if (defaultIndex !== -1) {
-                select.value = `default-${defaultIndex}`;
-            }
-            
-            // Update preview
-            const preview = this.contentArea.querySelector('#backgroundPreview');
-            if (preview) {
-                preview.style.background = savedBackground;
-                preview.style.backgroundSize = 'cover';
-            }
-        }
-
-        // Load user-specific font settings
-        const currentUser = this.fileSystem.currentUsername;
-        const userSettings = JSON.parse(localStorage.getItem(`elxaos_user_settings_${currentUser}`) || '{}');
-        
-        if (userSettings.systemFont) {
-            const systemFont = this.contentArea.querySelector('#systemFont');
-            if (systemFont) {
-                systemFont.value = userSettings.systemFont;
-                document.documentElement.style.setProperty('--system-font', userSettings.systemFont);
-                
-                // Update preview
-                const fontPreview = this.contentArea.querySelector('#fontPreview');
-                if (fontPreview) {
-                    fontPreview.style.fontFamily = userSettings.systemFont;
-                }
-            }
-        }
-    
-        // Set theme controls
-        if (savedTheme.primaryColor) {
-            const primaryColor = this.contentArea.querySelector('#primaryColor');
-            if (primaryColor) primaryColor.value = savedTheme.primaryColor;
-        }
-        if (savedTheme.accentColor) {
-            const accentColor = this.contentArea.querySelector('#accentColor');
-            if (accentColor) accentColor.value = savedTheme.accentColor;
         }
     }
 }

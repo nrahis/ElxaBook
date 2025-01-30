@@ -1,4 +1,5 @@
 import { IconSet } from './icons.js';
+import { SettingsManager } from './settings_manager.js';
 
 export class TaskBar {
     constructor(config) {
@@ -13,6 +14,7 @@ export class TaskBar {
             militaryTime: false,
             dateFormat: 'short' // 'short', 'long', 'numeric'
         };
+        this.settingsManager = window.elxaSettingsManager;
     }
 
     initialize() {
@@ -90,44 +92,15 @@ export class TaskBar {
     }
 
     loadClockPreferences() {
-        const currentUser = this.fileSystem.currentUsername;
-        const prefsPath = `/ElxaOS/Users/${currentUser}/.settings/clock.config`;
-        
-        try {
-            const prefsFile = this.fileSystem.getFile(prefsPath);
-            if (prefsFile) {
-                const prefs = JSON.parse(prefsFile.content);
-                this.clockPreferences = { ...this.clockPreferences, ...prefs };
-            }
-        } catch (error) {
-            console.log('No existing clock preferences found, using defaults');
-            // Ensure the settings directory exists
-            const settingsPath = `/ElxaOS/Users/${currentUser}/.settings`;
-            if (!this.fileSystem.exists(settingsPath)) {
-                this.fileSystem.createDirectory(settingsPath);
-            }
-            // Save default preferences
-            this.saveClockPreferences();
-        }
+        const clockSettings = this.settingsManager.getSettings('clock');
+        this.clockPreferences = clockSettings || {
+            militaryTime: false,
+            dateFormat: 'short'
+        };
     }
 
     saveClockPreferences() {
-        const currentUser = this.fileSystem.currentUsername;
-        const prefsPath = `/ElxaOS/Users/${currentUser}/.settings/clock.config`;
-        
-        try {
-            // Ensure the settings directory exists
-            const settingsPath = `/ElxaOS/Users/${currentUser}/.settings`;
-            if (!this.fileSystem.exists(settingsPath)) {
-                this.fileSystem.createDirectory(settingsPath);
-            }
-            
-            // Save the preferences
-            this.fileSystem.writeFile(prefsPath, JSON.stringify(this.clockPreferences, null, 2));
-            console.log('Saved clock preferences:', this.clockPreferences);
-        } catch (error) {
-            console.error('Failed to save clock preferences:', error);
-        }
+        this.settingsManager.updateSettings('clock', this.clockPreferences);
     }
 
     showClockContextMenu(x, y) {

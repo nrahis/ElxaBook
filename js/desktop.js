@@ -25,25 +25,29 @@ export class Desktop {
             apps: Array.from(this.windowManager.apps.keys())
         });
         
-        // Bind methods to this instance to ensure proper 'this' context
+        // Bind methods
         this.createDesktopIcon = this.createDesktopIcon.bind(this);
         this.handleIconClick = this.handleIconClick.bind(this);
         this.handleIconDoubleClick = this.handleIconDoubleClick.bind(this);
         this.handleIconContextMenu = this.handleIconContextMenu.bind(this);
         
-        // Initialize only if WindowManager is ready
+        // Initialize asynchronously
         if (this.windowManager.apps.size > 0) {
-            this.initialize();
+            this.initialize().catch(error => {
+                console.error('Failed to initialize desktop:', error);
+            });
         } else {
-            // Retry initialization after a short delay
-            setTimeout(() => this.initialize(), 100);
+            setTimeout(() => {
+                this.initialize().catch(error => {
+                    console.error('Failed to initialize desktop:', error);
+                });
+            }, 100);
         }
-
+    
         this.recycleBinHandler = new RecycleBinHandler(fileSystem);
-
+    
         // Add context menu handler for desktop background
         this.desktopArea.addEventListener('contextmenu', (e) => {
-            // Only handle right-clicks directly on the desktop area, not on icons
             if (!e.target.closest('.desktop-icon') && !e.target.closest('.taskbar')) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -52,13 +56,13 @@ export class Desktop {
         });
     }
 
-    initialize() {
+    async initialize() {
         console.log('Initializing desktop...');
         
         // First, sync default items with Desktop folder
         this.syncDefaultDesktopItems();
         
-        // First, remove any existing desktop-icons containers
+        // Remove existing desktop-icons containers
         const existingContainers = this.desktopArea.querySelectorAll('#desktop-icons');
         existingContainers.forEach(container => container.remove());
         
@@ -72,7 +76,6 @@ export class Desktop {
         this.desktopArea.appendChild(iconsContainer);
     
         // Wait for WindowManager to be ready
-        console.log('Checking WindowManager...', this.windowManager);
         if (!this.windowManager || this.windowManager.apps.size === 0) {
             console.error('WindowManager not ready. Apps registered:', 
                 this.windowManager?.apps.size);
@@ -80,117 +83,83 @@ export class Desktop {
             return;
         }
     
-        // Load saved icon positions first
-        const savedPositions = this.loadIconPositions();
+        try {
+            // Load saved icon positions first
+            const savedPositions = await this.loadIconPositions();
+            
+            // Create default desktop icons in specific order and positions
+            const defaultIcons = [
+                { name: 'Computer', category: 'system', type: 'computer', position: { column: 1, row: 1 } },
+                { name: 'Recycle Bin', category: 'folder', type: 'recycle', position: { column: 1, row: 2 } },
+                { name: 'Documents', category: 'folder', type: 'documents', position: { column: 1, row: 3 } },
+                { name: 'Pictures', category: 'folder', type: 'pictures', position: { column: 1, row: 4 } },
+                { name: 'Music', category: 'folder', type: 'music', position: { column: 1, row: 5 } },
+                { name: 'Downloads', category: 'folder', type: 'downloads', position: { column: 2, row: 1 } }
+            ];
     
-        // Create default desktop icons in specific order and positions
-        const defaultIcons = [
-            { name: 'Computer', category: 'system', type: 'computer', position: { column: 1, row: 1 } },
-            { name: 'Recycle Bin', category: 'folder', type: 'recycle', position: { column: 1, row: 2 } },
-            { name: 'Documents', category: 'folder', type: 'documents', position: { column: 1, row: 3 } },
-            { name: 'Pictures', category: 'folder', type: 'pictures', position: { column: 1, row: 4 } },
-            { name: 'Music', category: 'folder', type: 'music', position: { column: 1, row: 5 } },
-            { name: 'Downloads', category: 'folder', type: 'downloads', position: { column: 2, row: 1 } }
-        ];
-    
-        // Create default icons
-        defaultIcons.forEach(iconInfo => {
-            try {
-                this.createDesktopIcon(iconInfo.name, iconInfo.category, iconInfo.type, iconInfo.position);
-            } catch (error) {
-                console.error(`Failed to create icon for ${iconInfo.name}:`, error);
-            }
-        });
-    
-        // Restore any saved shortcuts
-        // Restore any saved shortcuts
-        Object.entries(savedPositions).forEach(([name, data]) => {
-            if (data.isShortcut && !this.desktopIcons.has(name)) {
+            // Create default icons
+            defaultIcons.forEach(iconInfo => {
                 try {
-                    const icon = this.createDesktopIcon(
-                        name,
-                        data.iconType === 'folder' ? 'folder' : 'file',
-                        data.iconType,
-                        { column: data.column, row: data.row }
-                    );
-                    
-                    if (icon) {
-                        // Add shortcut-specific properties
-                        icon.dataset.targetPath = data.targetPath;
-                        
-                        // Add these two lines here:
-                        if (data.program) icon.dataset.program = data.program;
-                        icon.dataset.shortcutType = data.iconType;
-                        
-                        // Add shortcut overlay
-                        const iconElement = icon.querySelector('.file-icon');
-                        if (iconElement) {
-                            const shortcutOverlay = document.createElement('div');
-                            shortcutOverlay.className = 'shortcut-overlay';
-                            shortcutOverlay.innerHTML = '↗';
-                            iconElement.appendChild(shortcutOverlay);
-                        }
-                    }
+                    this.createDesktopIcon(iconInfo.name, iconInfo.category, iconInfo.type, iconInfo.position);
                 } catch (error) {
-                    console.error(`Failed to restore shortcut: ${name}`, error);
+                    console.error(`Failed to create icon for ${iconInfo.name}:`, error);
                 }
-            }
-        });
+            });
     
-        // Get current user's desktop contents
-        const currentUser = this.fileSystem.currentUsername;
-        const desktopPath = `/ElxaOS/Users/${currentUser}/Desktop`;
-        const desktopContents = this.fileSystem.getFolderContents(desktopPath);
+            // Get current user's desktop contents
+            const currentUser = this.fileSystem.currentUsername;
+            const desktopPath = `/ElxaOS/Users/${currentUser}/Desktop`;
+            const desktopContents = this.fileSystem.getFolderContents(desktopPath);
     
-        // Restore ALL shortcuts from the Desktop folder
-        desktopContents.files.forEach(file => {
-            if (file.name.endsWith('.lnk')) {
-                try {
-                    const shortcutData = JSON.parse(file.content);
-                    const baseName = file.name.replace('.lnk', '');
-                    
-                    // Skip if we already created this icon
-                    if (!this.desktopIcons.has(baseName)) {
-                        const position = savedPositions[baseName] || this.findNextAvailablePosition();
-                        
-                        const icon = this.createDesktopIcon(
-                            baseName,
-                            shortcutData.iconCategory || (shortcutData.type === 'folder' ? 'folder' : 'file'),
-                            shortcutData.iconType || shortcutData.type,
-                            position
+            // Restore shortcuts from the Desktop folder
+            for (const file of desktopContents.files) {
+                if (file.name.endsWith('.lnk')) {
+                    try {
+                        const shortcutFile = await this.fileSystem.getFile(
+                            this.fileSystem.joinPaths(desktopPath, file.name)
                         );
-
-                        if (icon) {
-                            icon.dataset.targetPath = shortcutData.targetPath;
+                        const shortcutData = JSON.parse(shortcutFile.content);
+                        const baseName = file.name.replace('.lnk', '');
+                        
+                        if (!this.desktopIcons.has(baseName)) {
+                            const position = savedPositions[baseName] || this.findNextAvailablePosition();
                             
-                            // Add these two lines here:
-                            if (shortcutData.program) icon.dataset.program = shortcutData.program;
-                            icon.dataset.shortcutType = shortcutData.type;
-                            
-                            // Add shortcut overlay if it's not a default icon
-                            if (!shortcutData.isDefault) {
-                                const iconElement = icon.querySelector('.file-icon');
-                                if (iconElement) {
-                                    const shortcutOverlay = document.createElement('div');
-                                    shortcutOverlay.className = 'shortcut-overlay';
-                                    shortcutOverlay.innerHTML = '↗';
-                                    iconElement.appendChild(shortcutOverlay);
+                            const icon = this.createDesktopIcon(
+                                baseName,
+                                shortcutData.iconCategory || (shortcutData.type === 'folder' ? 'folder' : 'file'),
+                                shortcutData.iconType || shortcutData.type,
+                                position
+                            );
+    
+                            if (icon) {
+                                icon.dataset.targetPath = shortcutData.targetPath;
+                                if (shortcutData.program) icon.dataset.program = shortcutData.program;
+                                icon.dataset.shortcutType = shortcutData.type;
+                                
+                                if (!shortcutData.isDefault) {
+                                    const iconElement = icon.querySelector('.file-icon');
+                                    if (iconElement) {
+                                        const shortcutOverlay = document.createElement('div');
+                                        shortcutOverlay.className = 'shortcut-overlay';
+                                        shortcutOverlay.innerHTML = '↗';
+                                        iconElement.appendChild(shortcutOverlay);
+                                    }
                                 }
                             }
                         }
+                    } catch (error) {
+                        console.error(`Failed to restore shortcut: ${file.name}`, error);
                     }
-                } catch (error) {
-                    console.error(`Failed to restore shortcut: ${file.name}`, error);
                 }
             }
-        });
     
-        // Set up event listeners and drop target
-        this.setupEventListeners();
-        this.setupDesktopDropTarget();
+            // Set up event listeners and drop target
+            this.setupEventListeners();
+            this.setupDesktopDropTarget();
     
-        console.log('Desktop initialization complete with WindowManager:', 
-            { apps: Array.from(this.windowManager.apps.keys()) });
+        } catch (error) {
+            console.error('Error during desktop initialization:', error);
+        }
     }
     
     // Add helper method to find next available position
@@ -1308,11 +1277,11 @@ export class Desktop {
         }
     }
     
-    loadIconPositions() {
+    async loadIconPositions() {
         const settingsPath = `/ElxaOS/Users/${this.fileSystem.currentUsername}/.settings/user.config`;
         try {
-            const settingsFile = this.fileSystem.getFile(settingsPath);
-            if (settingsFile) {
+            const settingsFile = await this.fileSystem.getFile(settingsPath);
+            if (settingsFile && settingsFile.content) {
                 const settings = JSON.parse(settingsFile.content);
                 return settings.display?.desktopIcons || {};
             }

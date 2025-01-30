@@ -1,32 +1,38 @@
-/* Tabs */
+.cleaner-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+}
+
+.cleaner-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 .cleaner-tabs {
     display: flex;
-    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
-    border-bottom: 1px solid var(--border-light);
-    padding: 4px 4px 0 4px;
+    border-bottom: 1px solid #ccc;
+    background: #f5f5f5;
+    padding: 8px 8px 0;
 }
 
 .tab-button {
-    padding: 6px 16px;
-    background-color: var(--bg-light);
-    border: 1px solid var(--purple-dark);
+    padding: 8px 16px;
+    border: 1px solid #ccc;
     border-bottom: none;
-    margin-right: 2px;
+    background: #e5e5e5;
+    margin-right: 4px;
     cursor: pointer;
-    color: var(--start-menu-text);
-    font-size: 12px;
-    position: relative;
-    top: 2px;
-}
-
-.tab-button:hover:not(.disabled) {
-    background-color: var(--bg-lightest);
+    border-radius: 4px 4px 0 0;
 }
 
 .tab-button.active {
-    background: var(--bg-lightest);
-    border-bottom: 1px solid var(--bg-lightest);
-    margin-bottom: -2px;
+    background: #fff;
+    border-bottom: 1px solid #fff;
+    margin-bottom: -1px;
 }
 
 .tab-button.disabled {
@@ -34,129 +40,165 @@
     cursor: not-allowed;
 }
 
-/* Content Area */
 .tab-content {
+    flex: 1;
     padding: 20px;
-    background: var(--bg-lightest);
+    overflow-y: auto;
 }
 
-/* File List Styles */
-.cl-files-container {
-    border: 1px solid var(--border-light);
-    background: var(--bg-explorer-window);
+.cleaner-section {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.section-title {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+}
+
+.cleaner-info {
     margin-bottom: 20px;
+    color: #666;
+}
+
+.cl-files-container {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 .cl-files-header {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    background: #f5f5f5;
+    border-bottom: 1px solid #ccc;
     padding: 8px;
-    background: linear-gradient(to right, var(--bg-light), var(--bg-mid));
-    border-bottom: 1px solid var(--border-light);
     font-weight: bold;
+}
+
+.cl-files-list {
+    overflow-y: auto;
+    max-height: calc(100% - 40px);
 }
 
 .cl-file-item {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
     padding: 8px;
-    border-bottom: 1px solid var(--border-light);
-    align-items: center;
+    border-bottom: 1px solid #eee;
 }
 
 .cl-file-item:hover {
-    background-color: var(--bg-light);
+    background: #f8f8f8;
 }
 
-/* Storage Location Styles */
-.storage-section {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid var(--border-light);
-    background: var(--bg-explorer-window);
-}
-
-.storage-status {
-    margin-bottom: 15px;
-    color: var(--start-menu-text);
-}
-
-.storage-button {
-    padding: 6px 16px;
-    background: var(--button-gradient);
-    border: 2px outset var(--bg-lightest);
-    color: var(--start-menu-text);
-    cursor: pointer;
-    min-width: 80px;
-}
-
-.storage-button:hover {
-    background: var(--button-hover-gradient);
-}
-
-.storage-button:active {
-    border-style: inset;
-}
-
-.storage-description {
-    color: var(--accent-text);
-    margin-top: 10px;
-    font-size: 12px;
-    line-height: 1.4;
-}
-
-.storage-warning {
-    background: var(--warning-light);
-    color: var(--warning-text);
-    padding: 10px;
-    border: 1px solid var(--warning-mid);
-    margin-bottom: 15px;
-}
-
-/* Buttons and Actions */
 .delete-file-button {
     padding: 4px 8px;
-    background: var(--button-gradient);
-    border: 2px outset var(--bg-lightest);
-    color: var(--start-menu-text);
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
 }
 
 .delete-file-button:hover {
-    background: var(--button-hover-gradient);
+    background: #ff2222;
 }
 
-.delete-file-button:active {
-    border-style: inset;
+.cleaner-footer {
+    margin-top: 20px;
+    padding: 16px;
+    border-top: 1px solid #eee;
+    text-align: right;
 }
 
 .clean-all-button {
-    padding: 6px 16px;
-    background: var(--button-gradient);
-    border: 2px outset var(--bg-lightest);
-    color: var(--start-menu-text);
+    padding: 8px 16px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
 }
 
 .clean-all-button:hover {
-    background: var(--button-hover-gradient);
-}
-
-.clean-all-button:active {
-    border-style: inset;
+    background: #ff2222;
 }
 
 .clean-all-button:disabled {
-    background: var(--ui-disabled-bg);
-    border-color: var(--ui-disabled-border);
-    color: var(--text-disabled);
+    background: #ccc;
     cursor: not-allowed;
 }
 
-/* Programs Tab */
-.coming-soon {
-    color: var(--text-muted);
-    font-style: italic;
-    text-align: center;
+.no-files {
     padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.storage-section {
+    padding: 20px;
+}
+
+.storage-warning {
+    background: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.storage-content {
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.storage-status {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.storage-button {
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 16px;
+}
+
+.storage-button:hover {
+    background: #0056b3;
+}
+
+.storage-description {
+    color: #666;
+    line-height: 1.5;
+}
+
+.coming-soon {
+    text-align: center;
+    color: #666;
+    padding: 40px;
+    font-style: italic;
+}
+
+.loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.error-message {
+    padding: 20px;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    margin: 10px;
 }

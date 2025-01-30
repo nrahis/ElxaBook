@@ -23,12 +23,13 @@ import { Calendar } from './apps/system/calendar.js';
 import { Slideshow } from './apps/system/slideshow.js';
 import { EXCode } from './apps/excode_editor.js';
 import { Browser } from './apps/snoogle_browser.js';
-//import { Messenger } from './apps/messenger/messenger.js';
+import { Messenger } from './apps/messenger/messenger.js';
 import { Settings } from './settings.js';
 import { RecycleBinHandler } from './recycle-bin-handler.js';
 import { FileOpenDialog } from './dialogs/file_open_dialog.js';
 import { FileSaveDialog } from './dialogs/file_save_dialog.js';
 import { CONFIG } from './apps/system/config.js'
+import { SettingsManager } from './settings_manager.js';
 
 // Declare these in module scope so they can be exported
 let windowManager;
@@ -38,6 +39,9 @@ let taskbar;
 document.addEventListener('DOMContentLoaded', () => {
     // Make sure we use a single fileSystem instance globally
     window.elxaFileSystem = window.elxaFileSystem || fileSystem;
+
+    // Create and initialize SettingsManager globally
+    window.elxaSettingsManager = new SettingsManager(window.elxaFileSystem);
 
     // Create and set up global RecycleBinHandler
     window.elxaRecycleBinHandler = new RecycleBinHandler(window.elxaFileSystem);
@@ -114,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Creating desktop...');
     const desktop = new Desktop(window.elxaFileSystem, windowManager);
     console.log('Desktop created:', desktop);
-
+    
     try {
         console.log('Attempting to set desktop...');
         windowManager.setDesktop(desktop);
@@ -136,9 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Now continue with registering non-core apps
     windowManager.registerApp('systemCleaner', {
         title: 'System Storage Cleaner',
-        initialize: (contentArea) => {
-            const cleaner = new SystemCleaner();
-            cleaner.initialize(contentArea);
+        initialize: async (contentArea) => {
+            try {
+                console.log('Initializing System Cleaner');
+                const cleaner = new SystemCleaner();
+                await cleaner.initialize(contentArea);
+                console.log('Finished initializing cleaner');
+            } catch (error) {
+                console.error('Error initializing System Cleaner:', error);
+                contentArea.innerHTML = '<div class="error-message">Failed to initialize System Cleaner</div>';
+            }
         },
         defaultSize: { width: 500, height: 600 },
         singleton: true
@@ -238,15 +249,15 @@ document.addEventListener('DOMContentLoaded', () => {
         defaultSize: { width: 1000, height: 700 }
     });
 
-    //windowManager.registerApp('messenger', {
-        //title: 'Messenger',
-        //initialize: (contentArea) => {
-            //const messenger = new Messenger(fileSystem, window.elxaWifiSystem);
-            //messenger.initialize(contentArea);
-        //},
-        //defaultSize: { width: 900, height: 600 },
-        //singleton: true
-    //});
+    windowManager.registerApp('messenger', {
+        title: 'Messenger',
+        initialize: (contentArea) => {
+            const messenger = new Messenger(fileSystem, window.elxaWifiSystem);
+            messenger.initialize(contentArea);
+        },
+        defaultSize: { width: 900, height: 600 },
+        singleton: true
+    });
 
     windowManager.registerApp('excode', {
         title: 'EXCode',
@@ -275,7 +286,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     windowManager.registerApp('settings', {
         title: 'Settings',
-        initialize: (contentArea) => settings.initialize(contentArea),
+        initialize: async (contentArea) => {
+            const settings = new Settings(fileSystem);
+            await settings.initialize(contentArea);
+        },
         defaultSize: { width: 420, height: 480 },
         singleton: true,
         onClose: () => {
